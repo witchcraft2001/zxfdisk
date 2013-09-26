@@ -1,0 +1,554 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<!-- saved from url=(0091)http://alanco.ru/component/option,com_deeppockets/Itemid,51/task,catContShow/cat,28/id,257/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1251"><title>Аланко. Ремонт компьютеров Воронеж. Лицензионные программы. Антивирус Касперского, Доктор Веб,1С.</title>
+<meta name="author" content="Administrator">
+<meta name="description" content="Ниже я привожу рассказ о том, что такое файловая система FAT32 и как она работает. Отмечу, что FAT32 - файловая система, производная системы FAT. FAT32 поддерживает меньшие размеры кластеров, что позволяет более эффективно использовать дисковое прост">
+<meta name="keywords" content="воронеж, компьютеры, настройка, ремонт компьютеров, настройка сервера, настройка windows, настройка сети, подключение компьютер, компютеры, компьютерный центр, настройка компьютера, установка программ, обслуживание компьютеров,настройка wi fi, настройка локальной сети, windows xp настройка, установка сети, настройка wifi, абонентское обслуживание, монтаж сетей, компьютерный сервис, компьютерная помощь, настройка интернета, выключается компьютер, суммаx0x00000xffff0xffff0xffff0xffff0x00000xffff0xffffПервый  0000000003000000040000000500000006Конец  поддерживается32Усовершенствованная  раздел1Зарезервирован1Расширенная  mbrОбластьОписаниеПрограмма  fat32fat16fat32Реализована  поддерживается16Более  таблицаПредназначение  разрядная)Примечание  (mbr)Форматирование">
+<meta name="Generator" content="Joomla! - Авторские права (C) 2005-2007 OSM. Все права защищены.">
+<meta name="robots" content="index, follow">
+<!--<base href="http://alanco.ru/">--><base href=".">
+	<link rel="shortcut icon" href="http://alanco.ru/favicon.ico">
+	 
+<meta http-equiv="Content-Language" content="ru">
+<link href="./Структура FAT32_files/template_css.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body>
+
+
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+
+	<!--Head-->
+	<tbody><tr height="190px">
+		<td width="180px" valign="top">
+
+			<!-- Logo -->
+			<a href="http://alanco.ru/">
+						</a><table cellspacing="0" cellpadding="0" width="100%" border="0">
+				<tbody><tr height="20px">
+					<td width="20px" style="background: url(&#39;http://alanco.ru/templates/alanconew/images/red_top_left_border.gif&#39;) no-repeat left top">
+						&nbsp;	
+					</td>
+					<td style="background: url(&#39;http://alanco.ru/templates/alanconew/images/red_top_center_border.gif&#39;) repeat-x left top">
+						&nbsp;	
+					</td>
+					<td width="20px" style="background: url(&#39;http://alanco.ru/templates/alanconew/images/red_top_right_border.gif&#39;) no-repeat right top">
+						&nbsp;
+					</td>
+				</tr>
+				<tr height="150px">
+					<td width="20px" style="background: url(&#39;http://alanco.ru/templates/alanconew/images/red_middle_left_border.gif&#39;) repeat-y left top">
+						&nbsp;
+					</td>
+					<td align="center" valign="middle" style="cursor: pointer">
+							<img src="./Структура FAT32_files/logo.gif" hspace="0" vspace="0" width="140px" height="150px" alt="Компьютерный сервис Аланко">
+						</td>
+					
+					<td width="20px" style="background: url(&#39;http://alanco.ru/templates/alanconew/images/red_middle_right_border.gif&#39;) repeat-y right top">
+						&nbsp;
+					</td>
+				</tr>
+				<tr height="20px">
+					<td width="20px" style="background: url(&#39;http://alanco.ru/templates/alanconew/images/red_bottom_left_border.gif&#39;) no-repeat left top">
+						&nbsp;
+					</td>
+					<td style="background: url(&#39;http://alanco.ru/templates/alanconew/images/red_bottom_center_border.gif&#39;) repeat-x left bottom">
+						&nbsp;
+					</td>
+					<td width="20px" style="background: url(&#39;http://alanco.ru/templates/alanconew/images/red_bottom_right_border.gif&#39;) no-repeat right top">
+						&nbsp;
+					</td>
+				</tr>
+			</tbody></table>
+
+		</td>
+		<td width="20px" style="background:  url(&#39;http://alanco.ru/templates/alanconew/images/left.gif&#39;) no-repeat left bottom">
+			<!--Rating@Mail.ru COUNTER-->
+			<script language="JavaScript" type="text/javascript"><!--
+			d=document;var a='';a+=';r='+escape(d.referrer)
+			js=10//--></script><script language="JavaScript1.1" type="text/javascript"><!--
+			a+=';j='+navigator.javaEnabled()
+			js=11//--></script><script language="JavaScript1.2" type="text/javascript"><!--
+			s=screen;a+=';s='+s.width+'*'+s.height
+			a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+			js=12//--></script><script language="JavaScript1.3" type="text/javascript"><!--
+			js=13//--></script><script language="JavaScript" type="text/javascript"><!--
+			d.write('<IMG src="http://df.c1.b2.a1.top.list.ru/counter'+
+			'?id=1187733;js='+js+a+';rand='+Math.random()+
+			'" height="1" width="1" alt="top.mail.ru" border="0" />')
+			if(11<js)d.write('<'+'!-- ')//--></script><img src="./Структура FAT32_files/counter" height="1" width="1" alt="top.mail.ru" border="0"><!-- <noscript><img
+			src="http://df.c1.b2.a1.top.list.ru/counter?js=na;id=1187733"
+			height="1" width="1" alt="top.mail.ru" border="0" /></noscript><script language="JavaScript" type="text/javascript"><!--
+			if(11<js)d.write('--'+'>')//--><!--/COUNTER-->
+			&nbsp;
+		</td>
+		<td style="background:  url(&#39;http://alanco.ru/templates/alanconew/images/center.gif&#39;) repeat-x right bottom">
+			&nbsp;
+		</td>
+		<td width="500px" aling="center" style="background:  url(&#39;http://alanco.ru/templates/alanconew/images/right.gif&#39;) no-repeat right bottom">
+			<table align="right" cellspacing="0" cellpadding="0" border="0">
+				<tbody><tr height="125px">
+					<!-- First Square -->
+					<td width="100px" valign="bottom" style="padding-bottom: 55px;">
+						<a href="http://alanco.ru/spektr_yslyg/kompyuternaya_skoraya_pomosch.html">
+							<img vspace="0" hspace="0" width="100px" height="90px" src="./Структура FAT32_files/remont.gif" alt="Ремонт компьютеров">
+						</a>
+					</td>
+
+					<td width="70px"></td>
+
+					<!-- Second Square -->
+					<td width="100px" valign="bottom" style="padding-bottom: 55px;">
+						<a href="http://alanco.ru/spektr_yslyg/magazin_programm.html">
+							<img vspace="0" hspace="0" width="100px" height="90px" src="./Структура FAT32_files/software.gif" alt="Программное обеспечение">
+						</a>
+					</td>
+
+					<td width="70px"></td>
+
+					<!-- Third Square -->
+					<td width="100px" valign="bottom" style="padding-bottom: 55px;">
+						<a href="http://alanco.ru/spektr_yslyg/signalizacii.html">
+							<img vspace="0" hspace="0" width="100px" height="90px" src="./Структура FAT32_files/alarm.gif" alt="Пожарная и охранная сигнализация">
+						</a>
+					</td>
+
+					<td width="40px"></td>
+				</tr>
+			</tbody></table>
+		</td>	
+	</tr>
+</tbody></table>
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+	<tbody><tr>
+
+		<!-- Left Part -->
+		<td valign="top" width="250px">
+			
+			<br>
+			
+			<!-- Main Menu -->
+					<table cellpadding="0" cellspacing="0" class="moduletable">
+				<tbody><tr>
+			<td>
+				
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tbody><tr><td id="menu2_1" class="menu_td">
+	<a href="http://alanco.ru/" class="mainlevel">
+		<img src="./Структура FAT32_files/menu_1.gif" hspace="0" vspace="0" width="40px" height="40px" alt="Главная">
+	</a>
+</td>
+<td valign="middle">
+<a href="http://alanco.ru/" class="mainlevel">
+Главная
+</a>
+</td>
+</tr><tr><td id="menu2_47" class="menu_td">
+	<a href="http://alanco.ru/spektr_yslyg/magazin_programm.html" class="mainlevel">
+		<img src="./Структура FAT32_files/menu_47.gif" hspace="0" vspace="0" width="40px" height="40px" alt="Программное обеспечение">
+	</a>
+</td>
+<td valign="middle">
+<a href="http://alanco.ru/spektr_yslyg/magazin_programm.html" class="mainlevel">
+Программное обеспечение
+</a>
+</td>
+</tr><tr><td id="menu2_37" class="menu_td">
+	<a href="http://alanco.ru/spektr_yslyg/signalizacii.html" class="mainlevel">
+		<img src="./Структура FAT32_files/menu_37.gif" hspace="0" vspace="0" width="40px" height="40px" alt="Сигнализации и видеонаблюдение">
+	</a>
+</td>
+<td valign="middle">
+<a href="http://alanco.ru/spektr_yslyg/signalizacii.html" class="mainlevel">
+Сигнализации и видеонаблюдение
+</a>
+</td>
+</tr><tr><td id="menu2_65" class="menu_td">
+	<a href="http://alanco.ru/spektr_yslyg/kompyutery_i_komplektyyuschie.html" class="mainlevel">
+		<img src="./Структура FAT32_files/menu_65.gif" hspace="0" vspace="0" width="40px" height="40px" alt="Компьютеры и комплектующие">
+	</a>
+</td>
+<td valign="middle">
+<a href="http://alanco.ru/spektr_yslyg/kompyutery_i_komplektyyuschie.html" class="mainlevel">
+Компьютеры и комплектующие
+</a>
+</td>
+</tr><tr><td id="menu2_51" class="menu_td">
+	<a href="http://alanco.ru/component/option,com_deeppockets/Itemid,51/task,catShow/id,15/" class="mainlevel" id="active_menu">
+		<img src="./Структура FAT32_files/menu_51.gif" hspace="0" vspace="0" width="40px" height="40px" alt="Статьи">
+	</a>
+</td>
+<td valign="middle">
+<a href="http://alanco.ru/component/option,com_deeppockets/Itemid,51/task,catShow/id,15/" class="mainlevel" id="active_menu">
+Статьи
+</a>
+</td>
+</tr><tr><td id="menu2_53" class="menu_td">
+	<a href="http://alanco.ru/spektr_yslyg/kontakty.html" class="mainlevel">
+		<img src="./Структура FAT32_files/menu_53.gif" hspace="0" vspace="0" width="40px" height="40px" alt="Контакты">
+	</a>
+</td>
+<td valign="middle">
+<a href="http://alanco.ru/spektr_yslyg/kontakty.html" class="mainlevel">
+Контакты
+</a>
+</td>
+</tr>
+</tbody></table>
+			</td>
+		</tr>
+		</tbody></table>
+		
+			<br><br>
+
+			<!-- Left Field -->
+									<table cellpadding="0" cellspacing="0" class="moduletable">
+				<tbody><tr>
+			<td>
+				
+<form action="http://alanco.ru/index.php?option=com_search" method="get">
+	<div class="search">
+		<input name="searchword" id="mod_search_searchword" maxlength="20" alt="search" class="inputbox" type="text" size="26" value="" onblur="if(this.value==&#39;&#39;) this.value=&#39;&#39;;" onfocus="if(this.value==&#39;&#39;) this.value=&#39;&#39;;">&nbsp;&nbsp;<input type="submit" value="Поиск" class="button">	</div>
+
+	<input type="hidden" name="option" value="com_search">
+	<input type="hidden" name="Itemid" value="">	
+</form>			</td>
+		</tr>
+		</tbody></table>
+					
+			<br><br>
+
+			<!-- Top 10 -->
+									<table cellpadding="0" cellspacing="0" class="moduletable_top10">
+				<tbody><tr>
+			<td>
+					<table border="0" cellpadding="0" cellspacing="0" width="100%">
+		<tbody><tr><td colspan="2" style="color: grey; text-align: center;">..................................................</td></tr>
+				<tr align="center" bgcolor="#FFFFFF">
+				<td width="12%">
+					<table border="0" style="width: 100%;">
+						  <tbody>
+							<tr>
+							  <td rowspan="2" valign="top" style="text-align:center;">
+								<a title="CorelDRAW Graphics Suite X4 Russian" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,149/category_id,59/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									<img src="./Структура FAT32_files/show_image_in_imgtag.php">								</a>
+							  </td>
+							  <td rowspan="1" colspan="2">
+								<a style="text-decoration: none;" title="CorelDRAW Graphics Suite X4 Russian" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,149/category_id,59/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+								  <h5 style="padding: 0; margin: 0;">CorelDRAW Graphics Suite X4 Russian</h5>
+								</a>
+							  </td>
+							</tr>
+							<tr>
+							  <td valign="top" align="left" style="padding-left:20px;">
+								<a title="CorelDRAW Graphics Suite X4 Russian" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,149/category_id,59/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									Подробнее &gt;&gt;&gt;
+								</a>
+							  </td>
+							</tr>
+							<tr><td colspan="2" style="color: grey; text-align: center;">..................................................</td></tr>
+						  </tbody>
+						</table>
+					<br>
+				</td>
+			</tr>
+					<tr align="center" bgcolor="#FFFFFF">
+				<td width="12%">
+					<table border="0" style="width: 100%;">
+						  <tbody>
+							<tr>
+							  <td rowspan="2" valign="top" style="text-align:center;">
+								<a title="1C:Бухгалтерия 8 Базовая версия" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,57/category_id,22/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									<img src="./Структура FAT32_files/show_image_in_imgtag(1).php">								</a>
+							  </td>
+							  <td rowspan="1" colspan="2">
+								<a style="text-decoration: none;" title="1C:Бухгалтерия 8 Базовая версия" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,57/category_id,22/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+								  <h5 style="padding: 0; margin: 0;">1C:Бухгалтерия 8 Базовая версия</h5>
+								</a>
+							  </td>
+							</tr>
+							<tr>
+							  <td valign="top" align="left" style="padding-left:20px;">
+								<a title="1C:Бухгалтерия 8 Базовая версия" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,57/category_id,22/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									Подробнее &gt;&gt;&gt;
+								</a>
+							  </td>
+							</tr>
+							<tr><td colspan="2" style="color: grey; text-align: center;">..................................................</td></tr>
+						  </tbody>
+						</table>
+					<br>
+				</td>
+			</tr>
+					<tr align="center" bgcolor="#FFFFFF">
+				<td width="12%">
+					<table border="0" style="width: 100%;">
+						  <tbody>
+							<tr>
+							  <td rowspan="2" valign="top" style="text-align:center;">
+								<a title="Kaspersky Internet Security 2011" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,16/category_id,20/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									<img src="./Структура FAT32_files/show_image_in_imgtag(2).php">								</a>
+							  </td>
+							  <td rowspan="1" colspan="2">
+								<a style="text-decoration: none;" title="Kaspersky Internet Security 2011" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,16/category_id,20/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+								  <h5 style="padding: 0; margin: 0;">Kaspersky Internet Security 2011</h5>
+								</a>
+							  </td>
+							</tr>
+							<tr>
+							  <td valign="top" align="left" style="padding-left:20px;">
+								<a title="Kaspersky Internet Security 2011" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,16/category_id,20/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									Подробнее &gt;&gt;&gt;
+								</a>
+							  </td>
+							</tr>
+							<tr><td colspan="2" style="color: grey; text-align: center;">..................................................</td></tr>
+						  </tbody>
+						</table>
+					<br>
+				</td>
+			</tr>
+					<tr align="center" bgcolor="#FFFFFF">
+				<td width="12%">
+					<table border="0" style="width: 100%;">
+						  <tbody>
+							<tr>
+							  <td rowspan="2" valign="top" style="text-align:center;">
+								<a title="Adobe Photoshop CS3 Russian" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,155/category_id,59/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									<img src="./Структура FAT32_files/show_image_in_imgtag(3).php">								</a>
+							  </td>
+							  <td rowspan="1" colspan="2">
+								<a style="text-decoration: none;" title="Adobe Photoshop CS3 Russian" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,155/category_id,59/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+								  <h5 style="padding: 0; margin: 0;">Adobe Photoshop CS3 Russian</h5>
+								</a>
+							  </td>
+							</tr>
+							<tr>
+							  <td valign="top" align="left" style="padding-left:20px;">
+								<a title="Adobe Photoshop CS3 Russian" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,155/category_id,59/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									Подробнее &gt;&gt;&gt;
+								</a>
+							  </td>
+							</tr>
+							<tr><td colspan="2" style="color: grey; text-align: center;">..................................................</td></tr>
+						  </tbody>
+						</table>
+					<br>
+				</td>
+			</tr>
+					<tr align="center" bgcolor="#FFFFFF">
+				<td width="12%">
+					<table border="0" style="width: 100%;">
+						  <tbody>
+							<tr>
+							  <td rowspan="2" valign="top" style="text-align:center;">
+								<a title="Антивирус Касперского 2011" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,17/category_id,20/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									<img src="./Структура FAT32_files/show_image_in_imgtag(4).php">								</a>
+							  </td>
+							  <td rowspan="1" colspan="2">
+								<a style="text-decoration: none;" title="Антивирус Касперского 2011" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,17/category_id,20/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+								  <h5 style="padding: 0; margin: 0;">Антивирус Касперского 2011</h5>
+								</a>
+							  </td>
+							</tr>
+							<tr>
+							  <td valign="top" align="left" style="padding-left:20px;">
+								<a title="Антивирус Касперского 2011" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,17/category_id,20/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									Подробнее &gt;&gt;&gt;
+								</a>
+							  </td>
+							</tr>
+							<tr><td colspan="2" style="color: grey; text-align: center;">..................................................</td></tr>
+						  </tbody>
+						</table>
+					<br>
+				</td>
+			</tr>
+					<tr align="center" bgcolor="#FFFFFF">
+				<td width="12%">
+					<table border="0" style="width: 100%;">
+						  <tbody>
+							<tr>
+							  <td rowspan="2" valign="top" style="text-align:center;">
+								<a title="Dr.Web для Windows: Антивирус + Антиспам" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,48/category_id,20/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									<img src="./Структура FAT32_files/7a433c05d5b5482f952024276464a35d[1].png">								</a>
+							  </td>
+							  <td rowspan="1" colspan="2">
+								<a style="text-decoration: none;" title="Dr.Web для Windows: Антивирус + Антиспам" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,48/category_id,20/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+								  <h5 style="padding: 0; margin: 0;">Dr.Web для Windows: Антивирус + Антиспам</h5>
+								</a>
+							  </td>
+							</tr>
+							<tr>
+							  <td valign="top" align="left" style="padding-left:20px;">
+								<a title="Dr.Web для Windows: Антивирус + Антиспам" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,48/category_id,20/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									Подробнее &gt;&gt;&gt;
+								</a>
+							  </td>
+							</tr>
+							<tr><td colspan="2" style="color: grey; text-align: center;">..................................................</td></tr>
+						  </tbody>
+						</table>
+					<br>
+				</td>
+			</tr>
+					<tr align="center" bgcolor="#FFFFFF">
+				<td width="12%">
+					<table border="0" style="width: 100%;">
+						  <tbody>
+							<tr>
+							  <td rowspan="2" valign="top" style="text-align:center;">
+								<a title="Microsoft Office Standard 2007 OEM" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,147/category_id,12/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									<img src="./Структура FAT32_files/show_image_in_imgtag(5).php">								</a>
+							  </td>
+							  <td rowspan="1" colspan="2">
+								<a style="text-decoration: none;" title="Microsoft Office Standard 2007 OEM" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,147/category_id,12/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+								  <h5 style="padding: 0; margin: 0;">Microsoft Office Standard 2007 OEM</h5>
+								</a>
+							  </td>
+							</tr>
+							<tr>
+							  <td valign="top" align="left" style="padding-left:20px;">
+								<a title="Microsoft Office Standard 2007 OEM" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,147/category_id,12/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									Подробнее &gt;&gt;&gt;
+								</a>
+							  </td>
+							</tr>
+							<tr><td colspan="2" style="color: grey; text-align: center;">..................................................</td></tr>
+						  </tbody>
+						</table>
+					<br>
+				</td>
+			</tr>
+					<tr align="center" bgcolor="#FFFFFF">
+				<td width="12%">
+					<table border="0" style="width: 100%;">
+						  <tbody>
+							<tr>
+							  <td rowspan="2" valign="top" style="text-align:center;">
+								<a title="Windows 7 Профессиональная 32 bit OEM" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,195/category_id,14/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									<img src="./Структура FAT32_files/show_image_in_imgtag(6).php">								</a>
+							  </td>
+							  <td rowspan="1" colspan="2">
+								<a style="text-decoration: none;" title="Windows 7 Профессиональная 32 bit OEM" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,195/category_id,14/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+								  <h5 style="padding: 0; margin: 0;">Windows 7 Профессиональная 32 bit OEM</h5>
+								</a>
+							  </td>
+							</tr>
+							<tr>
+							  <td valign="top" align="left" style="padding-left:20px;">
+								<a title="Windows 7 Профессиональная 32 bit OEM" href="http://alanco.ru/component/page,shop.product_details/flypage,shop.flypage/product_id,195/category_id,14/manufacturer_id,0/option,com_virtuemart/Itemid,47/">
+									Подробнее &gt;&gt;&gt;
+								</a>
+							  </td>
+							</tr>
+							<tr><td colspan="2" style="color: grey; text-align: center;">..................................................</td></tr>
+						  </tbody>
+						</table>
+					<br>
+				</td>
+			</tr>
+		</tbody></table>
+			</td>
+		</tr>
+		</tbody></table>
+					
+			<!-- Catalogs -->
+			<table cellspacing="0" cellpadding="0" width="100%" border="0" valign="bottom">
+				<tbody><tr height="3px">
+					<td colspan="3"></td>
+				</tr>
+				<tr height="20px">
+					<td width="20px">
+						&nbsp;	
+					</td>
+					<td>
+						&nbsp;	
+					</td>
+					<td width="20px">
+						&nbsp;
+					</td>
+				</tr>
+				<tr>
+					<td width="20px">
+						&nbsp;
+					</td>
+					<td>
+						<div align="center">
+							<!--begin of Rambler's Top100 code -->
+							<script id="top100Counter" type="text/javascript" src="./Структура FAT32_files/top100.jcn"></script><noscript>&lt;img src="http://counter.rambler.ru/top100.cnt?1050527" alt="" width="1" height="1" border="0"&gt;</noscript>
+							<!--end of Top100 code-->
+							<br>
+							<!--begin of Top100 logo-->
+							<a href="http://top100.rambler.ru/home?id=1050527"><img src="./Структура FAT32_files/banner-88x31-rambler-blue3.gif" alt="Rambler&#39;s Top100" width="88" height="31" border="0"></a>
+							<!--end of Top100 logo --><br><br>
+
+							<!--Rating@Mail.ru LOGO-->
+							<a target="_top" href="http://top.mail.ru/jump?from=1187733"><img src="./Структура FAT32_files/counter(1)" border="0" height="31" width="88" alt="Рейтинг@Mail.ru"></a>
+							<!--/LOGO--><br><br>
+
+							<a href="http://www.yandex.ru/cy?base=0&host=www.alanco.ru">
+								<img src="./Структура FAT32_files/cycounter" width="88" height="31" alt="Яндекс цитирования" border="0">
+							</a>
+						</div>
+					</td>
+					<td width="20px">
+						&nbsp;
+					</td>
+				</tr>
+				<tr height="20px">
+					<td width="20px">
+						&nbsp;
+					</td>
+					<td>
+						&nbsp;
+					</td>
+					<td width="20px">
+						&nbsp;
+					</td>
+				</tr>
+			</tbody></table>
+
+		</td>
+
+		<!-- Body -->
+		<td style="padding: 0px 0px 0px 0px;" valign="top">
+			<table class="tborder" width="100%" border="0" align="center" cellpadding="3" cellspacing="1" id="table9">
+				<!-- ############################################## -->
+								<!-- ############################################## -->
+				<tbody><tr>
+					<td class="vbmainwindow" width="100%" valign="top">
+										<table class="contentpaneopen">
+			<tbody><tr>
+					<td class="contentheading" width="100%">
+		Структура FAT32		</td>
+					</tr>
+			</tbody></table>
+					<table class="contentpaneopen">
+				<tbody><tr>
+		<td valign="top" colspan="2">
+		<p align="justify"><font face="Arial" style="font-size: 9pt"><span>Ниже я привожу рассказ о том, что такое</span> <span>файловая система </span><span>FAT32</span> <span>и как она работает. Отмечу, что </span><span>FAT32 - </span>ф<span>айловая система, производная системы FAT. FAT32 поддерживает меньшие размеры кластеров, что позволяет более эффективно использовать дисковое пространство</span> по сравнению с <span>FAT.</span> Это файловая система используется <span>в современных операционных системах</span> на <span>DOS </span>основе - Windows&nbsp;<span>98 и </span>Windows <span>Me</span>.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">FAT - File Allocation Table (таблица размещения файлов) - этот термин относится к одному из способов организации файловой системы на диске. Эта таблица хранит информацию о файлах на жестком диске в виде последовательности чисел, определяющих, где находится каждая часть каждого файла. С ее помощью операционная система выясняет, какие кластеры занимает нужный файл. FAT - является самой распространенной файловой системой и поддерживается подавляющим большинством операционных систем. Сначала FAT была 12-разрядной и позволяла работать с дискетами и логическими дисками объемом не более 16 Мбайт. В MS-DOS версии 3.0 таблица FAT стала 16-разрядной для поддержки дисков большей емкости, а для дисков объемом до 2 047 Гбайт используется 32-разрядная таблица FAT.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Система FAT32 - более новая файловая система на основе формата FAT, она поддерживается Windows 95 OSR2, Windows 98 и Windows Millennium Edition. FAT32 использует 32-разрядные идентификаторы кластеров, но при этом резервирует старшие 4 бита, так что эффективный размер идентификатора кластера составляет 28 бит. Поскольку максимальный размер кластеров FAT32 равен 32 Кбайт, теоретически FAT32 может работать с 8-терабайтными томами. Windows 2000 ограничивает размер новых томов FAT32 до 32 Гбайт, хотя поддерживает существующие тома <span>F</span>АТ32 большего размера (созданные в других операционных системах). Большее число кластеров, поддерживаемое FAT32, позволяет ей управлять дисками более эффективно, чем FAT 16. FAT32 может использовать 512-байтовые кластеры для томов размером до 128 Мбайт.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Файловая система FAT 32 в Windows 98 используется в качестве основной. С этой операционной системой поставляется специальная программа преобразования диска из FAT 16 в FAT 32. Windows 2000 и Windows <span>XP </span>тоже могут использовать файловую систему FAT, и поэтому можно загрузить компьютер с DOS-диска и иметь полный доступ ко всем файлам. Однако некоторые из самых прогрессивных возможностей Windows <span>2000</span> и Windows <span>XP</span> обеспечиваются ее собственной файловой системой NTFS (NT File System). NTFS позволяет создавать на диске разделы объемом до 2 Тбайт (как и FAT 32), но, кроме этого, в нее встроены функции сжатия файлов, безопасности и аудита, необходимые при работе в сетевой среде. А в Windows 2000<span>,</span> как и в <span>Windows XP </span>реализуется поддержка файловой системы FAT 32. Данные этих операционных систем можно хранить на диске FAT, но по желанию пользователя&nbsp; диск может быть конвертирован в формат NTFS. </font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Для этого можно воспользоваться утилитой Convert.exe, поставляемой вместе с операционной системой. Преобразованный к системе NTFS раздел диска становится недоступным для других операционных систем. Чтобы вернуться в DOS, Windows 95, Windows 98 или <span>Me</span>, нужно удалить раздел NTFS, а вместо него создать раздел FAT. Windows 2000<span>,</span> как и в <span>Windows XP</span> можно устанавливать на диск с файловой системой FAT 32 и NTFS.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Возможности файловых систем <span>F</span>АТ32 гораздо шире возможностей FAT16. Самая важная ее особенность в том, что она поддерживает диски объемом до 2 047 Гбайт и работает с кластерами меньшего размера, благодаря чему существенно сокращает объемы неиспользуемого дискового пространства. Например, жесткий диск объемом 2 Гбайт в FAT16 использует кластеры размером по 32 Кбайт, а в FAT32 - кластеры размером по 4 Кбайт. Чтобы по возможности сохранить совместимость с существующими программами, сетями и драйверами устройств, FAT32 реализована с минимальными изменениями в архитектуре, API-интерфейсах, структурах внутренних данных и дисковом формате. Но, так как размер элементов таблицы FAT32 теперь составляет четыре байта, многие внутренние и дисковые структуры данных, а также API-интерфейсы пришлось пересмотреть или расширить. Отдельные API на <span>F</span>АТ32-дисках блокируются, чтобы унаследованные дисковые утилиты не повредили содержимое FAT32-дисков. На большинстве программ эти изменения никак не скажутся. Существующие инструментальные средства и драйверы будут работать и на FAT32-дисках. Однако драйверы блочных устройств MS-DOS (например, Aspidisk.sys) и дисковые утилиты нуждаются в модификации для поддержки FAT32. Все дисковые утилиты, поставляемые Microsoft (Format, Fdisk, Defrag, а также ScanDisk для реального и защищенного режимов), переработаны и полностью поддерживают FAT32. Кроме того, Microsoft помогает ведущим поставщикам дисковых утилит и драйверов устройств в модификации их продуктов для поддержки FAT32. FAT32 эффективнее FAT16 при работе с дисками большего объема и не требует их разбиения на разделы по 2 Гбайт. Windows 98 обязательно поддерживает FAT16, так как именно эта файловая система совместима с другими операционными системами, в том числе сторонних компании. В MS-DOS реального режима и в безопасном режиме Windows 98, файловая система FAT32 работает значительно медленнее, чем FAT16. Поэтому, при запуске программ в режиме MS DOS желательно включить в файл Autoexec.bat или PIF-файл команду для загрузки Smartdrv.exe, что ускорит дисковые операции. Некоторые устаревшие программы, рассчитанные на спецификацию FAT16, могут сообщать неправильную информацию об объеме свободного или общего дискового пространства, если он больше 2 Гбайт. Windows 98 предоставляет новые API-интерфейсы для MS-DOS и Win32, которые позволяют корректно определять эти показатели. В табл. 1 приведены сравнительные характеристики FAT16 и FAT32.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Таблица 1. Сравнение файловых систем FAT16 и FAT32</font></h4><div align="justify"><table border="1" cellspacing="0" cellpadding="0" width="100%" align="center" id="table15"><tbody><tr bgcolor="#ffcc99"><td width="51%"><div align="center"><font face="Arial"><strong><font style="font-size: 9pt" color="#000000">FAT16</font></strong></font></div></td><td width="48%"><div align="center"><font face="Arial"><strong><font style="font-size: 9pt" color="#000000">FAT32</font></strong></font></div></td></tr><tr bgcolor="#ffffff"><td width="51%"><font face="Arial" style="font-size: 9pt">Реализована и используется большинством операционных систем (MS-DOS, Windows 9<span>5/98/Me</span>, Windows <span>2000 </span>и <span>Windows XP</span>, OS/2, UNIX). </font></td><td width="48%"><font face="Arial" style="font-size: 9pt">На данный момент поддерживается только в Windows 9<span>5/98/Me</span>, Windows <span>2000 </span>и <span>Windows XP</span>.</font></td></tr><tr bgcolor="#ffffff"><td width="51%"><font face="Arial" style="font-size: 9pt">Очень эффективна для логических дисков размером менее 256 Мбайт. </font></td><td width="48%"><font face="Arial" style="font-size: 9pt">Не работает с дисками объемом менее 512 Мбайт.</font></td></tr><tr bgcolor="#ffffff"><td width="51%"><font face="Arial" style="font-size: 9pt">Поддерживает сжатие дисков, например по алгоритму DriveSpace. </font></td><td width="48%"><font face="Arial" style="font-size: 9pt">Не поддерживает сжатие дисков.</font></td></tr><tr bgcolor="#ffffff"><td width="51%"><font face="Arial" style="font-size: 9pt">Обрабатывает максимум 65 525 кластеров, размер которых зависит от объема логического диска. Так как максимальный размер кластеров равен 32 Кбайт, FAT16 может работать с логическими дисками объемом не более 2 Гбайт. </font></td><td width="48%"><font face="Arial" style="font-size: 9pt">Способна работать с логическими дисками объемом до 2 047 Гбайт при максимальном размере кластеров в 32 Кбайт.</font></td></tr><tr bgcolor="#ffffff"><td width="51%"><font face="Arial" style="font-size: 9pt">Чем больше размер логического диска, тем меньше эффективность хранения файлов в FAT'16-системе, так как увеличивается и размер кластеров. Пространство для файлов выделяется кластерами, и поэтому при максимальном объеме логического диска файл размером 10 Кбайт потребует 32 Кбайт, а 22 Кбайт дискового пространства пропадет впустую. </font></td><td width="48%"><font face="Arial" style="font-size: 9pt">На логических дисках объемом менее 8 Гбайт размер кластеров составляет 4 Кбайт.</font></td></tr></tbody></table></div><p align="justify"><font face="Arial" style="font-size: 9pt">Максимально возможная длина файла в FAT32 равна 4 Гбайт за вычетом 2 байтов. Win32-приложения могут открывать файлы такой длины без специальной обработки. Остальные приложения должны использовать прерывание Int 21h, функцию 716С (FAT32) с флагом открытия, равным EXTEND-SIZE (1000h).</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">В файловой системе FAT32 на каждый кластер в таблице размещения файлов отводится по 4 байта, тогда как в FAT16 - по 2, а в FАТ12 - по 1,5.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Старшие 4 бита 32-разрядного элемента таблицы FAT32 зарезервированы и не участвуют в формировании номера кластера. Программы, напрямую считывающие РАТ32-таблицу, должны маскировать эти биты и предохранять их от изменения при записи новых значений.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Итак, FAT32 обладает следующими преимуществами в сравнении с прежними реализациями файловой системы FAT:</font></p><ul><li><div align="justify"><font face="Arial" style="font-size: 9pt">поддерживает диски объемом до 2 Тбайт; </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">эффективнее организует дисковое пространство. FAT32 использует кластеры меньшего размера (4 Кбайт для дисков объемом до 8 Гбайт), что позволяет сэкономить до 10-15% пространства на больших дисках по сравнению с FAT; </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">корневой каталог FAT 32, как и все остальные каталоги, теперь не ограничен, он состоит из цепочки кластеров и может быть расположен в любом месте диска; </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">имеет более высокую надежность: FAT32 способна перемещать корневой каталог и работать с резервной копией FAT, кроме того, загрузочная запись на FАТ32-дисках расширена и теперь включает резервную копию критически важных структур данных, а это означает, что FАТ32-диски менее чувствительны к возникновению отдельных сбойных участков, чем существующие FAT-тома; </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">программы загружаются на 50% быстрее. </font></div></li></ul><h4 align="justify"><font face="Arial" style="font-size: 9pt">Таблица 2. Сравнение размеров кластеров</font></h4><div align="justify"><table border="1" cellspacing="0" cellpadding="0" width="100%" align="center" id="table16"><tbody><tr bgcolor="#ffcc99"><td width="30%"><div align="center"><font face="Arial" style="font-size: 9pt"><strong>Объем диска</strong></font></div></td><td width="36%"><div align="center"><font face="Arial" style="font-size: 9pt"><strong>Размер кластеров в FAT16, Кбайт</strong></font></div></td><td width="34%"><div align="center"><font face="Arial" style="font-size: 9pt"><strong>Размер кластеров в FAT32, Кбайт</strong></font></div></td></tr><tr bgcolor="#ffffff"><td width="30%"><div align="center"><font face="Arial" style="font-size: 9pt">256 Мбайт-511 Мбайт </font></div></td><td width="36%"><div align="center"><font face="Arial" style="font-size: 9pt">8</font></div></td><td width="34%"><div align="center"><font face="Arial" style="font-size: 9pt">Не поддерживается</font></div></td></tr><tr bgcolor="#ffffff"><td width="30%"><div align="center"><font face="Arial" style="font-size: 9pt">512 Мбайт -1023 Мбайт </font></div></td><td width="36%"><div align="center"><font face="Arial" style="font-size: 9pt">16</font></div></td><td width="34%"><div align="center"><font face="Arial" style="font-size: 9pt">4</font></div></td></tr><tr bgcolor="#ffffff"><td width="30%"><div align="center"><font face="Arial" style="font-size: 9pt">1024 Мбайт - 2 Гбайт </font></div></td><td width="36%"><div align="center"><font face="Arial" style="font-size: 9pt">32</font></div></td><td width="34%"><div align="center"><font face="Arial" style="font-size: 9pt">4</font></div></td></tr><tr bgcolor="#ffffff"><td width="30%"><div align="center"><font face="Arial" style="font-size: 9pt">2 Гбайт - 8 Гбайт </font></div></td><td width="36%"><div align="center"><font face="Arial" style="font-size: 9pt">Не поддерживается</font></div></td><td width="34%"><div align="center"><font face="Arial" style="font-size: 9pt">4</font></div></td></tr><tr bgcolor="#ffffff"><td width="30%"><div align="center"><font face="Arial" style="font-size: 9pt">8 Гбайт-16 Гбайт </font></div></td><td width="36%"><div align="center"><font face="Arial" style="font-size: 9pt">Не поддерживается</font></div></td><td width="34%"><div align="center"><font face="Arial" style="font-size: 9pt">8</font></div></td></tr><tr bgcolor="#ffffff"><td width="30%"><div align="center"><font face="Arial" style="font-size: 9pt">16 Гбайт-32 Гбайт </font></div></td><td width="36%"><div align="center"><font face="Arial" style="font-size: 9pt">Не поддерживается</font></div></td><td width="34%"><div align="center"><font face="Arial" style="font-size: 9pt">16</font></div></td></tr><tr bgcolor="#ffffff"><td width="30%"><div align="center"><font face="Arial" style="font-size: 9pt">Более 32 Гбайт </font></div></td><td width="36%"><div align="center"><font face="Arial" style="font-size: 9pt">Не поддерживается</font></div></td><td width="34%"><div align="center"><font face="Arial" style="font-size: 9pt">32</font></div></td></tr></tbody></table></div><p align="justify"><font face="Arial" style="font-size: 9pt">Усовершенствованная утилита дефрагментации дисков оптимизирует размещение файлов приложения, загружаемых в момент его запуска. Возможно преобразование диска в <span>F</span>АТ32 с помощью утилиты Drive Converter (FAT32), но после этого рекомендуется запустить утилиту Disk Defragmenter, - иначе компьютер будет работать с диском медленнее, чем раньше. Благодаря этому на больших дисках удается высвободить десятки и даже сотни мегабайтов, а в сочетании с усовершенствованной утилитой дефрагментации дисков FAT32 значительно сокращает время загрузки приложений. Процедура преобразования файловой системы на жестком диске в FAT32 с помощью Drive Converter (FAT32) достаточно проста. Для этого последовательно необходимо открыть меню Start (Пуск), подменю Programs (Программы), Accessories (Стандартные), System Tools (Служебные) и выбрать команду Drive Converter (FAT32) (Преобразование диска в FАТ32). Преобразование может повлиять на функции спящего режима (hibernate features) (сохранения состояния компьютера на диск), предусмотренные во многих компьютерах. Системы, в которых режим сна реализован через АРМ BIOS или ACPI (Advanced Configuration and Power Interface) S4/BIOS, должны поддерживать FAT32, - только тогда они будут корректно работать в Windows 98 и <span>Me</span>.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Большинство изготовителей BIOS включают в нее средства защиты от вирусов, отслеживающие изменения в главной загрузочной записи MBR (Master Boot Record). Кроме того, устаревшие антивирусные утилиты, устанавливаемые как резидентные программы или драйверы реального режима, могут обнаруживать изменение MBR при загрузке MS-DOS. Так как преобразование в FAT32 приводит к неизбежной модификации MBR, некоторые средства проверки на вирусы могут ошибочно счесть это признаком инфицирования системы. <br>Лучше всего удалить антивирусное программное обеспечение и отключить встроенные в BIOS средства защиты от вирусов перед преобразованием диска в FAT32. Потом можно вновь установить антивирусную утилиту и активизировать встроенные в BIOS средства защиты от вирусов.</font></p><h2 align="justify"><font face="Arial" style="font-size: 9pt">Главная загрузочная запись (MBR)</font></h2><p align="justify"><font face="Arial" style="font-size: 9pt">Форматирование жестких дисков выполняется в три этапа:</font></p><ul><li><div align="justify"><font face="Arial" style="font-size: 9pt">низкоуровневое форматирование (физическая разметка диска на цилиндры, дорожки, секторы); </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">разбиение диска на разделы (логические устройства): </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">высокоуровневое (логическое) форматирование каждого раздела. </font></div></li></ul><p align="justify"><font face="Arial" style="font-size: 9pt">На этапе низкоуровневого форматирования процессор, выполняя программу форматирования, поочередно передает в контроллер жесткого диска сначала команду "Поиск" для установки головок накопителя на нужный цилиндр, а затем посылает команду "Форматировать дорожку". Выполняя команду "Форматировать дорожку" контроллер жесткого диска, получив из накопителя импульс "Индекс" (начало дорожки), производит запись служебного формата дорожки, который разбивает ее на секторы. Каждый сектор содержит в себе блок данных (512 байт), обрамленный служебным форматом сектора (содержание к размер служебного формата определяется конкретной фирмой-разработчиком данного устройства). <br>Служебный формат дорожки и секторов необходим контроллеру жесткого диска при выполнении команд. Читая и расшифровывая поля служебного формата, контроллер находит на диске нужный цилиндр, поверхность, сектор и блок данных внутри сектора. На следующих этапах форматирования в блоки данных ряда секторов записывается системная информация, которая обеспечивает организацию разделов на диске, автоматическую загрузку операционной системы и поддержку файловой системы на диске.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">На этапе разбиения диска на разделы в блоке данных первого физического сектора диска (0 цилиндр, 0 поверхность, 1 сектор) с адреса 1BEh формируется таблица разделов (Partition table), состоящая из 4-х шестнадцатибайтных строк. Обычно системную информацию, записанную в блок данных этого сектора в процессе форматирования, называют Master Boot Record (MBR).</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">С самого начала блока данных этого сектора располагается программа (IPL 1). Переход на программу IPL 1 процессор осуществляет после успешного завершения POST и программы "Начального загрузчика", выполняя которую процессор загружает с диска в память MBR, и передает управление на начало MBR (на программу IPL 1), продолжая действия ведущие к загрузке операционной системы. Программа IPL 1 (загрузчик), находящаяся в MBR просматривает строки таблицы разделов в поисках активного раздела с которого возможна загрузка операционной системы. Если в таблице разделов нет активного раздела, выдается сообщение об ошибке. Если хотя бы один раздел содержит неправильную метку, либо несколько разделов помечены как активные, выдается сообщение об ошибке Invalid partition table, и процесс загрузки останавливается. Если активный раздел обнаружен, то анализируется загрузочный сектор этого раздела. Если найден только один активный раздел, то содержимое блока данных его загрузочного сектора (BOOT) читается в память по адресу 0000:7С00 и управление передается по этому адресу, если загрузочный сектор активного раздела не читается за пять попыток, выдается сообщение об ошибке: Error loading operating system и система останавливается; проверяется сигнатура считанного загрузочного сектора активного раздела и если последних два его байта не соответствуют сигнатуре 55AAh, выдается сообщение об ошибке: Missing operating system и система останавливается). Процессор читает по адресу 0000:7С00 команду JMP, выполняя ее, передает управление на начало программы IPL 2, которая осуществляет проверку, действительно ли раздел активный: IPL 2 проверяет имена и расширения двух файлов в корневом каталоге - это должны быть файлы IO.SYS и MSDOS.SYS (NTLDR для Windows <span>XP</span>), загружает их и. т. д.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Система Windows 9x<span>/Me</span> во многом основана на тех же концепциях, что и DOS, но в ней эти концепции получили дальнейшее логическое развитие. Те же два системных файла IO.SYS и MSDOS.SYS, но теперь вся системная программа находится в IO.SYS , а второй файл MSDOS.SYS содержит ASCII-текст с установками, управляющими поведением системы при загрузке. Эквиваленты программ Himem.sys. Ifshlp.sys и Setver.exe автоматически загружаются программой IO.SYS при запуске системы. Как и прежде, для загрузки в память драйверов и резидентных программ можно использовать файлы Config.sys и Autoexec.bat, но загрузку 32-разрядных драйверов устройств, которые разработаны специально для Windows 9x, теперь обеспечивают записи в системном реестре. Когда вся предварительная работа выполнена, запускается файл Win.com, и Windows 9x<span>/Me</span> загружается и предоставляет свои возможности через графическое меню.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Системный реестр является базой данных, в которой Windows 9x<span>/Me</span> хранит информацию обо всех настройках, конфигурационных установках и параметрах, необходимых для работы ее собственных модулей и отдельных приложений. Системный реестр как бы выполняет функции Config.sys, Autoexec.bat и ini-файлов Windows 3.1 вместе взятых. На диске компьютера реестр хранится в виде двух отдельных файлов: System.dat и User.dat. В первом из них содержатся всевозможные аппаратные установки, а во втором - данные о работающих в системе пользователях и используемых ими конфигурациях. Каждый пользователь может иметь свой файл User.dat, т.е. собственную рабочую среду, которую он настраивает по своему вкусу и потребностям. Системный реестр можно импортировать, экспортировать, а также создавать его резервные копии и, используя их, восстанавливать сохраненные данные - одним словом, это довольно мощный механизм управления системными параметрами и их защиты от потерь и повреждений.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Таблица 3. Компоненты MBR</font></h4><div align="justify"><table border="1" cellspacing="0" cellpadding="0" width="100%" align="center" id="table17"><tbody><tr bgcolor="#ffcc99"><td width="31%"><div align="center"><font face="Arial" style="font-size: 9pt"><strong>Область</strong></font></div></td><td width="69%"><div align="center"><font face="Arial" style="font-size: 9pt"><strong>Описание</strong></font></div></td></tr><tr bgcolor="#ffffff"><td width="31%"><font face="Arial" style="font-size: 9pt">Программа IPL 1 (программа загрузчика занимает зону от адреса 00h до 1BEh)</font></td><td width="69%"><font face="Arial" style="font-size: 9pt">Код программы Сообщения об ошибках (Error Messages):</font> <ul><li><font face="Arial" style="font-size: 9pt">Invalid Partition Table (неправильная таблица разделов). </font></li><li><font face="Arial" style="font-size: 9pt">Error loading operating system (ошибка при загрузке операционной системы) </font></li><li><font face="Arial" style="font-size: 9pt">Missing operating system (операционная система отсутствует). </font></li></ul></td></tr><tr bgcolor="#ffffff"><td width="31%"><font face="Arial" style="font-size: 9pt">Таблица разделения физического диска на логические устройства (Partition Tables) (4 строки по 16 байт = 64 байта) занимает зону с адреса 1BEh до 1FDh</font></td><td width="69%"><font face="Arial" style="font-size: 9pt">1 строка (16 байт):</font> <ul><li><font face="Arial" style="font-size: 9pt">Флаг загрузки (80h - активный / 00h -обычный раздел) - 1 байт </font></li><li><font face="Arial" style="font-size: 9pt">Начальный физический сектор раздела (головка, сектор и цилиндр) - 3 байта </font></li><li><font face="Arial" style="font-size: 9pt">Тип раздела -1 байт </font></li><li><font face="Arial" style="font-size: 9pt">Конечный физический сектор раздела (головка, сектор и цилиндр) - 3 байта </font></li><li><font face="Arial" style="font-size: 9pt">Число секторов предшествующих разделу - 4 байта </font></li><li><font face="Arial" style="font-size: 9pt">Общее количество секторов в данном разделе - 4 байта </font></li></ul></td></tr><tr bgcolor="#ffffff"><td width="31%"><font face="Arial" style="font-size: 9pt">2 последних байта в блоке данных сектора с адреса 1FE по 1FF- концевая сигнатура (Ending Signature)</font></td><td width="69%"><font face="Arial" style="font-size: 9pt">55АА - отмечает конец MBR. Проверяется программой начального загрузчика</font></td></tr></tbody></table></div><p align="justify"><font face="Arial" style="font-size: 9pt">Область MBR, изменившаяся в FAT32 - это Partition Table. Она, как и прежде, состоит из четырех 16-байтных записей. Каждая запись определяет раздел. В FAT32 введено 2 новых типа разделов DOS32 (0В) и DOS32X (ОС).</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">DOS32 (0В). </font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">Определяет основной раздел FAT32 размером до 2 047 Гбайт. Используется, когда для доступа к основному разделу не требуется механизм логической блочной адресации (LBA). LBA базируется на расширениях прерывания Int 13h.<br>Расширенный дисковый сервис BIOS Enhanced Disk Drive Services (EDD), продвигаемый фирмой Phoenix Technologies LTD, реализуется многими разработчиками BIOS и устройств массовой памяти. Он позволяет работать с устройствами, имеющими объем до 264 секторов. Сервис оперирует линейным логическим адресом сектора (LBA). Вместо традиционных таблиц параметров дисков в нем используются новые, дающие исчерпывающую информацию об устройствах, их физической организации и интерфейсе. Устройства могут иметь сменные носители и сами быть съемными в процессе работы компьютера (например, подключенные к шине USB или IEEE 1394), так что понятие "сменяемость носителя" несколько размывается. Такие устройства должны поддерживать механизм уведомления о смене носителя и программное блокирование смены носителя. Расширения BIOS Int 13h используют ОС Windows 95, Windows 98, Windows 2000 и <span>Windows XP</span>. Правда, использование этих возможностей ограничено лишь начальной загрузкой и процессом установки (FDISK, FORMAT), поскольку в регулярной работе применяются собственные 32-разрядные драйверы. Расширения BIOS Int 13h не используют все версии DOS, Windows 3.<span>1,</span> Windows NT, Novell NetWare, OS/2, Warp, Linux, UNIX.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">В настоящее время определены три набора функций:<br>&nbsp;</font></p><ul><li><div align="justify"><font face="Arial" style="font-size: 9pt">доступ к фиксированным дискам - функции 4lh - 44h, 47h и 48h; </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">блокировка и смена носителя - функции 41h, 45h, 46h, 48h и 49h; </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">поддержка расширенных дисков - функции 41h и 48h; </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">для эмуляции дисков на загружаемых CD-ROM имеются расширенные функции 4Ah - 4Dh. </font></div></li></ul><p align="justify"><font face="Arial" style="font-size: 9pt">Расширенный сервис, как и традиционный, вызывается программным прерыванием Int 13h с номерами функций свыше 3Fh (в регистре АН), с номерами устройств (в регистре DL) в диапазоне 80h-FFh. Основные параметры вызова - начальный адрес блока, число секторов для передачи и адрес буфера - передаются через адресный пакет. Формат пакета в сравнении с передачей параметров традиционного сервиса через регистры процессора имеет более широкие возможности. Поскольку расширение BIOS может и отсутствовать, имеется функция проверки его наличия (номер 41h). Расширение может действовать избирательно (не для всех устройств), так что проверку надо производить для конкретного устройства, интересующего программу. Проверка дает номер версии расширения и карту поддерживаемых наборов функций. Функции расширенного чтения, записи, верификации и поиска (42h, 43h, 44h и 47h) по смыслу не отличаются от их аналогов из традиционного сервиса. Для работы со сменными носителями введены функции отпирания-запирания, извлечения и проверки факта смены, носителя (45h, 46h и 49h). Сильно отличается от традиционного сервиса функция получения параметров устройства (48h). Она возвращает в ОЗУ буфер с набором параметров и детальным описанием устройства, позволяющим ОС и приложениям работать с ним, минуя BIOS. Функция установка аппаратной конфигурации (4Eh) позволяет управлять режимом передачи (PIO, DMA), а также предварительной выборкой (поиском).</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">DOS32X (0С). Определяет основной раздел </font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">FAT32 размером до 2 047 Гбайт. Используется, когда для доступа к любой части основного или дополнительного раздела требуется механизм LBA (адрес превышает максимальное значение, возможное в комбинации из 1 024 цилиндров, 63 секторов на дорожку и 16 головок). Этот тип разделов недоступен из MS-DOS версий 6.х или более ранних.<br>Некоторые системные коды (типы разделов) для разделов и логических дисков DOS/Windows 9х<span>/Me</span> приведены в табл. 4.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Таблица 4. Коды и типы разделов жесткого диска</font></h4><div align="justify"><table border="1" cellspacing="0" cellpadding="0" width="100%" id="table18"><tbody><tr bgcolor="#ffcc99"><td><div align="center"><font face="Arial" style="font-size: 9pt"><strong>Код </strong></font></div></td><td><div align="center"><font face="Arial" style="font-size: 9pt"><strong>Раздел</strong></font></div></td><td><div align="center"><font face="Arial" style="font-size: 9pt"><strong>ОС, с которой введен</strong></font></div></td><td><div align="center"><font face="Arial" style="font-size: 9pt"><strong>Файловая система</strong></font></div></td><td><div align="center"><font face="Arial" style="font-size: 9pt"><strong>Объем</strong></font></div></td></tr><tr bgcolor="#ffffff"><td><div align="center"><font face="Arial" style="font-size: 9pt">01</font></div></td><td><font face="Arial" style="font-size: 9pt">DOS FAT12</font></td><td><font face="Arial" style="font-size: 9pt">MS-DOS 2.0</font></td><td><div align="center"><font face="Arial" style="font-size: 9pt">FAT12</font></div></td><td><font face="Arial" style="font-size: 9pt">до 16 Мбайт</font></td></tr><tr bgcolor="#ffffff"><td><div align="center"><font face="Arial" style="font-size: 9pt">04</font></div></td><td><font face="Arial" style="font-size: 9pt">DOS FAT16</font></td><td><font face="Arial" style="font-size: 9pt">MS-DOS 3.0</font></td><td><div align="center"><font face="Arial" style="font-size: 9pt">FAT16</font></div></td><td><font face="Arial" style="font-size: 9pt">до 32 Мбайт</font></td></tr><tr bgcolor="#ffffff"><td><div align="center"><font face="Arial" style="font-size: 9pt">05</font></div></td><td><font face="Arial" style="font-size: 9pt">DOS Extended</font></td><td><font face="Arial" style="font-size: 9pt">MS-DOS 3.3</font></td><td><div align="center"><font face="Arial" style="font-size: 9pt">FAT16</font></div></td><td><font face="Arial" style="font-size: 9pt">до 2 Гбайт</font></td></tr><tr bgcolor="#ffffff"><td><div align="center"><font face="Arial" style="font-size: 9pt">06</font></div></td><td><font face="Arial" style="font-size: 9pt">DOS FAT16 (Big DOS)</font></td><td><font face="Arial" style="font-size: 9pt">MS-DOS 4.0</font></td><td><div align="center"><font face="Arial" style="font-size: 9pt">FAT16</font></div></td><td><font face="Arial" style="font-size: 9pt">до 2 Гбайт</font></td></tr><tr bgcolor="#ffffff"><td><div align="center"><font face="Arial" style="font-size: 9pt">07</font></div></td><td><font face="Arial" style="font-size: 9pt">OS/2 HPFS</font></td><td><font face="Arial" style="font-size: 9pt">Windows NT NTFS</font></td><td><div align="center"><font face="Arial" style="font-size: 9pt">HPFS</font></div></td><td><font face="Arial" style="font-size: 9pt">512 Мбайт - 2 Тбайт</font></td></tr><tr bgcolor="#ffffff"><td><div align="center"><font face="Arial" style="font-size: 9pt">OB</font></div></td><td><font face="Arial" style="font-size: 9pt">Win95 FAT32</font></td><td><font face="Arial" style="font-size: 9pt">Windows 95 OSR2</font></td><td><div align="center"><font face="Arial" style="font-size: 9pt">FAT32</font></div></td><td><font face="Arial" style="font-size: 9pt">512 Мбайт - 2 Тбайт</font></td></tr><tr bgcolor="#ffffff"><td><div align="center"><font face="Arial" style="font-size: 9pt">ОС</font></div></td><td><font face="Arial" style="font-size: 9pt">Win95 FAT32 (LBA)</font></td><td><font face="Arial" style="font-size: 9pt">Windows 95 OSR2</font></td><td><div align="center"><font face="Arial" style="font-size: 9pt">FAT32</font></div></td><td><font face="Arial" style="font-size: 9pt">512 Мбайт - 2 Тбайт</font></td></tr><tr bgcolor="#ffffff"><td><div align="center"><font face="Arial" style="font-size: 9pt">ОЕ</font></div></td><td><font face="Arial" style="font-size: 9pt">Win95 FAT16 (LBA)</font></td><td><font face="Arial" style="font-size: 9pt">Windows 95 OSR2</font></td><td><div align="center"><font face="Arial" style="font-size: 9pt">FAT16</font></div></td><td><font face="Arial" style="font-size: 9pt">32 Мбайт - 2 Гбайт</font></td></tr><tr bgcolor="#ffffff"><td><div align="center"><font face="Arial" style="font-size: 9pt">OF</font></div></td><td><font face="Arial" style="font-size: 9pt">Win95 Extended (LBA)</font></td><td><font face="Arial" style="font-size: 9pt">Windows 95 OSR2</font></td><td><div align="center"><font face="Arial" style="font-size: 9pt">FAT32</font></div></td><td><font face="Arial" style="font-size: 9pt">512 Мбайт - 2 Тбайт</font></td></tr></tbody></table></div><p align="justify"><font face="Arial" style="font-size: 9pt">Разделы с кодами (01, 04, 06, 0В, ОС, ОЕ) являются первичными разделами DOS/Windows. Утилита FDISK из MS-DOS и Windows 9х<span>/Me</span> позволяет создавать не более одного первичного раздела, хотя в принципе их может быть и больше. Первичный раздел содержит один логический диск. В стандартном случае, когда на диске имеется один первичный раздел, для первого винчестера на нем будет диск С:, для второго - D: и т. д. В операционных системах MS-DOS и Windows 9х<span>/Me</span> на одном диске не должно быть более одного первичного раздела, а также первичный раздел должен быть первым в таблице разделов. Другие операционные системы (ОС), например Linux, не ограничивают жестко количество и расположение разделов. Разные коды первичных разделов указывают на различную разрядность FAT, новые типы вводились по мере роста размеров винчестера. С Windows 95 OSR2 появились новые типы разделов для FAT32 и FAT16 (0Ch, 0=0Eh), специально для дисков, поддерживающих адресацию LBA. Заметим, что в каждом описателе разделов задаются как трехмерные границы раздела [начальные и конечные номера цилиндра, головки и сектора), так и линейные (номер начального сектора и их количество), но долгое время использовали только трехмерные описатели. Среди разделов DOS/Windows 9х<span>/Me</span> активным может быть только первичный раздел. Расширенный раздел (код 05 или 0F) служит для организации произвольного количества логических дисков. Первый сектор расширенного раздела аналогичен MBR (но загрузчик отсутствует) и содержит расширенную таблицу разделов EPR (Extended Partition Record) той же структуры, но первая строка таблицы задает, вторичный (secondary) раздел, отведенный под очередной логический диск; в нем указывается код раздела с файловой системой (для DOS/ Windows это FAT с кодами 04h, 06h, 0Bh, 0Ch или 0Eh, для других ОС -свои). В этом описателе, как обычно, задаются координаты начала и конца раздела с логическим диском (трехмерные и линейные). Если этот логический диск занимает не весь объем расширенного раздела, то второй описатель тоже имеет код 05 или 0F и указывает на положение сектора со следующей расширенной таблицей разделов. Остальные описатели не используются (их коды нулевые). Если свободного места в разделе уже нет, то и второй описатель не используется. В следующей расширенной таблице разделов действуют те же правила. Эта цепочка заканчивается на расширенной таблице, у которой во втором описателе стоит нулевой код раздела. Второй описатель в расширенных таблицах может указывать только на положение следующей расширенной таблицы. Часть пространства расширенного раздела может оставаться не распределенной, в дальнейшем она может быть использована под логические диски. Цепочка расширенных таблиц разделов должна быть непрерывной, неветвящейся (используются только два описателя, и только второй может указывать на следующую таблицу) и не<span> </span>зацикленной (второй описатель не должен ссылаться на ту же таблицу или предыдущую в цепочке). Несоблюдение первых двух условий ведет к потере логических дисков (их система не найдет). Несоблюдение последнего условия может привести к зависанию ОС при загрузке (она зациклится на бесконечном определении повторяющихся логических дисков). Код (05 или 0F) расширенного раздела не несет никакой информации о файловой системе, и данный тип раздела используется как указатель на расширенную таблицу рядом ОС, в том числе и отличных от DOS/Windows. Координаты расширенных таблиц разделов обычно имеют вид N, 0, 1.<br>По расположению на физическом диске расширенные разделы являются вложенными друг в друга: все они располагаются в области, описанной в главной таблице разделов как расширенный раздел. В главной таблице может быть описан лишь один расширенный раздел.<br>Если расширенные разделы имеют код 0Fh, то линейные адреса всех элементов таблиц будут указываться относительно начала физического диска (так поступает новая версия утилиты FDISK, и это более естественно, поскольку при этом описатель LBA является эквивалентом описателя CHS).<br>&nbsp;</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Каждый логический диск из расширенного раздела имеет ту же структуру, что и первичный раздел. Он также начинается с загрузочного сектора (только загрузчик никогда не исполняется), в котором имеется описание структуры логического диска. Координаты загрузочных секторов логических дисков обычно имеют вид N, 1, 1. Операционная система назначает логическим дискам расширенных разделов имена (буквы), остающиеся </font></p><p align="justify"><font face="Arial" style="font-size: 9pt">после дисков первичных разделов. Так, если имеется один жесткий диск и у него есть первичный и <br>вторичный разделы, причем последний разбит на два логических диска, то мы увидим следующее:</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">С: - первичный раздел;<br>D: - первый логический диск расширенного раздела:<br>Е: - второй логический диск расширенного раздела.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Теперь если добавить второй жесткий диск (всего с одним первичным разделом), то картина изменится:</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">С: - первичный раздел первого диска (остался на месте);<br>D: - первичный раздел второго диска (новый);<br>Е: - первый логический диск расширенного раздела первого диска (тот, что был D:);<br>F: - второй логический диск расширенного раздела первого диска (тот, что был Е:).</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Если у нового диска был бы расширенный раздел со своими логическими дисками, то они бы заняли следующие буквы (G:, Н:, ...). О механизме присвоения логических имен следует помнить, устанавливая программы на компьютер, к которому эпизодически подключают дополнительные винчестеры. Незыблемое имя (С:) будет только у первичного раздела винчестера, подключенного ведущим к первому контроллеру АТА.</font></p><h2 align="justify"><font face="Arial" style="font-size: 9pt">Загрузочный сектор (BOOT)</font></h2><p align="justify"><font face="Arial" style="font-size: 9pt">На этапе логического форматирования каждого раздела (логического диска) создаются четыре логических области:<br>· загрузочный сектор (boot sector);<br>· таблица размещения файлов {ЕКГ1 и FAT2);<br>· каталог;<br>· область данных.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Загрузочный сектор на любом логическом диске (разделе) располагается первым. Его блок данных (512 байт) начинается с команды JMP, которая передает управление на программу IPL2, содержит имя операционной системы и ее версию, содержит блок параметров BIOS диска (ВРВ), программу IPL 2, загружающую операционную систему и заканчивается сигнатурой 55АА.. Ниже в табл.5 поясняются некоторые из его важнейших записей.</font></p><h3 align="justify"><font face="Arial" style="font-size: 9pt">Изменения в загрузочном секторе</font></h3><h4 align="justify"><font face="Arial" style="font-size: 9pt">Число зарезервированных секторов</font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">Число зарезервированных секторов теперь перед первой FAT равно 32.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Новый блок параметров BIOS</font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">Блок параметров BIOS в <span>F</span>АТ32 занимает больше места, чем стандартный, и называется Big FAT BIOS Parameter Block (BF_BPB). Из-за этого загрузочный сектор теперь занимает не один, а три физических сектора, причем имеется еще дополнительный и размещается через три физических сектора в седьмом, восьмом и девятом физическом секторе.<br>BF_BPB - это расширенная версия ВРВ, присутствовавшего в 12- и 16-разрядной FAT. Он содержит те же структуры, что и стандартный BPB, но включает несколько дополнительных полей, которые нужны для FAT32. Изменения, внесенные в BPB для поддержки FAT32, описаны ниже.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Таблица 5. Важнейшие записи в загрузочном секторе</font></h4><div align="justify"><table border="1" cellspacing="0" cellpadding="0" width="100%" align="center" id="table19"><tbody><tr bgcolor="#ffcc99"><td><div align="center"><font face="Arial" style="font-size: 9pt"><strong>Длина (в байтах) </strong></font></div></td><td><div align="center"><font face="Arial" style="font-size: 9pt"><strong>Содержимое</strong></font></div></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">3</font></td><td><font face="Arial" style="font-size: 9pt">Команды JMP и NOP</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">8</font></td><td><font face="Arial" style="font-size: 9pt">Название и версия Windows</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">2</font></td><td><font face="Arial" style="font-size: 9pt">Количество байтов на сектор</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">1</font></td><td><font face="Arial" style="font-size: 9pt">Количество секторов на кластер (всегда кратно двум в степени п)</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">2</font></td><td><font face="Arial" style="font-size: 9pt">Количество зарезервированных секторов перед первой FAT</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">1</font></td><td><font face="Arial" style="font-size: 9pt">Количество таблиц FAT</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">2</font></td><td><font face="Arial" style="font-size: 9pt">Количество элементов в корневом каталоге (максимальный предел)</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">2</font></td><td><font face="Arial" style="font-size: 9pt">Общее число секторов (00 00 - если размер диска больше 32 Мб)</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">1</font></td><td><font face="Arial" style="font-size: 9pt">Дескриптор среды; в данном случае F8, что идентифицирует диск как жесткий с любой емкостью</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">2</font></td><td><font face="Arial" style="font-size: 9pt">Количество секторов на элемент таблицы FAT</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">2</font></td><td><font face="Arial" style="font-size: 9pt">Количество секторов на дорожку</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">2</font></td><td><font face="Arial" style="font-size: 9pt">Число головок</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">4</font></td><td><font face="Arial" style="font-size: 9pt">Количество скрытых секторов</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">4</font></td><td><font face="Arial" style="font-size: 9pt">Общее число секторов, если размер диска больше 32 Мб</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">1</font></td><td><font face="Arial" style="font-size: 9pt">Номер диска; в данном случае 80, что идентифицирует основной раздел</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">1</font></td><td><font face="Arial" style="font-size: 9pt">Зарезервирован</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">1</font></td><td><font face="Arial" style="font-size: 9pt">Расширенная сигнатура (всегда 29h)</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">4</font></td><td><font face="Arial" style="font-size: 9pt">Серийный номер тома</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">11</font></td><td><font face="Arial" style="font-size: 9pt">Метка тома</font></td></tr><tr bgcolor="#ffffff"><td><font face="Arial" style="font-size: 9pt">8</font></td><td><font face="Arial" style="font-size: 9pt">Тип файловой системы (12- или 16-разрядная)</font></td></tr></tbody></table></div><p align="justify"><font face="Arial" style="font-size: 9pt"><strong>Примечание. </strong>Эта часть загрузочного сектора известна как BIOS Parameter Block (BPB) (блок параметров BIOS). Она содержит физические характеристики диска, которые MS-DOS и Windows используют при поиске определенного участка. Складывая или перемножая значения этих параметров, операционная система узнает, где находится таблица FAT, корневой каталог, где начинается и кончается область данных.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Поле корневого каталога. </font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">Этот элемент сообщает количество секторов в корневом каталоге. Для жестких дисков это значение всегда было равно 512 (0200h) и означало количество строк каталога размещаемых в тридцати двух секторах. Теперь оно изменено на 0 (0000h) и на FAT32-дисках игнорируется.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Количество секторов на элемент таблицы FAT. <br>&nbsp;</font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">Этот элемент заменен нулем и теперь действует как указатель на соответствующий элемент в BF_BPB, когда в процессе загрузки дело доходит до BF_BPB.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Описание диска. </font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">Новое двухбайтовое поле, используемое как флаг, указывающий количество таблиц FAT на диске - одна или две. Если флаг установлен, на диске только одна FAT, если сброшен - две. FAT32, созданная командой Format, всегда формирует 2 таблицы FAT.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Первый кластер корневого каталога. <br>&nbsp;</font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">Максимальное число элементов в корневом каталоге теперь расширено до 65535, а сам корневой каталог может находиться в любом месте. Данное значение указывает номер первого кластера, занимаемого корневым каталогом на <span>F</span>АТ32-диске.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Сектор файловой информации. <br>&nbsp;</font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">Указывает на второй загрузочный сектор. В нем содержится информация о том, сколько на диске всего кластеров, сколько из них свободно и какой кластер был выделен самым последним. Таким образом, чтобы получить эту часто используемую информацию, теперь не нужно считывать всю таблицу FAT.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Резервная копия загрузочного сектора. <br>&nbsp;</font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">Еще одно важное новшество в<span> F</span>АТ32. В прежних версиях файловой системы FAT повреждение загрузочного сектора приводило к полной потере всего содержимого диска. FAT32 снимает остроту этой проблемы. Записывая изменения на загрузочный том FAT32, программа FDISK создает резервную копию загрузочного сектора и помещает ее в логический сектор 6 этого тома. Если новая MBR при обращении к загрузочному сектору обнаруживает ошибку чтения или неправильную сигнатуру, она ищет сектор 6 и считывает остальную часть загрузочного кода уже из него.</font></p><h2 align="justify"><font face="Arial" style="font-size: 9pt">32-разрядная FAT-таблица</font></h2><p align="justify"><font face="Arial" style="font-size: 9pt">Предназначение FAT не изменилось. Она по-прежнему используется как таблица, связывающая отдельные кластеры файла. Элементы каталожной записи, указывающие на первый кластер файла, теперь состоят из четырех байтов, а содержимое этих байтов является номером (адресом) следующего кластера и элемента таблицы FAT, который содержит (указывает) номер следующего кластера файла, а также является номером элемента таблицы FAT и т. д. до последнего кластера файла. Элементы таблицы FAT теперь в 2 раза длиннее (по 4 байта), так как на <span>F</span>АТ32-диске может быть гораздо больше кластеров, чем на FАТ16-диске. В 16-разрядной FAT максимальное число кластеров на диске равно 65 525 (2 - за вычетом 10 зарезервированных), а в 32-разрядной FAT старшие 4 бита каждого 32-битного значения зарезервированы и не участвуют в формировании номера кластера, поэтому максимальное число кластеров в 32-разрядной FAT равно 268 435 445. (228 за вычетом 10 зарезервированных).</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Каталог в FAT32</font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">Начальный кластер, указанный в 32-х байтной строке каталога, сообщает операционной системе, где на диске искать первую часть файла и где в таблице FAT32 искать следующий номер кластера. В показанной ниже строке каталога адрес начального кластера выделен полужирным шрифтом.<br>&nbsp;</font></p><div align="justify"><table border="0" width="100%" id="table20"><tbody><tr><td width="60%"><font face="Arial" style="font-size: 9pt">49 4F 20 20 20 20 20 20 - 44 4F 53 07 00 00 00 00</font></td><td width="40%"><font face="Arial" style="font-size: 9pt">IO SYS.....</font></td></tr><tr><td width="60%"><font face="Arial" style="font-size: 9pt">00 00 00 00 <strong>00 00</strong> 80 32 - ЗЕ 1В <strong>02 00</strong> 46 9F 00 00</font></td><td width="40%"><font face="Arial" style="font-size: 9pt">......</font></td></tr></tbody></table></div><p align="justify"><font face="Arial" style="font-size: 9pt">Для указания номера кластера используются 2 дополнительных байта. Они размещаются в зарезервированной области, и в примере, показанном выше, это - 00 00. Объединяя их с обычными (существующими в FAT 16) двумя байтами (02 00), операционная система получает нужное значение (00 00 00 02) и ищет по нему соответствующий элемент таблицы FAT. Ниже показан пример записи с номерами кластеров файла в 32-разрядной таблице FAT:</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">F8 FF FF 0F FF FF FF 0F - 03 00 00 00 04 00 00 00 <br>05 00 00 00 06 00 00 00 - 07 00 00 00 08 00 00 00 <br>09 00 00 00 <span>0</span>А 00 00 00 - <span>0</span>В 00 00 00 <span>0</span>С 00 00 00 <br><span>0</span>D 00 00 00 <span>0</span>Е 00 00 00 - <span>0</span>F 00 00 00 10 00 00 00 <br>11 00 00 00 12 00 00 00 - 13 00 00 00 14 00 00 00 <br>15 00 00 00 16 00 00 00 - 17 00 00 00 18 00 00 00 <br>19 00 00 00 1А 00 00 00 - 1В 00 00 00 FF FF FF F8</font></p><font face="Arial" style="font-size: 9pt"><p align="justify"><br>Как и раньше в FAT 16, F8 - это байт, содержащий дескриптор носителя. Следующие 7 байтов, FF FF 0F FF FF FF 0F, зарезервированы. Номера кластеров записываются как четырехбайтовые числа. Их следует читать так:</p></font><div align="justify"><table border="0" width="100%" id="table21"><tbody><tr><td><font face="Arial" style="font-size: 9pt">03 00 00 00</font></td><td><font face="Arial" style="font-size: 9pt">04 00 00 00</font></td><td><font face="Arial" style="font-size: 9pt">05 00 00 00</font></td><td><font face="Arial" style="font-size: 9pt">06 00 00 00</font></td></tr><tr><td><font face="Arial" style="font-size: 9pt">00000003</font></td><td><font face="Arial" style="font-size: 9pt">00000004</font></td><td><font face="Arial" style="font-size: 9pt">00000005</font></td><td><font face="Arial" style="font-size: 9pt">00000006</font></td></tr></tbody></table></div><p align="justify"><font face="Arial" style="font-size: 9pt">Конец цепочки кластеров для файла помечается новым маркером - FFFFFFF8.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Зеркализация FAT</font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">Исторически сложилось так, что на всех FAT-дисках существуют 2 экземпляра таблицы FAT. Ecли при чтении исходного экземпляра возникает ошибка, файловая система пытается считать его резервную копию. На дисках с 12-и 16-разрядной FAT первая таблица FAT всегда является основной, и все изменения автоматически записываются в ее копию. Создание резервной копии второй таблицы FAT называется зеркализацией (mirroring). В FAT32 зеркализацию второй таблицы FAT можно отключить. Тогда операции чтения/записи ускоряются, а если первая FAT оказывается поврежденной, используется ее второй экземпляр (он становится основным). На FAT32-дисках таблица FAT может достигать огромных размеров, и отключение зеркализации способно заметно ускорить доступ к файлам. В самой Windows 9х<span>/Me</span> нет механизма, позволяющего это сделать. Зеркализация всегда включена. Но ничто не мешает разработчикам реализовать в своих дисковых утилитах отключение зеркализации на дисках очень большого объема.</font></p><p align="justify">&nbsp;</p><h2 align="justify"><font face="Arial" style="font-size: 9pt">Корневой каталог </font></h2><p align="justify"><font face="Arial" style="font-size: 9pt">Корневой каталог в FAT32 может содержать до 65 535 элементов. В загрузочном секторе появился новый элемент, который указывает на первый кластер корневого каталога. Поэтому корневой каталог больше не привязан к строго определенному участка на диске (раньше он должен был находиться непосредственно за второй таблицей FAT) и может расширяться точно так же, как и любой подкаталог. Однако при наличии большого количества элементов в корневом каталоге поиск нужных данных занимает довольно много времени. Производительность файловой системы из-за этого падает. Поэтому лучше ограничивать число элементов в корневом каталоге до какого-то разумного предела.<br>В любых файловых системах Windows 9х<span>/Me</span> пользователи могут присваивать файлам имена длиной до 255 символов и более чем с одной точкой. Имя файла считается длинным, если оно превышает размеры, допускаемые форматом "8.3", или, если в нем содержатся строчные буквы и другие символы, недопустимые в пространстве имен формата "8.3".</font></p><h2 align="justify"><font face="Arial" style="font-size: 9pt">Поддержка длинных имен файлов</font></h2><p align="justify"><font face="Arial" style="font-size: 9pt">С целью поддержки совместимости для каждого длинного имени файла автоматически генерируется псевдоним, удовлетворяющий формату "8.3". Этот псевдоним составляется из первых шести символов имени файла, дополняемых знаками ~n (где n - порядковый номер), и первых трех символов за последней точкой. Таким образом, файл DnisIsAdpg.File.Name получит псевдоним DNISIS~1.NAM. Если в каталоге уже есть такой псевдоним, порядковый номер увеличивается на единицу до тех пор, пока не получится уникальное имя. Ни пользователь, ни приложение не могут повлиять на процесс автоматического формирования псевдонима. В псевдониме используются только допустимые символы, а все буквы должны быть заглавными, чтобы соответствовать правилам формата "8.3". Для имен формата "8.3" (и псевдонимов) допустима любая комбинация букв и цифр, пробел (ASCII-код 20h), символы ASCII с кодами больше 127, а также знаки: <br><strong>$ %'-_@ ~`!()^#&amp;.</strong><br>Следующие символы допустимы в длинных именах файлов, но недопустимы в псевдонимах или именах формата "8.3": <br><strong>+,;=[] </strong><br>Кроме того, файловые системы Windows 9х<span>/Me</span> подчиняются таким правилам:<br>&nbsp;</font></p><ul><li><div align="justify"><font face="Arial" style="font-size: 9pt">максимальная длина имени файла - 255 знаков, включая символ NULL; </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">максимальная длина пути - 260 знаков, включая символ NULL (сравните с 80 знаками для краткого имени); </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">набор символов OEM, используемый устанавливаемой файловой системой, определяется реестром и содержимым файла Unicode.bin; </font></div></li><li><div align="justify"><font face="Arial" style="font-size: 9pt">при хранении длинных имен файлов в записях каталогов на диске используется Unicode. </font></div></li></ul><p align="justify"><font face="Arial" style="font-size: 9pt">Имя файла и псевдоним одинаковы, если имя соответствует формату "8.3" (т. е. содержит только допустимые для псевдонима символы, и все буквы заглавные). Отсюда следует, что имя файла, во всем совпадающее с псевдонимом за исключением того, что содержит строчные буквы, все равно считается длинным. В таком случае псевдоним формируется простым преобразованием строчных букв в заглавные - например, Examples.Txt трансформируется в EXAMPLES .TXT. (при поиске в файловой системе Windows 98 регистр букв не учитывается).</font></p><p align="justify"><font face="Arial" style="font-size: 9pt">Чтобы увидеть псевдоним файла, щелкните имя файла правой кнопкой мыши в любой оболочке типа Windows Explorer и выберите из контекстного меню команду Properties (Свойства). Псевдоним будет показан как параметр MS-DOS Name (Имя MS-DOS) в окне свойств на вкладке General (Общие). Команда dir, введенная в командной строке, отображает только длинные имена файлов.</font></p><h4 align="justify"><font face="Arial" style="font-size: 9pt">Размещение длинных имен в каталожной записи</font></h4><p align="justify"><font face="Arial" style="font-size: 9pt">В начале тома FAT12 или FAT16 заранее выделяется место для корневого каталога, достаточное для хранения 256 записей (элементов), что ограничивает число файлов и каталогов в корневом каталоге (в FAT32 такого ограничения нет). Элемент каталога FAT, размер которого составляет 32 байта, хранит имя файла, его размер, начальный кластер и метку времени (время создания, последнего доступа и т.д.). Если имя файла состоит из Unicode-символов или не соответствует правилам именования по формуле "8.3", принятым в MS-DOS, оно считается длинным, и для его хранения выделяются дополнительные элементы каталога. <br>Вспомогательные элементы предшествуют главному элементу для файла. На рисунке показан пример элемента каталога для файла с именем "The quick brown fox". Система создала представление этого имени в формате "8.3", THEQUI~1.FOX (в элементе каталога нет "точки", поскольку предполагается, что точка следует после восьмого символа), и использовала два дополнительных 32-х байтных элемента для хранения длинного Unicode-имени. Каждая строка на рисунке состоит из 16 байт.</font></p><p align="justify"><font face="Arial" style="font-size: 9pt"><strong>Второй (и последний) элемент для длинного имени</strong></font></p><div align="justify"><table border="1" cellspacing="0" cellpadding="0" width="100%" id="table22"><tbody><tr><td width="41"><div align="center"><font face="Arial" style="font-size: 9pt">0х42</font></div></td><td width="96"><div align="center"><font face="Arial" style="font-size: 9pt">w</font></div></td><td width="91"><div align="center"><font face="Arial" style="font-size: 9pt">n</font></div></td><td width="86"><div align="center"><font face="Arial" style="font-size: 9pt">.</font></div></td><td width="91"><div align="center"><font face="Arial" style="font-size: 9pt">f</font></div></td><td width="88"><div align="center"><font face="Arial" style="font-size: 9pt">o</font></div></td><td width="43"><div align="center"><font face="Arial" style="font-size: 9pt">0x01</font></div></td><td width="40"><div align="center"><font face="Arial" style="font-size: 9pt">0x00</font></div></td><td width="50"><div align="center"><font face="Arial" style="font-size: 9pt">Контр. сумма</font></div></td><td width="95"><div align="center"><font face="Arial" style="font-size: 9pt">x</font></div></td></tr></tbody></table></div><div align="justify"><table border="1" cellspacing="0" cellpadding="0" width="100%" id="table23"><tbody><tr><td width="12"><div align="center"><font face="Arial" style="font-size: 9pt">0x0000</font></div></td><td width="12"><div align="center"><font face="Arial" style="font-size: 9pt">0xFFFF</font></div></td><td width="12"><div align="center"><font face="Arial" style="font-size: 9pt">0xFFFF</font></div></td><td width="12"><div align="center"><font face="Arial" style="font-size: 9pt">0xFFFF</font></div></td><td width="12"><div align="center"><font face="Arial" style="font-size: 9pt">0xFFFF</font></div></td><td width="12"><div align="center"><font face="Arial" style="font-size: 9pt">0x0000</font></div></td><td width="12"><div align="center"><font face="Arial" style="font-size: 9pt">0xFFFF</font></div></td><td width="12"><div align="center"><font face="Arial" style="font-size: 9pt">0xFFFF</font></div></td></tr></tbody></table></div><p align="justify"><font face="Arial" style="font-size: 9pt"><strong>Первый элемент для длинного имени</strong><br>&nbsp;</font></p><div align="justify"><table border="1" cellspacing="0" cellpadding="0" width="100%" align="center" id="table24"><tbody><tr><td width="46"><div align="center"><font face="Arial" style="font-size: 9pt">0x01</font></div></td><td width="93"><div align="center"><font face="Arial" style="font-size: 9pt">T</font></div></td><td width="86"><div align="center"><font face="Arial" style="font-size: 9pt">h</font></div></td><td width="87"><div align="center"><font face="Arial" style="font-size: 9pt">e</font></div></td><td width="88">&nbsp;</td><td width="98"><div align="center"><font face="Arial" style="font-size: 9pt">q</font></div></td><td width="46"><div align="center"><font face="Arial" style="font-size: 9pt">0x0F</font></div></td><td width="42"><div align="center"><font face="Arial" style="font-size: 9pt">0x00</font></div></td><td width="41"><div align="center"><font face="Arial" style="font-size: 9pt">Контр. сумма</font></div></td><td width="94"><div align="center"><font face="Arial" style="font-size: 9pt">u</font></div></td></tr></tbody></table></div><div align="justify"><table border="1" cellspacing="0" cellpadding="0" width="100%" align="center" id="table25"><tbody><tr><td width="92"><div align="center"><font face="Arial" style="font-size: 9pt">i</font></div></td><td width="89"><div align="center"><font face="Arial" style="font-size: 9pt">c</font></div></td><td width="92"><div align="center"><font face="Arial" style="font-size: 9pt">k</font></div></td><td width="86">&nbsp;</td><td width="92"><div align="center"><font face="Arial" style="font-size: 9pt">b</font></div></td><td width="95"><div align="center"><font face="Arial" style="font-size: 9pt">0x0000</font></div></td><td width="86"><div align="center"><font face="Arial" style="font-size: 9pt">r</font></div></td><td width="93"><div align="center"><font face="Arial" style="font-size: 9pt">o</font></div></td></tr></tbody></table></div>		</td>
+		</tr>
+		
+				</tbody></table>
+		<span class="article_seperator">&nbsp;</span>
+							</td>
+				</tr>
+
+				<!-- ############################################## -->
+							</tbody></table>
+		</td>
+	</tr>
+
+	<tr>
+		<td align="center" colspan="2">
+			<div class="copyright">Alanco © 2006</div>
+		</td>
+	</tr>
+</tbody></table>
+
+
+
+
+<div style="display:none"><a href="http://superkupon.ru/"><font color="white">SuperKupon.ru — это супер скидки на кафе, рестораны, бары, пицца, spa, салоны красоты, парикмахерские, бассейны, автомойки и многие другие услуги и развлечения со скидками от 50% до 90%. Открой город заново!</font></a></div><!-- 1432962811 --></body></html>

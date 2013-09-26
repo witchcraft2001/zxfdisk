@@ -1,0 +1,375 @@
+;**********************************;
+;       HDD Test program           ;
+;       (c) Ivan Mak               ;
+;**********************************;
+
+        .Z80
+        ASEG
+	.RADIX 10
+	ORG 100H
+
+	DB 'EX'
+	DB 45H		; RESERV
+	DB 0		; MY VERSION
+	DW 200H,0       ; START CODE IN FILE
+	DW 0		; LEN START LOAD DATA
+	DW 0,0,0	; RESERV
+	DW 8100H	; ADRESS IN MEM
+	DW 8100H	; START ADRESS
+	DW 08FFEH	; STACK ADRESS
+	DS 490
+
+	.PHASE 8100h
+
+	INCLUDE SPRINT00.ASZ
+
+START:
+	LD DE,0
+	LD HL,2050h
+	LD B,07h
+	LD C,56h
+	LD A,20h
+	RST 10h
+
+	LD HL,BEGIN_MSG
+	LD C,5Ch
+	RST 10h
+
+	CALL INIT_TEST
+	DI
+	CALL HDD_REG_TEST
+	RET C
+	EI
+
+	LD B,10
+
+LOOP_INI:
+	PUSH BC
+	CALL INIT_TEST
+	JR NC,CONT_TEST
+	POP BC
+	DJNZ LOOP_INI
+
+	JP ERROR
+
+CONT_TEST:
+
+	LD B,10
+READ_TEST_L:
+	PUSH BC
+
+	LD HL,MSG1
+	LD C,5Ch
+	RST 10h
+
+	CALL READ_TEST
+	POP BC
+	DJNZ READ_TEST_L
+
+	LD A,(COUNT_WRITES)
+	AND A
+	JR NZ,CONT_1
+
+	LD HL,NO_WR_MSG
+	LD C,5Ch
+	RST 10h
+	JP ENDPROG
+
+
+CONT_1:
+	LD B,10
+WRITE_TEST_L:
+	PUSH BC
+
+	LD HL,MSG2
+	LD C,5Ch
+	RST 10h
+
+	CALL WRITE_TEST
+	POP BC
+	DJNZ WRITE_TEST_L
+
+ENDPROG:
+	LD HL,ENDS_MSG
+	LD C,5Ch
+	RST 10h
+	RET
+
+BIOS:
+	DI
+	PUSH AF
+	LD A,0
+	OUT (SYS_PORT_ON),A
+	POP AF
+	RST 18h
+	PUSH AF
+	LD A,0
+	OUT (SYS_PORT_OFF),A
+	POP AF
+	EI
+	RET
+
+
+;**************************************
+;P_S_CNT EQU 152H	;
+;P_S_NUM EQU 153H
+;P_C_LOW EQU 154H
+;P_C_HIG EQU 155H        ;<-\
+
+HDD_REG_TEST:
+
+	LD HL,55AAh
+	LD DE,00FFh
+LOOP_REG_T:
+	LD BC,P_S_CNT
+	OUT (C),E
+	INC C
+	OUT (C),D
+	INC C
+	OUT (C),L
+	INC C
+	OUT (C),H
+	DEC C
+	DEC C
+	DEC C
+
+	DEC B
+	IN A,(C)
+	CP E
+	JR NZ,ERR_REG
+	INC C
+	IN A,(C)
+	CP D
+	JR NZ,ERR_REG
+	INC C
+	IN A,(C)
+	CP L
+	JR NZ,ERR_REG
+	INC C
+	IN A,(C)
+	CP H
+	JR NZ,ERR_REG
+	INC L
+	INC H
+	INC E
+	INC D
+	JR NZ,LOOP_REG_T
+
+	LD A,1
+	LD BC,P_S_CNT
+	OUT (C),A
+	INC C
+	OUT (C),A
+	DEC A
+	INC C
+	OUT (C),A
+	INC C
+	OUT (C),A
+
+	AND A
+	RET
+
+ERR_REG:
+	LD HL,ERROR_MSG6
+	LD C,5Ch
+	RST 10h
+	SCF
+	RET
+
+;**************************************
+INIT_TEST:
+
+; инициализация винчестера
+
+        LD C,040h       ; номер функции
+        CALL BIOS      ; NC -> нормальное завершение
+                        ; CF -> винчестер не найден
+	JP C,ERROR_INI
+
+; читать BPB
+        LD C,044h       ; номер функции
+        LD HL,MS_BPB	; адрес буфера для BPB
+        LD A,SYS_PAGE   ; страница буфера, если адрес в окне 0C000h
+        CALL BIOS      ; NC -> нормальное завершение
+                        ; CF -> ошибка
+	JP C,ERROR_INI2
+	RET
+
+ERROR_INI2:
+	LD HL,ERROR_MSG2
+	LD C,5Ch
+	RST 10h
+	SCF
+	RET
+
+ERROR_INI:
+	LD HL,ERROR_MSG1
+	LD C,5Ch
+	RST 10h
+	SCF
+	RET
+
+;*********************************************
+READ_TEST:
+	LD A,10
+	LD (COUNT_WRITES),A
+
+READ_AGAIN:
+; читать сектора с винчестера
+        LD C,045h       ; номер команды
+        LD HL,0C000h    ; адрес буфера данных
+        IN A,(PAGE3)    ; страница буфера, если адрес в окне 0C000h
+        LD B,10h        ; число читаемых секторов 8k
+        LD DE,2         ; абсолютный номер сектора младшая часть
+        LD IX,0         ; абсолютный номер сектора старшая часть
+        CALL BIOS      ; NC -> нормальное завершение
+                        ; CF -> ошибка
+	JR NC,CONT_READ
+	LD HL,MSGER
+	LD C,5Ch
+	RST 10h
+	JR READ_AGAIN
+
+CONT_READ:
+READ_AGAIN2:
+        LD C,045h       ; номер команды
+        LD HL,0E000h    ; адрес буфера данных
+        IN A,(PAGE3)    ; страница буфера, если адрес в окне 0C000h
+        LD B,10h        ; число читаемых секторов 8k
+        LD DE,2         ; абсолютный номер сектора младшая часть
+        LD IX,0         ; абсолютный номер сектора старшая часть
+        CALL BIOS      ; NC -> нормальное завершение
+                        ; CF -> ошибка
+	JR NC,CONT_READ2
+	LD HL,MSGER
+	LD C,5Ch
+	RST 10h
+	JR READ_AGAIN2
+CONT_READ2:
+	LD HL,0C000h
+	LD DE,0E000h
+LOOP_VF:
+	LD A,(DE)
+	CP (HL)
+	JR NZ,ERROR_RDX
+	INC HL
+	INC DE
+	LD A,D
+	AND A
+	JR NZ,LOOP_VF
+	RET
+ERROR_RDX:
+	LD HL,ERROR_MSG3
+	LD C,5Ch
+	RST 10h
+
+	LD A,(COUNT_WRITES)
+	DEC A
+	RET Z
+	LD (COUNT_WRITES),A
+
+	JR READ_AGAIN
+
+;*********************************************
+WRITE_TEST:
+	LD A,4
+	LD (COUNT_WRITES),A
+WRITE_AGAIN:
+; писать сектора на винчестер
+        LD C,046h       ; номер команды
+        LD HL,0C000h    ; адрес буфера данных
+        IN A,(PAGE3)    ; страница буфера, если адрес в окне 0C000h
+        LD B,10h        ; число читаемых секторов 8k
+        LD DE,2         ; абсолютный номер сектора младшая часть
+        LD IX,0         ; абсолютный номер сектора старшая часть
+        CALL BIOS      ; NC -> нормальное завершение
+                        ; CF -> ошибка
+	JR NC,CONT_WRITE
+	LD HL,MSGEW
+	LD C,5Ch
+	RST 10h
+	JR WRITE_AGAIN
+
+CONT_WRITE:
+READ_AGAIN3:
+        LD C,045h       ; номер команды
+        LD HL,0E000h    ; адрес буфера данных
+        IN A,(PAGE3)    ; страница буфера, если адрес в окне 0C000h
+        LD B,10h        ; число читаемых секторов 8k
+        LD DE,2         ; абсолютный номер сектора младшая часть
+        LD IX,0         ; абсолютный номер сектора старшая часть
+        CALL BIOS      ; NC -> нормальное завершение
+                        ; CF -> ошибка
+	JR NC,CONT_WRITE2
+	LD HL,MSGER
+	LD C,5Ch
+	RST 10h
+	JR READ_AGAIN3
+
+CONT_WRITE2:
+	LD HL,0C000h
+	LD DE,0E000h
+LOOP_VF2:
+	LD A,(DE)
+	CP (HL)
+	JR NZ,ERROR_WRX
+	INC HL
+	INC DE
+	LD A,D
+	AND A
+	JR NZ,LOOP_VF2
+	RET
+ERROR_WRX:
+	LD HL,ERROR_MSG4
+	LD C,5Ch
+	RST 10h
+
+	LD A,(COUNT_WRITES)
+	DEC A
+	RET Z
+	LD (COUNT_WRITES),A
+
+INIT_AGAIN:
+        LD C,040h       ; номер функции
+        CALL BIOS      ; NC -> нормальное завершение
+                        ; CF -> винчестер не найден
+	JP NC,WRITE_AGAIN
+
+	LD HL,ERROR_MSG5
+	LD C,5Ch
+	RST 10h
+	JR INIT_AGAIN
+
+ERROR:
+	LD HL,ERROR_MSG1
+	LD C,5Ch
+	RST 10h
+	RET
+
+COUNT_WRITES:	DB 0
+
+MSG1:	DB 13,10,"R->",0
+MSG2:	DB 13,10,"W->",0
+
+MSGEW:	DB "W",0
+MSGER:	DB "R",0
+
+ERROR_MSG6: DB 13,10," Registers R/W Error!",0
+ERROR_MSG5: DB " Not stable INIT!",0
+ERROR_MSG3: DB " Not stable Read!",0
+ERROR_MSG4: DB " Not stable Write!",0
+NO_WR_MSG:  DB 13,10,"TEST-Read not passed. TEST-Write skipped!",0
+ERROR_MSG1: DB 13,10,"HDD init error",0
+ERROR_MSG2: DB 13,10,"HDD: Error in BPB",0
+
+BEGIN_MSG: DB 13,10,"HDD-Test Utility for Sprinter. Writed by Ivan Mak.",0
+ENDS_MSG:  DB 13,10,"HDD-Test END.",0
+
+	DS -$ and 0FFh
+
+
+        .DEPHASE
+        END
+
+
+

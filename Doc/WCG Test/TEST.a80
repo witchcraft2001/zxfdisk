@@ -1,0 +1,1081 @@
+        org 30000
+        ld hl,#5AFF
+        ld de,#5AFE
+        ld bc,768
+        xor a 
+        out (#FE),a 
+        ld (hl),7
+        lddr
+        ld (hl),a
+        ld bc,6144
+        lddr 
+        ld de,(23796)
+        ld (TRK),de 
+        ld a,(23798)
+        ld (CURENDRV),a 
+        ld a,1
+        ld (COL),a
+        ld a,1
+        ld (ROW),a
+        ld a,22
+        ld (HGT),a
+        ld a,22
+        ld (LEN),a 
+TESTING ld hl,#4000
+        ld de,#4001
+        ld bc,6143
+        ld (hl),l
+        ldir 
+        ld hl,begintxt
+        call PRT
+        ld b,25
+PAUSBEG1 push bc
+        ld hl,#5AC0
+        ld de,#5AC1
+        ld a,(hl) 
+        xor 7
+        ld (hl),a
+        ld bc,31
+        ldir 
+        ld a,10
+        call PAUSE
+        pop bc
+        ld a,127
+        in a,(#FE)
+        and 1
+        jr z,STRT1
+        djnz PAUSBEG1
+        call DR12
+        call PSCR
+        jp STRTRC
+DR12    ld hl,#5AE0
+        ld de,#5AE1
+        ld bc,31
+        ld (hl),7
+        ldir
+        ret 
+STRT1   call DR12
+        call PSCR
+        ld hl,NACHTXT
+        call PRT
+        call PSCR
+        call START
+        ld hl,TXTZ80
+        call PRT
+        ei 
+        ld bc,0
+        ld e,b 
+M1      ld a,r
+        jp po,Z80DET
+        inc bc
+        ld a,b
+        or c
+        jr nz,M1
+        inc e 
+Z80DET  ld a,e 
+        ld hl,EMUL
+        call PRTDB:call PSCR
+        ld hl,TXT1
+        call PRT
+        ld a,(TYPE)
+        call PRSC
+        ld a,c 
+        ld hl,COMPS1
+        call PRTDB
+        call PSCR
+        ld hl,TXT2
+        call PRT
+        call MEMOR
+        ld a,c
+        ld (PRI),a 
+        ld hl,COMPSM
+        call PRTDB
+        call TSTCASH
+        call PSCR
+        ld a,(CASH)
+        or a
+        jr z,NOCSH
+        ld a,(LENCASH+1)
+        ld hl,TXT1rom
+        sub #40
+        jr z,YCASH
+        ld hl,TXT1csh
+YCASH   call PRT
+        jr tstdr
+NOCSH   ld hl,TXT9
+        call PRT
+tstdr   call PSCR
+        ld hl,TXT10
+        call PRT
+        call OPRAY
+        ld hl,PRNOT
+        call PRTDB
+        call PSCR
+        ld hl,TXT11
+        call PRT
+        call OPRDMA
+        dec a 
+        ld hl,PRNOT
+        call PRTDB
+        call PSCR
+        call KMOUSE
+        ld hl,KEMPJOY
+        call PRT
+        ld a,(KJYES)
+        ld hl,PRNOT
+        call PRTDB
+        call PSCR
+        ld hl,KEMPMOUS
+        call PRT
+        ld a,(KMYES)
+        ld hl,PRNOT
+        call PRTDB
+        call PSCR
+        ld hl,PRTDRV
+        call PRT
+        call PRINTER
+        ld hl,PRINTDRV
+        call PRTDB
+        call PSCR
+        sub a 
+        ld (DR1+1),a 
+DR2     ld a,(DR1+1)
+        add a,65
+        ld (TXT3+8),a 
+        ld hl,TXT3
+        call PRT
+DR1     ld a,0
+        call DRIVE
+        ld hl,NOTP
+        jr z,NDR1
+        ld hl,PRES
+NDR1    push af 
+        call PRT
+        pop af 
+        jr z,NDR2
+        ld hl,TXT4
+        call PRT
+        ld a,208
+        ld c,31
+        call OUTC_A
+        ld de,20000
+        ld a,212
+        ld c,31
+        call OUTC_A
+        ld ix,16343
+        ld bc,383
+        call DOS
+        ld hl,NOTP
+        jr z,NDS1
+        ld hl,PRES
+NDS1    call PRT
+NDR2    call PSCR
+        ld a,(DR1+1)
+        inc a
+        and 3
+        ld (DR1+1),a
+        xor 3
+        jr nz,DR2
+        ld a,(CURENDRV)
+        push af
+        add a,65
+        ld (TXT5+17),a 
+        ld hl,TXT5
+        call PRT
+        pop af 
+        call DRIVE
+        call PSCR
+STRTRC  ld hl,TXT8
+        call PRT
+SNOV    ld de,(TRK)
+        ld (23796),de
+        ret 
+OPRAY   sub a
+        ld bc,#FFFD
+        out (c),a
+        ld b,#BF
+        out (c),a
+        ld b,#FF
+        out (c),a
+        in a,(c) 
+        or a 
+        ret z 
+        ld a,1
+        ret 
+PRINTER ld a,(PRI)
+        cp 6
+        ld a,2
+        ret z 
+        di 
+        in a,(251)
+        ld bc,(79)
+        in a,(123)
+        ld hl,16621
+        sub a
+        sbc hl,bc
+        ld a,1
+        ret z
+        ld hl,65535
+        or a
+        sbc hl,bc 
+        ret z
+        ld a,152
+        out (129),a
+        out (63),a
+        ld a,15
+        out (95),a
+        in a,(63)
+        cp 152
+        ld a,3
+        ret z
+        xor a
+        ret
+KMOUSE  xor a 
+        ld (KMYES),a 
+        ld (KJYES),a 
+        ld a,144
+        out (127),a
+        out (95),a
+        ld bc,64223
+        in a,(c) 
+        ld bc,64479
+        in l,(c) 
+        ld b,255
+        in h,(c)
+        cp h
+        jr z,K1
+        cp l
+        jr nz,K2
+K1      ld a,1
+        ld (KMYES),a
+K2      ld de,512
+        ld bc,31
+K3      in a,(c) 
+        and c
+        cp c
+        jr nz,K4
+        ld a,1
+        ld (KJYES),a
+        ret
+K4      dec de
+        ld a,d
+        or e
+        jr nz,K3
+        ret 
+OPRDMA  sub a
+        ld bc,#DC77
+        out (c),a
+        ld b,#0C
+        ld de,#1234
+        out (c),e
+        out (c),d
+        in a,(c) 
+        cp e
+        ld a,1
+        jr nz,NDMA
+        in a,(c) 
+        cp d 
+        ld a,1
+        ret z
+NDMA    inc a 
+        ret 
+DRIVE   and 3
+        or 60
+        ld c,255
+        call OUTC_A
+        ld a,8
+        ld de,25000
+        ld c,31
+        call OUTC_A
+        ld ix,16343
+        ld bc,383
+        call DOS
+        ret 
+TXT8    db 1,"Loading programm...",0
+TXT9    db 1,"Cache or user ROM not detected",0
+TXT5    db 1,"Currency drive: A",0
+TXT4    db 22,22,23,"Disk ",0
+TXT3    db 1,"Drive: A  ",0
+TSTCASH sub a 
+        call ONPAGE
+        di 
+        in a,(#FB)
+        ld hl,0
+        ld de,#C000
+        ld bc,#4000
+        ldir 
+        ld hl,0
+        ld de,1
+        ld bc,#3FFF
+        ld (hl),l
+        ldir
+        ld hl,0
+NEXTB   ld a,(hl) 
+        or a
+        jr nz,NOZERO
+        ld (hl),#FF
+        inc hl
+        inc bc
+        bit 6,b
+        jr z,NEXTB
+ENDCASH ld a,1
+        ld (CASH),a
+        ld (LENCASH),bc
+        ld hl,#C000
+        ld de,0
+        ldir
+        in a,(#7B)
+        and a
+        ret
+NOZERO  inc a
+        jr z,ENDCASH
+        sub a
+        ld (CASH),a
+        in a,(#7B)
+        scf
+        ret 
+MEMOR   ld a,(PAGE)
+        ld c,4
+        cp 1
+        ret c 
+        ld c,0
+        cp 8
+        ret c
+        inc c
+        cp 16
+        ret c
+        inc c
+        cp 32
+        ret c
+        inc c
+        ret 
+
+PRTDB   ld de,2
+        or a
+        jr z,PRTDB1
+PDB1    add hl,de 
+        dec a 
+        jr nz,PDB1
+PRTDB1  ld a,(hl) 
+        inc hl
+        ld h,(hl) 
+        ld l,a
+        jp PRT
+PRSC    ld c,0
+        bit 1,a
+        ret nz
+        inc c
+        bit 2,a
+        ret nz 
+        inc c
+        bit 3,a
+        ret nz 
+        inc c
+        bit 4,a
+        ret nz 
+        inc c
+        bit 5,a
+        ret nz 
+        bit 0,a
+        ret nz 
+        inc c
+        bit 7,a
+        ret nz 
+        ld c,#FF
+        ret 
+PSCR    call PAUSE1
+        call SCRUP
+        ret 
+NACHTXT db 22,1,23,">~WITCHCRAFT~ TEST GO!",0
+TRK     ds 2
+PAUSE1  ld a,1
+PAUSE   ei 
+        ld hl,23672
+        ld (hl),0
+WAIT1   cp (hl) 
+        ret z 
+        jr WAIT1
+PRT     ld a,(hl) 
+        or a 
+        jr z,CAM
+        cp 1
+        jr z,ADRNEW
+        cp 13
+        jr z,C13
+        cp 22
+        jr z,C22
+        push hl
+        call PRT1
+        pop hl
+        inc hl
+        jr PRT
+CAM     ld a,#FF
+        ret 
+ADRNEW  inc hl
+        ld d,2
+        ld e,23
+        jr C23
+C13     ld de,(ADR1)
+        call DOWN8
+        ld (ADR),de
+        ld (ADR1),de 
+        ld a,(TOP1)
+        ld (TOP),a 
+        inc hl 
+        jr PRT
+DOWN8   ld a,e
+        add a,32
+        ld e,a
+        ret nc
+        ld a,d
+        add a,8
+        ld d,a
+        ret
+C22     inc hl
+        ld d,(hl) 
+        inc hl
+        ld e,(hl) 
+        inc hl
+C23     push hl 
+        call COORD
+        ld (ADR),hl
+        ld (ADR1),hl
+        pop hl 
+        jr PRT
+COORD   srl d 
+        ld a,0
+        jr c,LF1
+        ld a,1
+LF1     ld (TOP),a
+        ld (TOP1),a
+        ld a,e
+        and 7
+        rrca
+        rrca
+        rrca
+        add a,d
+        ld l,a
+        ld a,e
+        and #18
+        or #40
+        ld h,a
+        ret 
+PRT1    ld c,a
+        srl a
+        ld l,a
+        ld h,0
+        add hl,hl
+        add hl,hl
+        add hl,hl
+        ld de,font64
+        add hl,de
+        ld de,(ADR)
+        ld a,(TOP)
+        xor 1
+        ld (TOP),a
+        ld a,c
+        jr nz,PR1
+        and 1
+        jr nz,PR2
+        ld b,8
+LP1     ld a,(hl) 
+        and 240
+        ld c,a 
+        ld a,(de) 
+        and 15
+        or c 
+        ld (de),a 
+        inc hl
+        inc d 
+        djnz LP1
+        ret
+PR2     ld b,8
+LP2     ld a,(hl) 
+        sla a
+        sla a
+        sla a
+        sla a
+        ld c,a 
+        ld a,(de) 
+        and 15
+        or c
+        ld (de),a
+        inc hl
+        inc d 
+        djnz LP2
+        ret
+PR1     and 1
+        jr z,PR3
+        ld b,8
+LP3     ld a,(hl) 
+        and 15
+        ld c,a
+        ld a,(de)
+        and 240
+        or c
+        ld (de),a
+        inc hl
+        inc d 
+        djnz LP3
+        ld hl,ADR
+        inc (hl) 
+        ret
+PR3     ld b,8
+LP4     ld c,(hl) 
+        srl c
+        srl c
+        srl c
+        srl c
+        ld a,(de) 
+        and 240
+        or c 
+        ld (de),a
+        inc hl
+        inc d 
+        djnz LP4
+        ld hl,ADR
+        inc (hl) 
+        ret 
+DOWND   inc d
+        ld a,d
+        and 7
+        ret nz
+        ld a,e
+        add a,32
+        ld e,a
+        ret c
+        ld a,d
+        sub 8
+        ld d,a
+        ret 
+ADRZ    ld a,l
+        and 7
+        rrca
+        rrca
+        rrca
+        add a,h
+        ld h,l
+        ld l,a
+        ld a,h
+        and #18
+        or #40
+        ld h,a
+        ret
+ADRATR  ld a,l
+        and 7
+        rrca
+        rrca
+        rrca
+        add a,h
+        ld h,l
+        ld l,a
+        ld a,h
+        and #18
+        rrca
+        rrca
+        rrca
+        or #58
+        ld h,a
+        ret 
+SCRUP   ld a,(COL)
+        ld h,a
+        ld a,(ROW)
+        ld l,a
+        call ADRZ
+        ld d,h
+        ld e,l
+        call DOWN8
+        ex de,hl
+        ld a,(HGT)
+        ld b,a
+SCR1    push bc
+        call COPY1
+        ld e,l
+        ld d,h
+        ld a,l
+        add a,32
+        ld l,a
+        jr nc,SCR2
+        ld a,8
+        add a,h
+        ld h,a
+SCR2    pop bc
+        djnz SCR1
+        ld c,8
+        ex de,hl 
+SCR3    ld a,(LEN)
+        ld b,a
+        push hl 
+SCR4    ld (hl),0
+        inc l
+        djnz SCR4
+        pop hl
+        inc h
+        dec c
+        jr nz,SCR3
+        ret
+COPY1   push hl:push de 
+        ld a,(LEN)
+        ld c,a:ld b,0
+        ld a,8
+SCR5    push bc:push de:push hl
+        ldir
+        pop hl:pop de:pop bc
+        inc d
+        inc h
+        dec a
+        jr nz,SCR5
+        pop de:pop hl
+        ret 
+;Memory driver
+;(c) Pawel/RS
+;(c) Creator
+;Перед  работой с драйвером вызовите подп-
+;рограмму START, для инициализации и опре-
+;деления свободной памяти.
+
+;Подключение логического банка, номер в a,
+;нумерация начинается с нуля.
+ONPAGE  push    bc 
+        push    hl 
+        ld      c,a 
+        ld      b,0
+        ld      hl,TABL_PG
+        add     hl,bc 
+        ld      a,(hl) 
+        pop     hl 
+        pop     bc 
+EX_RAM  di 
+        push    hl 
+        push    af 
+        push    bc 
+        ld      hl,TYPE
+        bit     1,(hl) 
+        jr      nz,ZS256
+        bit     2,(hl) 
+        jr      nz,PROFI
+        bit     3,(hl) 
+        jr      nz,TURBO_2
+        bit     4,(hl) 
+        jr      nz,ATM1
+        bit     0,(hl) 
+        jr      nz,SPECCY
+        bit     7,(hl) 
+        jr      nz,SPECCY
+        jr      TDK
+
+TURBO_2 push    af 
+        push    ix 
+        and     24
+        cpl 
+        ld      bc,#FFF7
+        call    OUTC_A
+        pop     ix 
+        pop     af 
+        jp      SPECCY
+
+ATM1    ld      bc,#FDFD
+        push    af 
+        rrca 
+        rrca 
+        rrca 
+        and     3
+        jr      HOME
+
+PROFI   ld      bc,#DFFD
+        push    af 
+        rrca 
+        rrca 
+        rrca 
+        and     7
+        jr      HOME
+
+ZS256   push    af 
+        ld      b,a 
+        and     %00001000
+        rlca 
+        ld      c,a 
+        ld      a,b 
+        and     %00110000
+        rlca 
+        rlca 
+        add     a,c 
+        ld      bc,#1FFD
+HOME    out     (c),a 
+        nop 
+        pop     af 
+
+SPECCY  ld      b,a 
+        and     24
+        rlca 
+        rlca 
+        rlca 
+        ld      c,a 
+        ld      a,b 
+        and     7
+        add     a,c 
+        or      16
+        ld      bc,#7FFD
+        out     (c),a 
+        nop 
+TDK     pop     bc 
+        pop     af 
+        pop     hl 
+        ret 
+
+OUTC_A  ld      ix,10835
+DOS     push    ix 
+        jp      15663
+
+
+;Инициализация  и тест памяти, вызывается
+;в начале работы, после чего память зани-
+;маемую программой ниже, можно использо-
+;вать по своему усмотрению.
+
+START   call    TEST
+        ld      a,(8)
+        cp      #2A   ;если SCORPION, то
+        ret     z     ;удалить из списка
+        ld      c,8   ;8-й банк, исполь-
+        jp      DEBUG ;зующийся монитором.
+
+TEST    call    TABINIT
+        xor     a 
+        ld      (TYPE),a 
+        inc     a 
+        ld      (PAGE),a 
+        di 
+        ld      a,(#08)
+        cp      #C3
+        jr      nz,ITURBO
+        ld      hl,TYPE
+        set     7,(hl) 
+ITURBO  ld      hl,(1111)
+        ld      bc,#FFF7
+        ld      a,%00011111
+        call    OUTC_A
+        ld      de,(#C000+1111)
+        and     a 
+        sbc     hl,de 
+        ld      bc,#FFF7
+        ld      a,255
+        call    OUTC_A
+        jr      nz,IDFFD
+        ld      hl,TYPE
+        set     3,(hl) 
+        jr      I7FFD
+MM_ATM  db      #DB,#1F,#C9
+IDFFD   ld      hl,#80
+        ld      de,#1000
+        ld      bc,#DFFD
+        out     (c),d 
+        nop 
+        ld      a,(hl) 
+        inc     (hl) 
+        cp      (hl) 
+        ld      (hl),a 
+        out     (c),e 
+        nop 
+        jr      z,I1FFD
+        ld      hl,TYPE
+        set     2,(hl) 
+        out     (c),d 
+        nop 
+        ld      b,#7F
+        out     (c),d 
+        nop 
+        ld      b,#DF
+        out     (c),e 
+        nop 
+        jr      I7FFD
+I1FFD   ld      de,#1110
+        ld      b,#1F
+        out     (c),d 
+        nop 
+        ld      a,(hl) 
+        inc     (hl) 
+        cp      (hl) 
+        ld      (hl),a 
+        out     (c),e 
+        nop 
+        jr      z,IFDFD
+        xor     a 
+        out     (c),a 
+        ld      hl,TYPE
+        set     1,(hl) 
+        jp      I7FFD
+IFDFD   ld      b,c 
+        ld      hl,#FFFF
+        out     (c),d 
+        nop 
+        ld      b,#7F
+        out     (c),d 
+        nop 
+        ld      a,(hl) 
+        ld      (RBT2+1),a 
+        ld      (hl),d 
+        ld      b,c 
+        out     (c),e 
+        nop 
+        ld      b,#7F
+        out     (c),d 
+        nop 
+        ld      a,(hl) 
+        ld      (RBT+1),a 
+        ld      (hl),e 
+        ld      b,c 
+        out     (c),d 
+        nop 
+        ld      b,#7F
+        out     (c),d 
+        nop 
+        ld      a,(hl) 
+        cp      d 
+        jr      nz,I7FFD
+        ld      hl,TYPE
+        set     4,(hl) 
+I7FFD   ld      hl,#FFFF
+        ld      b,#7F
+        out     (c),e 
+        nop 
+        ld      a,(hl) 
+        ld      (RBT0+1),a 
+        ld      (hl),e 
+        out     (c),d 
+        nop 
+        ld      (hl),d 
+        out     (c),e 
+        nop 
+        ld      a,d 
+        cp      (hl) 
+        jr      z,SIZED
+        ld      hl,TYPE
+        set     0,(hl) 
+SIZED   ld      hl,#FFFF
+RBT0    ld      (hl),0
+        ld      b,c 
+        out     (c),e 
+        nop 
+        ld      b,#7F
+        out     (c),d 
+        nop 
+RBT     ld      (hl),0
+        ld      b,c 
+        out     (c),d 
+        nop 
+        ld      b,#7F
+        out     (c),d 
+        nop 
+RBT2    ld      (hl),0
+        call    VIRT
+        ld      a,(PAGE)
+        cp      8
+        jr      c,ENDING
+        ld      a,(TYPE)
+        cp      1
+        jr      nz,ENDING
+        ld      hl,TYPE
+        set     5,(hl) 
+ENDING  xor     a 
+        call    EX_RAM
+        ei 
+        ret 
+VIRT    ld      ix,#C000
+        ld      hl,VTABL+63
+        ld      b,64
+V_R11   ld      a,b 
+        dec     a 
+        call    EX_RAM
+        ld      c,(ix+0)
+        ld      (hl),c 
+        ld      (ix+0),a 
+        dec     hl 
+        djnz    V_R11
+        push    af 
+        ld      a,LENTABL-1
+        ld      (PAGE),a 
+        pop     af 
+        ld      de,TABL_PG
+V_R20   ld      a,(de) 
+        cp      #FF
+        jr      z,V_R30
+        call    EX_RAM
+        cp      (ix+0)
+        jr      z,V_R22
+        push    de 
+        ld      hl,TABL_PG+LENTABL
+        and     a 
+        sbc     hl,de 
+        push    hl 
+        pop     bc 
+        push    de 
+        pop     hl 
+        inc     hl 
+        ldir 
+        push    hl 
+        ld      hl,PAGE
+        dec     (hl) 
+        pop     hl 
+        pop     de 
+        dec     de 
+V_R22   inc     de 
+        jr      V_R20
+V_R30   ld      b,64
+        ld      hl,VTABL
+V_R31   ld      a,64
+        sub     b 
+        call    EX_RAM
+        ld      a,(hl) 
+        ld      (ix+0),a 
+        inc     hl 
+        djnz    V_R31
+        ret 
+
+;удаление из таблицы банка с номером в
+;регистре c, вызывать сразу после теста.
+
+DEBUG   push    de 
+        pop     hl 
+NO_PG1  dec     de 
+        ld      a,(de) 
+        cp      #FF
+        jr      z,NO_PG2
+        cp      c 
+        jr      nz,NO_PG1
+        sbc     hl,de 
+        push    hl 
+        pop     bc 
+        push    de 
+        pop     hl 
+        inc     hl 
+        ldir 
+        push    hl 
+        ld      hl,PAGE
+        dec     (hl) 
+        pop     hl 
+        dec     hl 
+        dec     hl 
+NO_PG2  ex      de,hl 
+        ret 
+
+;Создание таблицы банков, с исключением
+;не использующихся, в данном варианте
+;удаляются 2-й и 5-й банки.
+
+TABINIT ld      hl,TABL_PG-1
+        ld      (hl),255
+        inc     hl 
+        xor     a 
+TABI1   ld      (hl),a 
+        inc     a 
+        cp      2
+        jr      z,TABI1A
+        cp      5
+        jr      z,TABI1A
+        jr      TABI2
+TABI1A  inc     a 
+TABI2   inc     hl 
+        cp      LENTABL+1
+        jr      nz,TABI1
+        ld      (hl),255
+        ld      hl,VTABL
+        push    hl 
+        pop     de 
+        inc     de 
+        ld      bc,63
+        ld      (hl),0
+        ldir 
+        ret 
+
+LENTABL equ     62 ;максимальное количес-
+                   ;тво использующихся
+                   ;банков.
+
+        db      0  ;код начала таблицы
+TABL_PG ds      LENTABL+1
+
+TYPE    db      0  ;тип компьютера
+
+PAGE    db      0  ;общее число доступных
+                   ;банков
+
+VTABL   equ     23296 ;таблица банков, ис-
+                      ;пользуется только
+                      ;при тесте, 64 байта
+PRTDRV  db 1,"Printer adapter: ",0
+TXT1    db 1,"Computer type: ",0
+TXT2    db 1,"Summary memory: ",0
+SCORKAY db "ZS-Scorpion or Kay",0
+PROFIC  db "Profi",0
+TURB2   db "Turbo 2+",0
+ATMT    db "ATM-Turbo",0
+SCORP   db "ZS-Scorpion",0
+SPEC    db "ZX-Spectrum",0
+COMPS1  dw SCORKAY
+
+        dw PROFIC
+        dw TURB2
+        dw ATMT
+        dw SPEC
+        dw SCORP
+COMPSM  dw S128
+        dw S256
+        dw S512
+        dw S1024
+        dw S48
+S128    db "128kb",0
+S256    db "256kb",0
+S512    db "512kb",0
+S1024   db "1024kb",0
+S48     db "48kb",0
+PRNOT   dw PRES
+        dw NOTP
+PRINTDRV dw NOTP
+        dw ZXLPT
+        dw SCORP+3
+        dw I8055
+ZXLPT   db "ZxLPrint III",0
+I8055   db "i8055",0
+NOTP    db "not present",0
+PRES    db "present",0
+TXT1rom db 1,"User ROM detected",0
+TXT1csh db 1,"Cache detected",0
+TXT10   db 1,"AY-Chip ",0
+TXT11   db 1,"DMA Ultrasound Card ",0
+
+begintxt db 22,2,16
+        db " T ToT   T       г¬г  гT¬   T",13
+        db " ¦ ¦¬¦-г¬¦¬г¬г¬г¬¦-¦-  ¦г¬г¬¦-",13
+        db " ¦¦¦¦¦ ¦ ¦¦¦ ¦ г¦¦ ¦   ¦¦-L¬¦",13
+        db " ¦+¦¦L-L-¦L¦-¦ L¦¦ L-  ¦L-L-L-",13
+        db "----------version 2.0----------",13,13
+        db "Hit 'SPACE' if you want to start",0
+NORMZ80 db 1,"Z80 detected ",0
+EMULATOR db 1,"Z80 detected (emulator version)",0
+TXTZ80   db 1,"Z80 ... ",0
+KEMPMOUS db 1,"Kempston mouse ",0
+KEMPJOY db 1,"Kempston joystick ",0
+EMUL    dw NORMZ80
+        dw EMULATOR
+KMYES   db 0
+KJYES   db 0
+CASH    db 0
+LENCASH dw 0
+COL     db 0
+ROW     db 0
+LEN     db 0
+HGT     db 0
+TOP     db 0
+TOP1    db 0
+BUKV    db 0
+ADR     ds 2
+ADR1    ds 2
+CURENDRV db 0
+PRI      db 0
+font64  insert "FONT64.C"
+
+
+
+
+

@@ -1,0 +1,606 @@
+	MAIN	"*",#C6
+;***************************************************************                                          
+TLBA	DB	"LBA"
+TSLW	DB	"1x "
+
+;инициализация
+HDDRESET
+;переводим строку в числа
+	CALL	HLDnums
+INIT0
+	CALL	SETDEVICE
+
+    	IF0	atm
+     	IFN	hdduprON
+      	LD	A,hddupr1
+      	LD	BC,hdduprON
+      	CALL	OUT_A
+     	ENDIF	
+       	LD	A,#0C 
+       	LD	BC,hddupr
+       	CALL	OUT_A     ;начинаем сброс
+       	LD	B,0
+       	DJNZ	$
+       	LD	A,#08 
+       	LD	BC,hddupr
+       	CALL	OUT_A     ;сбросили!
+     	IFN	hdduprON
+      	LD	A,hddupr0
+      	LD	BC,hdduprON
+      	CALL	OUT_A
+     	ENDIF	
+    	ENDIF	
+       	CALL	SETDEVICE ;т.к.почему-то забылось (v12)
+       	CALL	NO_BSY
+
+      ;CALL SETDEVICE ;т.к.почему-то забылось
+
+      	LD	A,#10        ;
+      	CALL	HDSCNOWAIT ;ZET9 для HDD
+
+       	CALL	NO_BSY
+
+      	LD	A,#08        ;
+      	CALL	HDSCNOWAIT ;SMT для CD (сброс для ATAPI)
+   ;RET C ;ATAPI only
+
+       	CALL	SETDEVICE ;т.к.почему-то забылось (BUDDER)
+
+     	LD	A,#EC ;identify
+     	CALL	HDSCNOWAIT
+   ;RET C ;для CD выдаст ошибку(VEGA)
+      	LD	HL,secHDD
+      	CALL	NC,WAITDRQ_READ ;512 байт(HDD)
+
+	CALL	LEN_TO_HL
+	LD	BC,#EB14
+	OR	A
+	SBC	HL,BC
+	SCF	
+	CCF	
+	LD	HL,TSLW
+       	JR	Z,lsLDIR ;CD
+	LD	HL,TLBA ;HDD
+lsLDIR	LD	DE,TLBASLW
+	LD	BC,3
+	LDIR	
+       	PUSH	AF
+	CALL	PRZAGS
+       	POP	AF
+       	RET	NZ ;HDD
+       ;LD A,#A1 ;идентиф.таблица
+       ;LD BC,#F0
+       ;CALL HDSC
+       ;LD HL,secHDD
+       ;LD BC,#200
+       ;CALL TRANS_IN
+      ;for DVD
+      ;LD B,15 ;min=0
+      ;EI
+      ;HALT 
+      ;DJNZ $-1
+	LD	HL,AP_00
+	CALL	SEND_ATAPI ;VEGA
+      ;for DVD
+       	LD	B,15
+       	EI	
+       	HALT	
+       	DJNZ	$-1
+       	CALL	READCD ;не всегда срабатывает!
+	RET	
+
+SETDEVICE
+	LD	A,(HLDinp)
+	AND	1
+	ADD	A,A,A,A,A,A,A,A
+	OR	#A0
+	LD	BC,hddhead
+	JP	OUT_A
+
+;***************************************************************                                          
+;ЧТЕНИЕ СЕКТОРОВ
+READ
+       	LD	A,(TLBASLW)
+       	CP	"L"
+       	JP	NZ,READCD
+	CALL	W_CHS
+       	RET	C
+	LD	A,#20
+	CALL	HDSC   ;КОМАНДА "ЧИТАТЬ"
+       	RET	C
+WAITDRQ_READ
+	CALL	WAIT_DRQ
+       	RET	C ;v12
+;ЧТЕНИЕ СЕКТОРА
+READ_S
+	LD	B,0
+READ_1
+       	IFN	1;smuc
+	PUSH	BC
+       	IFN	drq
+       	CALL	WAIT_DRQ
+       	ENDIF	
+	LD	BC,hdddatlo
+	CALL	IN_A
+	LD	(HL),A
+	INC	HL
+	LD	BC,hdddathi
+	CALL	IN_A
+	LD	(HL),A
+	INC	HL
+	POP	BC
+
+       	ELSE	;nemo 
+       	IFN	drq
+readdrq
+       	LD	A,#7F 
+       	IN	A,(-2)
+       	RRA	
+       	CCF	
+       	RET	C
+       	IN	A,(hddstat)
+       	AND	8
+       	JR	Z,readdrq
+       	ENDIF	
+	IN	A,(hdddatlo)
+	LD	(HL),A
+	INC	HL
+	IN	A,(hdddathi)
+	LD	(HL),A
+	INC	HL
+       	ENDIF	
+	DJNZ	READ_1
+READ_OK
+	XOR	A
+	RET	
+;***************************************************************                                          
+;ОЖИДАНИЕ ОСВОБОЖДЕНИЯ УСТРОЙСТВА
+NO_BSY
+NO_BSY0
+	CALL	IN_HDDSTAT
+	RLCA	
+	RET	NC
+       	LD	A,#7F 
+       	IN	A,(-2)
+       	RRA	
+	JR	C,NO_BSY0
+       	SCF	
+       	RET	
+;ОЖИДАНИЕ ГОТОВНОСТИ ПЕРЕДАЧИ ДАННЫХ
+WAIT_DRQ
+	CALL	IN_HDDSTAT
+       	OR	A
+	BIT	3,A
+	RET	NZ
+       	LD	A,#7F 
+       	IN	A,(-2)
+       	RRA	
+	JR	C,WAIT_DRQ
+       	SCF	
+       	RET	
+
+IN_HDDSTAT
+       	LD	BC,hddstat
+IN_A
+       	IFN	smuc
+      	IFN	atm
+	PUSH	BC
+	CALL	INPORT
+	POP	BC
+	IN	A,(C)
+	PUSH	AF
+	PUSH	BC
+	LD	A,%10101011
+	LD	BC,#FF77
+	OUT	(C),A
+	POP	BC
+	POP	AF
+	RET	
+INPORT	LD	BC,#2A53
+	PUSH	BC
+	LD	A,%10101011
+	LD	BC,#4177
+	JP	#3D2F
+
+      	ELSE	
+	LD	IX,#3FF3
+      	ENDIF	
+	PUSH	IX
+	JP	#3D2F
+       	ELSE	
+	IN	A,(C)
+	RET	
+       	ENDIF	
+IN_HDDERR
+       	LD	BC,hdderr
+       	JR	IN_A
+
+;ПОСЛАТЬ КОМАНДУ НА ВИНТ
+HDSC
+	EXA	
+	CALL	IN_HDDSTAT
+	BIT	6,A
+	SCF	
+	RET	Z ;DEVICE NOT READY
+	EXA	
+HDSCNOWAIT
+       	LD	BC,hddcmd
+       	CALL	OUT_A 
+	CALL	NO_BSY
+;СМОТРИМ,ЕСТЬ ЛИ ОШИБКИ
+	CALL	IN_HDDSTAT
+	RRCA	
+	RET	NC
+       	CALL	IN_HDDERR
+       	SCF	
+	RET	
+
+;ЗАПИСАТЬ В РЕГИСТРЫ ЦИЛИНДРА,ГОЛОВКИ,СЕКТОРА
+OUT_A
+       	IFN	smuc
+      	IFN	atm
+	PUSH	AF
+	PUSH	BC
+	CALL	INPORT
+	POP	BC
+	POP	AF
+	OUT	(C),A
+	PUSH	AF
+	PUSH	BC
+	LD	A,%10101011
+	LD	BC,#FF77
+	OUT	(C),A
+	POP	BC
+	POP	AF
+	RET	
+      	ELSE	
+	LD	IX,#3FF0
+      	ENDIF	
+	PUSH	IX
+	JP	#3D2F
+       	ELSE	;nemo 
+	OUT	(C),A
+	RET	
+       	ENDIF	
+W_CHS
+	CALL	NO_BSY
+	LD	BC,hddhead      ;РЕГИСТР НАКОПИТЕЛЯ/ГОЛОВКИ
+	LD	A,(REG_SDH)
+	CALL	OUT_A
+	LD	BC,hddcylhi     ;РЕГИСТ ЦИЛИНДРА (HI)
+	LD	A,(CYLINDER+1)
+	CALL	OUT_A
+	LD	BC,hddcyllo     ;РЕГИСТ ЦИЛИНДРА (LOW)
+	LD	A,(CYLINDER)
+	CALL	OUT_A
+	LD	BC,hddsec       ;РЕГИСТ НОМЕРА СЕКТОРА
+	LD	A,(SEC_NUMBER)
+	CALL	OUT_A
+	LD	BC,hddcount     ;РЕГИСТ СЧЕТЧИКА СЕКТОРА
+	LD	A,1; (SEC_COUNT)
+	JP	OUT_A
+
+REG_SDH    	DB	0       ;С КАКОГО УСТРОЙСТВА И ГОЛОВКИ
+SEC_NUMBER 	DB	0;1     ;С КАКОГО СЕКТОРА
+CYLINDER   	DW	0       ;С КАКОГО ЦИЛИНДРА НАЧИНАТЬ
+
+;***************************************************************                                          
+;ЗАПИСЬ СЕКТОРОВ
+WRITE
+       	LD	A,(TLBASLW)
+       	CP	"L"
+       	SCF	
+       	RET	NZ
+	CALL	W_CHS
+       	RET	C
+	LD	A,#30
+	CALL	HDSC
+       	RET	C
+	CALL	WAIT_DRQ
+       	RET	C
+;ЗАПИСЬ СЕКТОРА
+WRITE_S
+	LD	B,0
+WRITE_1
+       	IFN	smuc
+	PUSH	BC
+       	IFN	drq
+       	CALL	WAIT_DRQ
+       	ENDIF	
+	LD	BC,hdddathi
+	INC	HL
+	LD	A,(HL)
+	CALL	OUT_A
+	LD	BC,hdddatlo
+	DEC	HL
+	LD	A,(HL)
+	CALL	OUT_A
+	INC	HL
+	INC	HL
+	POP	BC
+
+       	ELSE	;nemo 
+	LD	C,(HL)
+	INC	HL
+       	IFN	drq
+       	IN	A,(hddstat)
+       	AND	8
+       	JR	Z,$-4 
+       	ENDIF	
+	LD	A,(HL)
+	OUT	(hdddathi),A
+	INC	HL
+	LD	A,C
+	OUT	(hdddatlo),A
+       	ENDIF	
+	DJNZ	WRITE_1
+WR_OK
+	XOR	A
+	RET	
+
+;=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+;ПЕРЕДАЧА ATAPI-ПАКЕТА
+SEND_ATAPI
+     ;LD A,27,(#5843),A
+       	PUSH	HL
+	LD	A,(REG_SDH)
+	AND	16
+	OR	#A0
+	LD	BC,hddhead
+	CALL	OUT_A
+	LD	HL,#800
+	CALL	HL_TO_LEN
+       	POP	HL
+	LD	A,#A0
+	CALL	HDSC
+       	RET	C
+     ;LD A,27,(#5840),A
+	LD	BC,12
+;ПЕРЕДАЧА ДАННЫХ
+TRANSFER_OUT
+	PUSH	BC
+	CALL	NO_BSY
+	POP	BC
+       	RET	C
+     ;LD A,27,(#5841),A
+	PUSH	BC
+	CALL	WAIT_DRQ
+	POP	BC
+       	RET	C
+     ;LD A,27,(#5842),A
+	INC	BC
+       	SRL	B
+       	RR	C
+TRANS_OUT1
+	PUSH	   BC
+	INC	    HL
+	LD	     A,(HL)
+	LD	     BC,hdddathi
+	CALL	   OUT_A
+	DEC	    HL
+	LD	     A,(HL)
+	LD	     BC,hdddatlo
+	CALL	   OUT_A
+	INC	    HL
+	INC	    HL
+	POP	    BC
+	DEC	    BC
+	LD	     A,B
+	OR	     C
+	JR	     NZ,TRANS_OUT1
+	RET	
+;IN:HL-АДРЕС ПРИЕМА ДАННЫХ
+;   BC-КОЛ-ВО БАЙТ
+TRANS_IN
+     ;LD A,45,(#5822),A
+	PUSH	BC
+	CALL	NO_BSY
+	POP	BC
+       	RET	C
+     ;LD A,45,(#5820),A
+	PUSH	BC
+	CALL	WAIT_DRQ
+	POP	BC
+       	RET	C
+     ;LD A,45,(#5821),A
+	INC	BC
+       	SRL	B
+       	RR	C
+TRANS_IN1
+	PUSH	   BC
+	LD	     BC,hdddatlo
+	CALL	   IN_A
+	LD	     (HL),A
+	INC	    HL
+	LD	     BC,hdddathi
+	CALL	   IN_A
+	LD	     (HL),A
+	INC	    HL
+	POP	    BC
+	DEC	    BC
+	LD	     A,B
+	OR	     C
+	JR	     NZ,TRANS_IN1
+	RET	
+
+READCD
+	LD	A,(SEC_NUMBER)
+	LD	(SECTOR+3),A
+	LD	A,(CYLINDER)
+	LD	(SECTOR+2),A
+	LD	A,(CYLINDER+1)
+	LD	(SECTOR+1),A
+       ;XOR A 
+       ;LD (SECTOR),A
+;ЧТЕНИЕ СЕКТОРА.
+LOAD_SECTOR_
+     ;PUSH BC,DE,HL
+     ;CALL FONER
+     ;POP HL,DE,BC
+     ;LD A,36,(#5809),A
+     ;  CALL NO_BSY;иногда дает вечный BSY,
+     ;RET C      ;а читать при этом можно 
+     ;LD A,36,(#5800),A
+     ; PUSH HL
+     ;  LD HL,AP_00
+     ;  CALL SEND_ATAPI ;VEGA говорит,надо,
+     ; POP HL ;но читабельность ухудшается 
+     ;RET C
+     ;LD A,36,(#5801),A
+     ;LD A,36,(#5802),A
+
+	LD	HL,AP_BE
+         	LD	A,(CYLINDER+1)
+         	INC	A
+         	JP	Z,READTOC
+	CALL	SEND_ATAPI
+      	RET	C
+     ;LD A,36,(#5803),A
+
+	CALL	NO_BSY ;иначе виснет при иниц-ции CD
+       	RET	C
+       ;CALL WAIT_DRQ ;здесь виснет, если инитить слишком рано
+      ;RET C     ;после выхода разгоняется, ждет кнопку и читает
+     ;ожидание DRQ по рецепту Budder'а
+	LD	DE,0
+RDCDDRQ	CALL	IN_HDDSTAT
+       	OR	A ;CY=0
+	BIT	3,A
+	JR	NZ,RDCDWQR
+	INC	DE
+	BIT	2,D ;4,D
+	JR	Z,RDCDDRQ
+      ;LD A,2
+      ;OUT (-2),A
+       	PUSH	HL
+	LD	HL,AP_00
+	CALL	SEND_ATAPI
+       	POP	HL
+	JR	LOAD_SECTOR_
+RDCDWQR
+     ;LD A,36,(#5806),A
+      ; CALL LEN_TO_HL
+      ; LD A,H
+      ; SUB 8
+      ; OR L
+      ; SCF 
+      ; ;JNZ ERRORSZ
+     ;LD A,36,(#5807),A
+      	LD	HL,secHDD
+       	CALL	READ_S
+      	CALL	READ_S
+      	CALL	READ_S
+      	CALL	READ_S
+       	LD	A,(HLDinp+1)
+       	CP	"N"
+	LD	HL,AP_8x
+       	JR	Z,$+5 
+	LD	HL,AP_1x
+	CALL	SEND_ATAPI
+     ;RET C
+     ;LD A,36,(#5808),A
+       	JP	  NO_BSY
+      ;OR A 
+      ;RET
+
+READTOC
+	LD	HL,AP_READTOC
+	CALL	SEND_ATAPI
+	RET	C
+	CALL	NO_BSY
+	RET	C
+	CALL	WAIT_DRQ
+	RET	C
+	CALL	LEN_TO_HL
+	LD	B,H,C,L
+	LD	HL,secHDD
+	CALL	TRANS_IN
+	JP	NO_BSY
+
+       	IFN	0
+ERRORSZ
+	LD	B,H,C,L
+       	POP	HL
+	JP	TRANS_IN
+       	ENDIF	
+
+;ОБРАБОТКА ОШИБОК
+ERROR
+       	PUSH	HL
+	LD	HL,AP_00
+	CALL	SEND_ATAPI
+	LD	HL,AP_03
+	CALL	SEND_ATAPI
+	LD	HL,BUF_ERROR
+	LD	BC,#0012
+	CALL	TRANS_IN
+       	POP	HL
+	LD	A,(BUF_ERROR+2)
+	OR	A       ;ОШИБКА "БЕССМЫСЛЕННЫЕ ДАННЫЕ"?
+	JP	Z,LOAD_SECTOR_
+	SCF	
+	RET	
+;ЗАПИСЬ ЧИСЛА В РЕГИСТР ЦИЛИНДРА
+HL_TO_LEN
+	LD	BC,hddcyllo
+	LD	A,L
+	CALL	OUT_A
+	LD	BC,hddcylhi
+	LD	A,H
+	JP	OUT_A
+;ЧТЕНИE ЧИСЛА ИЗ РЕГИСТРА ЦИЛИНДРА
+LEN_TO_HL
+	LD	BC,hddcyllo
+	CALL	IN_A
+	LD	L,A
+	LD	BC,hddcylhi
+	CALL	IN_A
+	LD	H,A
+	RET	
+;ATAPI-ПАКЕТ  "ПУСТЫШКА"
+AP_00
+	DW	0
+	DEFS	10
+
+;ATAPI-ПАКЕТ "ЧТЕНИЕ СОСТОЯНИЯ ПРИВОДА"
+AP_03
+	DW	3
+	DEFS	10
+
+;ATAPI-ПАКЕТ "SPEED 1x"
+AP_1x
+	DW	#BB
+	DB	0
+	DB	176 ;1x=176k/s
+	DEFS	8
+AP_8x
+	DW	#BB
+	DB	5
+	DB	136
+	DEFS	8
+AP_READTOC
+	DW	#43 ;SCMSF=0,т.е.секторы,а не MSF
+	DB	0 ;FORMAT=0:все сессии
+	DS	3
+	DB	0 ;с 1-й сессии
+	DB	'2048 ;длина табл
+         	DB	2048
+	DB	#00 ;FUNC
+	DS	2
+
+;ATAPI-ПАКЕТ
+AP_BE
+	DW	#28;BE  ;БУДЕТ КОД КОМАНДЫ
+SECTOR
+	DEFB	0,0,0,#1F
+	DEFB	0
+SECTORS
+	DEFB	0,1
+	DEFB	#10
+	DEFB	0,0
+BUF_ERROR
+	DS	18
+
+
+

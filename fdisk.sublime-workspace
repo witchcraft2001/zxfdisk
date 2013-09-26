@@ -1,0 +1,615 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"JM",
+				"JMP_TableEnd"
+			],
+			[
+				"JMP",
+				"JMP_Table"
+			],
+			[
+				"ShowPar",
+				"ShowPartitions"
+			],
+			[
+				"ShowPa",
+				"_ShowPartitions"
+			],
+			[
+				"msgFou",
+				"msgFoundExtended"
+			],
+			[
+				"get",
+				"GetExtended"
+			],
+			[
+				"add",
+				"addMBRUS"
+			],
+			[
+				"to",
+				"hddTotalSector"
+			],
+			[
+				"next",
+				"nextcheck1"
+			],
+			[
+				"OpenP",
+				"OpenPGDF"
+			],
+			[
+				"curr",
+				"CurrentPage7F"
+			],
+			[
+				"show",
+				"ShowPartition"
+			],
+			[
+				"msgba",
+				"msgBackInfo"
+			],
+			[
+				"_Ta",
+				"_TARGET=_ATM"
+			],
+			[
+				"msgDos",
+				"msgDOSDirFull"
+			],
+			[
+				"_TA",
+				"_TARGET"
+			],
+			[
+				"_T",
+				"_TARGET_T"
+			],
+			[
+				"_TAG",
+				"_TARGET=_ATM"
+			],
+			[
+				"_TARG",
+				"_TARGET"
+			],
+			[
+				"_",
+				"_TARGET"
+			],
+			[
+				"define",
+				"DEFINE"
+			],
+			[
+				"TAR",
+				"_TARGET"
+			],
+			[
+				"_TARGE",
+				"_TARGET=_PROFI"
+			],
+			[
+				"code",
+				"code0a"
+			],
+			[
+				"PP",
+				"PP_1F0W"
+			],
+			[
+				"ATM",
+				"ATM_CPM_OFF"
+			],
+			[
+				"ATM_CPM",
+				"ATM_CPM_ON"
+			],
+			[
+				"Main",
+				"MainLoop"
+			],
+			[
+				"W_",
+				"W_BSY"
+			],
+			[
+				"W",
+				"W_DRQ"
+			],
+			[
+				"HDDW",
+				"HDDWTS"
+			],
+			[
+				"MBR",
+				"MBRFIELDSIZE"
+			],
+			[
+				"Print",
+				"PrintSym"
+			],
+			[
+				"du",
+				"dumpSector"
+			],
+			[
+				"dSe",
+				"dSectorNumLow"
+			],
+			[
+				"ms",
+				"msgSectorNum"
+			],
+			[
+				"msg",
+				"msgSectorNum"
+			],
+			[
+				"dse",
+				"dSectorNumHigh"
+			],
+			[
+				"dmp",
+				"dmpShowSecPage"
+			],
+			[
+				"ds",
+				"dmpShowFirstPage"
+			],
+			[
+				"dev",
+				"devSelected"
+			],
+			[
+				"sdr",
+				"sdrows"
+			],
+			[
+				"in",
+				"include"
+			],
+			[
+				"PR",
+				"PRNUM0"
+			],
+			[
+				"HEX",
+				"HEXDEC_PRNUM"
+			],
+			[
+				"msgdu",
+				"msgDumpRow"
+			],
+			[
+				"hdr",
+				"hDrvEntry"
+			],
+			[
+				"Sect",
+				"SectorBuffer"
+			],
+			[
+				"part",
+				"partCount"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "fdisk_dump.asm",
+			"settings":
+			{
+				"buffer_size": 2735,
+				"line_ending": "Windows",
+				"name": "dumpSector"
+			}
+		},
+		{
+			"file": "fdisk_backup.asm",
+			"settings":
+			{
+				"buffer_size": 9066,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "fdisk_main.asm",
+			"settings":
+			{
+				"buffer_size": 27115,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "fdisk_ovl.asm",
+			"settings":
+			{
+				"buffer_size": 719,
+				"line_ending": "Windows",
+				"name": "phase	0xbf02"
+			}
+		},
+		{
+			"file": "fdisk_func.asm",
+			"settings":
+			{
+				"buffer_size": 16673,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "fdisk_crpart.asm",
+			"settings":
+			{
+				"buffer_size": 5784,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+		],
+		"width": 392.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/D/Develop/zx/Sprinter/fdisk/fdisk_delpart.asm",
+		"/C/Documents and Settings/Dmitry/Application Data/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/C/Documents and Settings/Dmitry/Application Data/Sublime Text 3/Packages/z80asm/z80asm.sublime-settings",
+		"/D/Develop/zx/Sprinter/fdisk/libs/zx128/console.asm",
+		"/D/Develop/zx/Sprinter/fdisk/libs/profi/console.asm",
+		"/D/Develop/zx/Sprinter/fdisk/libs/atm/console.asm",
+		"/D/Develop/zx/Sprinter/fdisk/libs/atm/mem.asm",
+		"/D/Develop/zx/Sprinter/fdisk/libs/keys.asm",
+		"/D/Develop/zx/Sprinter/fdisk/fdisk_macro.inc",
+		"/D/Develop/zx/Sprinter/fdisk/libs/zx128/mem.asm",
+		"/D/Develop/zx/Sprinter/fdisk/fdisk_loaddrv.asm",
+		"/D/Develop/zx/Sprinter/fdisk/drv/atm_drv.asm",
+		"/D/Develop/zx/Sprinter/fdisk/drv/smuc_drv.asm",
+		"/D/Develop/zx/Sprinter/fdisk/drv/nemo_drv.asm",
+		"/D/Develop/zx/Sprinter/fdisk/drv/profi_drv.asm",
+		"/D/Develop/zx/Sprinter/fdisk/drv/nemo_drv_lba48.asm",
+		"/D/Develop/zx/Sprinter/fdisk/make_scl.bat",
+		"/D/Develop/zx/Sprinter/fdisk/fdisk_func.asm",
+		"/C/Documents and Settings/Dmitry/Application Data/Sublime Text 3/Packages/z80asm/build.bat",
+		"/C/Documents and Settings/Dmitry/Application Data/Sublime Text 3/Packages/z80asm/run.bat",
+		"/C/Documents and Settings/Dmitry/Application Data/Sublime Text 3/Packages/z80asm/z80asm.sublime-build",
+		"/D/Develop/zx/Sprinter/fdisk/libs/utils.ASM",
+		"/C/Documents and Settings/Dmitry/Application Data/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/D/Develop/zx/Sprinter/fdisk/fdisk_main.asm",
+		"/C/Documents and Settings/Dmitry/Application Data/Sublime Text 3/Packages/z80asm/helps/Z80 Opcodes",
+		"/D/Develop/zx/Sprinter/fdisk/libs/MRNUM.asm",
+		"/D/Develop/zx/Sprinter/fdisk/fdisk.sublime-project",
+		"/D/temp/1.sublime-project"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"ShowPartInfo",
+			"showpa",
+			"msgCrPrimary",
+			"getex",
+			"hddTotalSector",
+			"GetLastPartition",
+			"GetExtended",
+			"CreateMBRUS",
+			"ShowPartition",
+			"model",
+			"exit",
+			"DosError",
+			"scf",
+			"15",
+			"large",
+			"hddpa",
+			"	",
+			"cancel"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 5,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "fdisk_dump.asm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2735,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"auto_name": "dumpSector",
+							"syntax": "Packages/z80asm/z80asm.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 486.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "fdisk_backup.asm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9066,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/z80asm/z80asm.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 4103.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "fdisk_main.asm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 27115,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/z80asm/z80asm.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1620.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "fdisk_ovl.asm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 719,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								714,
+								714
+							]
+						],
+						"settings":
+						{
+							"auto_name": "phase	0xbf02",
+							"syntax": "Packages/z80asm/z80asm.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "fdisk_func.asm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 16673,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/z80asm/z80asm.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 10692.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "fdisk_crpart.asm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5784,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4317,
+								4317
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/z80asm/z80asm.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 4462.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 34.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 118.0
+	},
+	"project": "fdisk.sublime-project",
+	"replace":
+	{
+		"height": 48.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 227.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

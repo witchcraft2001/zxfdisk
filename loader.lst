@@ -1,0 +1,233 @@
+001   0000             	device zxspectrum128
+002   0000             	include "fdisk_exp.inc"
+001+  0000             _DRVORG:  EQU 0x00006000
+002+  0000             FDISKSTART:  EQU 0x00006000
+003+  0000             MainStart:  EQU 0x00006C00
+004+  0000             MainSize:  EQU 0x00003DA6
+005+  0000             
+003   0000             	org #5d3b-17
+004   5D2A             
+005   5D2A             ;заголовок hobeta, savehob не используется так как нужно задать автостарт
+006   5D2A             
+007   5D2A             hobeta
+008   5D2A             	db "boot    B"
+008   5D2A 626F6F742020202042
+009   5D33 B4 00       	dw line_end-begin
+010   5D35 B4 00       	dw line_end-begin
+011   5D37 00 01       	db 0,high ((end-begin)+4)
+012   5D39 00 00       	dw 0	;контрольная сумма
+013   5D3B             
+014   5D3B             	;org #5d3b
+015   5D3B             
+016   5D3B             begin
+017   5D3B 00 01       	db 0,1			;номер строки
+018   5D3D B0 00       	dw line_end-line_start	;длина строки в байтах
+019   5D3F             line_start
+020   5D3F F9 C0 30    	db #f9,#c0,#30	;randomize usr 0
+021   5D42 0E 00 00    	db #0e,#00,#00	;число
+022   5D45 4A 5D       	dw code_start
+023   5D47 00 3A EA    	db #00,#3a,#ea	;:rem
+024   5D4A             
+025   5D4A             
+026   5D4A             code_start
+027   5D4A 31 FF 5F    	ld sp,#5fff
+028   5D4D             
+029   5D4D             	;очистка экрана
+030   5D4D             
+031   5D4D 76          	halt
+032   5D4E AF          	xor	a
+033   5D4F D3 FE       	out (#fe),a
+034   5D51 21 FF 5A    	ld hl,23295
+035   5D54 11 FE 5A    	ld de,23294
+036   5D57 01 00 03    	ld bc,768
+037   5D5A 36 00       	ld (hl),0
+038   5D5C ED B8       	lddr
+039   5D5E             
+040   5D5E 3E 10       	ld a,#10
+041   5D60 01 FD 7F    	ld bc,#7ffd
+042   5D63 ED 79       	out (c),a
+043   5D65             ;загрузка модуля в #6000 (page5)
+044   5D65 ED 5B F4 5C 	ld de,(23796)
+045   5D69 06 22       	ld b,high ((main_end-main_start)+255)
+046   5D6B 0E 05       	ld c,#05
+047   5D6D 21 31 DE    	ld hl,#ffff - (main_end-main_start)
+048   5D70 CD 13 3D    	call 15635
+049   5D73             
+050   5D73 F3          	di
+051   5D74 21 31 DE    	ld hl,#ffff - (main_end-main_start)
+052   5D77 11 00 60    	ld de,FDISKSTART
+053   5D7A CD 81 5D    	call DEC40
+054   5D7D             
+055   5D7D FB          	ei
+056   5D7E C3 00 6C    	jp MainStart
+057   5D81             	include "libs\unmegalz.asm"
+001+  5D81             ;Z80 depacker for megalz V4 packed files   (C) fyrex^mhm
+002+  5D81             
+003+  5D81             ; DESCRIPTION:
+004+  5D81             ;
+005+  5D81             ; Depacker is fully relocatable, not self-modifying,
+006+  5D81             ;it's length is 110 bytes starting from DEC40.
+007+  5D81             ;Register usage: AF,AF',BC,DE,HL. Must be CALL'ed, return is done by RET.
+008+  5D81             ;Provide extra stack location for store 2 bytes (1 word). Depacker does not
+009+  5D81             ;disable or enable interrupts, as well as could be interrupted at any time
+010+  5D81             ;(no f*cking wicked stack usage :).
+011+  5D81             
+012+  5D81             ; USAGE:
+013+  5D81             ;
+014+  5D81             ; - put depacker anywhere you want,
+015+  5D81             ; - put starting address of packed block in HL,
+016+  5D81             ; - put location where you want data to be depacked in DE,
+017+  5D81             ;   (much like LDIR command, but without BC)
+018+  5D81             ; - make CALL to depacker (DEC40).
+019+  5D81             ; - enjoy! ;)
+020+  5D81             
+021+  5D81             ; PRECAUTIONS:
+022+  5D81             ;
+023+  5D81             ; Be very careful if packed and depacked blocks coincide somewhere in memory.
+024+  5D81             ;Here are some advices:
+025+  5D81             ;
+026+  5D81             ; 1. put packed block to the highest addresses possible.
+027+  5D81             ;     Best if last byte of packed block has address #FFFF.
+028+  5D81             ;
+029+  5D81             ; 2. Leave some gap between ends of packed and depacked block.
+030+  5D81             ;     For example, last byte of depacked block at #FF00,
+031+  5D81             ;     last byte of packed block at #FFFF.
+032+  5D81             ;
+033+  5D81             ; 3. Place nonpackable data to the end of block.
+034+  5D81             ;
+035+  5D81             ; 4. Always check whether depacking occurs OK and neither corrupts depacked data
+036+  5D81             ;     nor hangs computer.
+037+  5D81             ;
+038+  5D81             
+039+  5D81             DEC40
+040+  5D81 3E 80               LD      A,#80
+041+  5D83 08                  EX      AF,AF'
+042+  5D84 ED A0       MS      LDI
+043+  5D86 01 FF 02    M0      LD      BC,#2FF
+044+  5D89 08          M1      EX      AF,AF'
+045+  5D8A 87          M1X     ADD     A,A
+046+  5D8B 20 03               JR      NZ,M2
+047+  5D8D 7E                  LD      A,(HL)
+048+  5D8E 23                  INC     HL
+049+  5D8F 17                  RLA
+050+  5D90 CB 11       M2      RL      C
+051+  5D92 30 F6               JR      NC,M1X
+052+  5D94 08                  EX      AF,AF'
+053+  5D95 10 0F               DJNZ    X2
+054+  5D97 3E 02               LD      A,2
+055+  5D99 CB 29               SRA     C
+056+  5D9B 38 18               JR      C,N1
+057+  5D9D 3C                  INC     A
+058+  5D9E 0C                  INC     C
+059+  5D9F 28 0F               JR      Z,N2
+060+  5DA1 01 3F 03            LD      BC,#33F
+061+  5DA4 18 E3               JR      M1
+062+  5DA6             
+063+  5DA6 10 25       X2      DJNZ    X3
+064+  5DA8 CB 39               SRL     C
+065+  5DAA 38 D8               JR      C,MS
+066+  5DAC 04                  INC     B
+067+  5DAD 18 DA               JR      M1
+068+  5DAF             X6
+069+  5DAF 81                  ADD     A,C
+070+  5DB0             N2
+071+  5DB0 01 FF 04            LD      BC,#4FF
+072+  5DB3 18 D4               JR      M1
+073+  5DB5             N1
+074+  5DB5 0C                  INC     C
+075+  5DB6 20 28               JR      NZ,M4
+076+  5DB8 08                  EX      AF,AF'
+077+  5DB9 04                  INC     B
+078+  5DBA CB 19       N5      RR      C
+079+  5DBC D8                  RET     C
+080+  5DBD CB 10               RL      B
+081+  5DBF 87                  ADD     A,A
+082+  5DC0 20 03               JR      NZ,N6
+083+  5DC2 7E                  LD      A,(HL)
+084+  5DC3 23                  INC     HL
+085+  5DC4 17                  RLA
+086+  5DC5 30 F3       N6      JR      NC,N5
+087+  5DC7 08                  EX      AF,AF'
+088+  5DC8 80                  ADD     A,B
+089+  5DC9 06 06               LD      B,6
+090+  5DCB 18 BC               JR      M1
+091+  5DCD             X3
+092+  5DCD 10 04               DJNZ    X4
+093+  5DCF 3E 01               LD      A,1
+094+  5DD1 18 0F               JR      M3
+095+  5DD3 10 08       X4      DJNZ    X5
+096+  5DD5 0C                  INC     C
+097+  5DD6 20 08               JR      NZ,M4
+098+  5DD8 01 1F 05            LD      BC,#51F
+099+  5DDB 18 AC               JR      M1
+100+  5DDD             X5
+101+  5DDD 10 D0               DJNZ    X6
+102+  5DDF 41                  LD      B,C
+103+  5DE0 4E          M4      LD      C,(HL)
+104+  5DE1 23                  INC     HL
+105+  5DE2 05          M3      DEC     B
+106+  5DE3 E5                  PUSH    HL
+107+  5DE4 69                  LD      L,C
+108+  5DE5 60                  LD      H,B
+109+  5DE6 19                  ADD     HL,DE
+110+  5DE7 4F                  LD      C,A
+111+  5DE8 06 00               LD      B,0
+112+  5DEA ED B0               LDIR
+113+  5DEC E1                  POP     HL
+114+  5DED 18 97               JR      M0
+115+  5DEF             END_DEC40
+116+  5DEF             
+117+  5DEF             
+058   5DEF             
+059   5DEF             line_end
+060   5DEF             
+061   5DEF             	display "Basic length ",/d,$-begin," bytes"
+062   5DEF             
+063   5DEF 80 AA 01 00 	db #80,#aa,#01,#00	;номер строки для автостарта
+064   5DF3             
+065   5DF3 00          	ds (($-1-begin)&255)^255,0
+066   5E3B             end
+067   5E3B             
+068   5E3B             	display "File size ",/d,end-begin," bytes"
+069   5E3B             
+070   5E3B             	savebin "out\boot.$b",hobeta,end-hobeta
+071   5E3B             
+072   5E3B             	org	#8000
+073   8000             main_start
+074   8000             	incbin "out\fdisk.bin.mlz"
+075   A1CE             main_end
+076   A1CE             
+077   A1CE             ;high (%~z1+255)
+
+Value    Label
+------ - -----------------------------------------------------------
+0x6000 X _DRVORG
+0x6000   FDISKSTART
+0x6C00   MainStart
+0x3DA6 X MainSize
+0x5D2A   hobeta
+0x5DEF   line_end
+0x5D3B   begin
+0x5E3B   end
+0x5D3F   line_start
+0x5D4A   code_start
+0xA1CE   main_end
+0x8000   main_start
+0x5D81   DEC40
+0x5D84   MS
+0x5D86   M0
+0x5D89   M1
+0x5D8A   M1X
+0x5D90   M2
+0x5DA6   X2
+0x5DB5   N1
+0x5DB0   N2
+0x5DCD   X3
+0x5DAF   X6
+0x5DE0   M4
+0x5DBA   N5
+0x5DC5   N6
+0x5DD3   X4
+0x5DE2   M3
+0x5DDD   X5
+0x5DEF X END_DEC40

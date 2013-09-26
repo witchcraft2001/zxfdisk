@@ -1,0 +1,965 @@
+Content-Type: multipart/related; start=<op.mhtml.1377688344036.d0204f10224b3076@192.168.11.56>; boundary=----------VTgUKIiNXbuDeHCEETunFo
+Content-Location: http://elm-chan.org/fsw/ff/en/appnote.html
+Subject: =?utf-8?Q?FatFs=20Module=20Application=20Note?=
+MIME-Version: 1.0
+
+------------VTgUKIiNXbuDeHCEETunFo
+Content-Disposition: inline; filename=appnote.html
+Content-Type: text/html; charset=iso-8859-1; name=appnote.html
+Content-ID: <op.mhtml.1377688344036.d0204f10224b3076@192.168.11.56>
+Content-Location: http://elm-chan.org/fsw/ff/en/appnote.html
+Content-Transfer-Encoding: Quoted-Printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/=
+html4/strict.dtd">
+<html lang=3D"en">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DISO-88=
+59-1">
+<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
+<link rel=3D"up" title=3D"FatFs" href=3D"../00index_e.html">
+<link rel=3D"alternate" hreflang=3D"ja" title=3D"Japanese" href=3D"../ja=
+/appnote.html">
+<link rel=3D"stylesheet" href=3D"../css_e.css" type=3D"text/css" media=3D=
+"screen" title=3D"ELM Default">
+<title>FatFs Module Application Note</title>
+</head>
+
+<body>
+<h1>FatFs Module Application Note</h1>
+<ol class=3D"toc">
+<li><a href=3D"#port">How to Port</a></li>
+<li><a href=3D"#limits">Limits</a></li>
+<li><a href=3D"#memory">Memory Usage</a></li>
+<li><a href=3D"#reduce">Module Size Reduction</a></li>
+<li><a href=3D"#lfn">Long File Name</a></li>
+<li><a href=3D"#unicode">Unicode API</a></li>
+<li><a href=3D"#reentrant">Re-entrancy</a></li>
+<li><a href=3D"#dup">Duplicated File Access</a></li>
+<li><a href=3D"#fs1">Performance Effective File Access</a></li>
+<li><a href=3D"#fs2">Considerations on Flash Memory Media</a></li>
+<li><a href=3D"#critical">Critical Section</a></li>
+<li><a href=3D"#fs3">Extended Use of APIs</a></li>
+<li><a href=3D"#license">About FatFs License</a></li>
+</ol>
+<hr>
+
+<div class=3D"para" id=3D"port">
+<h3>How to Port</h3>
+
+<h4>Basic considerations</h4>
+<p>The FatFs module is assuming following conditions on portability.</p>=
+
+<ul>
+<li>ANSI C<br>
+The FatFs module is a middleware written in ANSI C (C89). There is no pl=
+atform dependence, so long as the compiler is in compliance with ANSI C.=
+</li>
+<li>Size of integer types<br>
+The FatFs module assumes that size of char/short/long are 8/16/32 bit an=
+d int is 16 or 32 bit. These correspondence are defined in <tt>integer.h=
+</tt>. This will not be a problem on most compilers. When any conflict w=
+ith existing definitions is occured, you must resolve it with care.</li>=
+
+</ul>
+
+<h4>System organizations</h4>
+<p>The dependency diagram shown below is a typical configuration of the =
+embedded system with FatFs module.</p>
+<p><img src=3D"../img/modules.png" width=3D"507" height=3D"224" alt=3D"d=
+ependency diagram"></p>
+
+<h4>Which function is required?</h4>
+<p>You need to provide only low level disk I/O functions that required b=
+y FatFs module and nothing else. If a working disk module for the target=
+ is already existing, you need to write only glue functions to attach it=
+ to the FatFs module. If not, you need to port any other disk module or =
+write it from scratch. Most of defined functions are not that always req=
+uired. For example, disk write function is not required in read-only con=
+figuration. Following table shows which function is required depends on =
+configuration options.</p>
+<table class=3D"lst2">
+<tr><th>Function</th><th>Required when:</th><th>Note</th></tr>
+<tr><td>disk_initialize<br>disk_status<br>disk_read</td><td>Always</td><=
+td rowspan=3D"5">Disk I/O functions.<br>Samples available in ffsample.zi=
+p.<br>There are many implementations on the web.</td></tr>
+<tr><td>disk_write<br>get_fattime<br>disk_ioctl (CTRL_SYNC)</td><td>_FS_=
+READONLY =3D=3D 0</td></tr>
+<tr><td>disk_ioctl (GET_SECTOR_COUNT)<br>disk_ioctl (GET_BLOCK_SIZE)</td=
+><td>_USE_MKFS =3D=3D 1</td></tr>
+<tr><td>disk_ioctl (GET_SECTOR_SIZE)</td><td>_MAX_SS &gt; 512</td></tr>
+<tr><td>disk_ioctl (CTRL_ERASE_SECTOR)</td><td>_USE_ERASE =3D=3D 1</td><=
+/tr>
+<tr><td>ff_convert<br>ff_wtoupper</td><td>_USE_LFN &gt;=3D 1</td><td>Uni=
+code support functions.<br>Available in option/cc*.c.</td></tr>
+<tr><td>ff_cre_syncobj<br>ff_del_syncobj<br>ff_req_grant<br>ff_rel_grant=
+</td><td>_FS_REENTRANT =3D=3D 1</td><td rowspan=3D"2">O/S dependent func=
+tions.<br>Samples available in option/syscall.c.</td></tr>
+<tr><td>ff_mem_alloc<br>ff_mem_free</td><td>_USE_LFN =3D=3D 3</td></tr>
+</table>
+</div>
+
+<div class=3D"para" id=3D"limits">
+<h3>Limits</h3>
+<ul>
+<li>FAT sub-types: FAT12, FAT16 and FAT32.</li>
+<li>Number of open files: Unlimited, depends on available memory.</li>
+<li>Number of volumes: Upto 10.</li>
+<li>File size: Depends on FAT specs. (upto 4G-1 bytes)</li>
+<li>Volume size: Depends on FAT specs. (upto 2T bytes on 512 bytes/secto=
+r)</li>
+<li>Cluster size: Depends on FAT specs. (upto 64K bytes on 512 bytes/sec=
+tor)</li>
+<li>Sector size: Depends on FAT specs. (upto 4K bytes)</li>
+</ul>
+</div>
+
+<div class=3D"para" id=3D"memory">
+<h3>Memory Usage</h3>
+<table class=3D"lst2">
+<tr><th></th><th>ARM7<small><br>32bit</small></th><th>ARM7<small><br>Thu=
+mb</small></th><th>CM3<small><br>Thumb-2</small></th><th>AVR</th><th>H8/=
+300H</th><th>PIC24</th><th>RL78</th><th>V850ES</th><th>SH-2A</th><th>RX6=
+00</th><th>IA-32</th></tr>
+<tr><td>Compiler</td><td>GCC</td><td>GCC</td><td>GCC</td><td>GCC</td><td=
+>CH38</td><td>C30</td><td>CC78K0R</td><td>CA850</td><td>SHC</td><td>RXC<=
+/td><td>VC6</td></tr>
+<tr><td>_WORD_ACCESS</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</=
+td><td>0</td><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+<!--                                          *ARM         *Thumb       =
+ *CM3         *AVR          *H8          *PIC24         RL78        *V85=
+0ES       *SH-2A       *RX600       *IA-32   -->
+<tr class=3D"lst3"><td>text (Full, R/W)</td><td>10395</td><td>7037</td><=
+td>6555</td><td>13362</td><td>10609</td><td>11364</td><td>12884</td><td>=
+7814</td><td>8783</td><td>5826</td><td>7659</td></tr>
+<tr>             <td>text (Min, R/W)</td>  <td>6519</td><td>4747</td><td=
+>4315</td> <td>8608</td> <td>7043</td> <td>7539</td> <td>8860</td><td>50=
+70</td><td>5723</td><td>3821</td><td>5038</td></tr>
+<tr>             <td>text (Full, R/O)</td> <td>4563</td><td>3147</td><td=
+>2911</td> <td>6174</td> <td>4925</td> <td>5340</td> <td>6136</td><td>36=
+28</td><td>3863</td><td>2721</td><td>3534</td></tr>
+<tr>             <td>text (Min, R/O)</td>  <td>3311</td><td>2463</td><td=
+>2209</td> <td>4610</td> <td>3817</td> <td>4029</td> <td>4641</td><td>27=
+62</td><td>3003</td><td>2068</td><td>2722</td></tr>
+<tr>             <td>bss</td><td>V*4 + 2</td><td>V*4 + 2</td><td>V*4 + 2=
+</td><td>V*2 + 2</td><td>V*4 + 2</td><td>V*2 + 2</td><td>V*2 + 2</td><td=
+>V*4 + 2</td><td>V*4 + 2</td><td>V*4 + 2</td><td>V*4 + 2</td></tr>
+<tr>             <td>Work area<br>(_FS_TINY =3D=3D 0)</td><td>V*564 +<br=
+>F*550</td><td>V*564 +<br>F*550</td><td>V*564 +<br>F*550</td><td>V*564 +=
+<br>F*544</td><td>V*564 +<br>F*550</td><td>V*564 +<br>F*544</td><td>V*56=
+4 +<br>F*544</td><td>V*564 +<br>F*544</td><td>V*564 +<br>F*550</td><td>V=
+*564 +<br>F*550</td><td>V*564 +<br>F*550</td></tr>
+<tr><td>Work area<br>(_FS_TINY =3D=3D 1)</td><td>V*564 +<br>F*36</td><td=
+>V*564 +<br>F*36</td><td>V*564 +<br>F*36</td><td>V*564 +<br>F*32</td><td=
+>V*564 +<br>F*36</td><td>V*564 +<br>F*32</td><td>V*564 +<br>F*32</td><td=
+>V*564 +<br>F*36</td><td>V*564 +<br>F*36</td><td>V*564 +<br>F*36</td><td=
+>V*564 +<br>F*36</td></tr>
+</table>
+<p>These are the memory usage on some target systems with following cond=
+ition. The memory sizes are in unit of byte, <em>V</em> denotes number o=
+f volumes and <em>F</em> denotes number of open files. All samples are o=
+ptimezed in code size.</p>
+<pre>
+FatFs R0.09b options:
+_FS_READONLY     0 (R/W), 1 (R/O)
+_FS_MINIMIZE     0 (Full function), 3 (Minimized function)
+_USE_STRFUNC     0 (Disable string functions)
+_USE_MKFS        0 (Disable f_mkfs function)
+_USE_FORWARD     0 (Disable f_forward function)
+_USE_FASTSEEK    0 (Disable fast seek feature)
+_CODE_PAGE       932 (Japanese Shift-JIS)
+_USE_LFN         0 (Disable LFN)
+_MAX_SS          512 (Fixed sector size)
+_FS_RPATH        0 (Disable relative path feature)
+_FS_LABEL        0 (Disable volume label functions)
+_VOLUMES         V (Number of logical drives to be used)
+_MULTI_PARTITION 0 (Single partition per drive)
+_FS_REENTRANT    0 (Disable reentrancy)
+_FS_LOCK         0 (Disable shareing control)
+</pre>
+</div>
+
+<div class=3D"para" id=3D"reduce">
+<h3>Module Size Reduction</h3>
+<p>Follwing table shows which API function is removed by configuration o=
+ptions for the module size reduction.</p>
+<table class=3D"lst2">
+<tr><td rowspan=3D"2">Function</td><td colspan=3D"4">_FS_MINIMIZE</td><t=
+d colspan=3D"2">_FS_READONLY</td><td colspan=3D"2">_USE_STRFUNC</td><td =
+colspan=3D"3">_FS_RPATH</td><td colspan=3D"2">_FS_LABEL</td><td colspan=3D=
+"2">_USE_MKFS</td><td colspan=3D"2">_USE_FORWARD</td><td colspan=3D"2">_=
+MULTI_PARTITION</td></tr>
+<tr><td>0</td><td>1</td><td>2</td><td>3</td><td>0</td><td>1</td><td>0&nb=
+sp;&nbsp;</td><td>1/2</td><td>0</td><td>1</td><td>2</td><td>0</td><td>1<=
+/td><td>0</td><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+<tr class=3D"lst3"><td>f_mount</td><td></td><td></td><td></td><td></td><=
+td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><=
+td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_open</td><td></td><td></td><td></td><td></td><td></td><td></td=
+><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td=
+><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_close</td><td></td><td></td><td></td><td></td><td></td><td></t=
+d><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></t=
+d><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_read</td><td></td><td></td><td></td><td></td><td></td><td></td=
+><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td=
+><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_write</td><td></td><td></td><td></td><td></td><td></td><td>x</=
+td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></=
+td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_sync</td><td></td><td></td><td></td><td></td><td></td><td>x</t=
+d><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></t=
+d><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_lseek</td><td></td><td></td><td></td><td>x</td><td></td><td></=
+td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></=
+td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_opendir</td><td></td><td></td><td>x</td><td>x</td><td></td><td=
+></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td=
+></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_readdir</td><td></td><td></td><td>x</td><td>x</td><td></td><td=
+></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td=
+></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_stat</td><td></td><td>x</td><td>x</td><td>x</td><td></td><td><=
+/td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td><=
+/td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_getfree</td><td></td><td>x</td><td>x</td><td>x</td><td></td><t=
+d>x</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><=
+td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_truncate</td><td></td><td>x</td><td>x</td><td>x</td><td></td><=
+td>x</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>=
+<td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_unlink</td><td></td><td>x</td><td>x</td><td>x</td><td></td><td=
+>x</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><t=
+d></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_mkdir</td><td></td><td>x</td><td>x</td><td>x</td><td></td><td>=
+x</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td=
+></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_chmod</td><td></td><td>x</td><td>x</td><td>x</td><td></td><td>=
+x</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td=
+></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_utime</td><td></td><td>x</td><td>x</td><td>x</td><td></td><td>=
+x</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td=
+></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_rename</td><td></td><td>x</td><td>x</td><td>x</td><td></td><td=
+>x</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><t=
+d></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_chdir</td><td></td><td></td><td></td><td></td><td></td><td></t=
+d><td></td><td></td><td>x</td><td></td><td></td><td></td><td></td><td></=
+td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_chdrive</td><td></td><td></td><td></td><td></td><td></td><td><=
+/td><td></td><td></td><td>x</td><td></td><td></td><td></td><td></td><td>=
+</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_getcwd</td><td></td><td></td><td></td><td></td><td></td><td></=
+td><td></td><td></td><td>x</td><td>x</td><td></td><td></td><td></td><td>=
+</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_getlabel</td><td></td><td></td><td></td><td></td><td></td><td>=
+</td><td></td><td></td><td></td><td></td><td></td><td>x</td><td></td><td=
+></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_setlabel</td><td></td><td></td><td></td><td></td><td></td><td>=
+x</td><td></td><td></td><td></td><td></td><td></td><td>x</td><td></td><t=
+d></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_forward</td><td></td><td></td><td></td><td></td><td></td><td><=
+/td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td><=
+/td><td></td><td>x</td><td></td><td></td><td></td></tr>
+<tr><td>f_mkfs</td><td></td><td></td><td></td><td></td><td></td><td>x</t=
+d><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>x</=
+td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_fdisk</td><td></td><td></td><td></td><td></td><td></td><td>x</=
+td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>x<=
+/td><td></td><td></td><td></td><td>x</td><td></td></tr>
+<tr><td>f_putc</td><td></td><td></td><td></td><td></td><td></td><td>x</t=
+d><td>x</td><td></td><td></td><td></td><td></td><td></td><td></td><td></=
+td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_puts</td><td></td><td></td><td></td><td></td><td></td><td>x</t=
+d><td>x</td><td></td><td></td><td></td><td></td><td></td><td></td><td></=
+td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_printf</td><td></td><td></td><td></td><td></td><td></td><td>x<=
+/td><td>x</td><td></td><td></td><td></td><td></td><td></td><td></td><td>=
+</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>f_gets</td><td></td><td></td><td></td><td></td><td></td><td></td=
+><td>x</td><td></td><td></td><td></td><td></td><td></td><td></td><td></t=
+d><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+</div>
+
+<div class=3D"para" id=3D"lfn">
+<h3>Long File Name</h3>
+<p>The FatFs module has started to support long file name (LFN) at revis=
+ion 0.07. The two different file names, SFN and LFN, of a file is transp=
+arent in the file functions except for f_readdir function. To enable LFN=
+ feature, set <tt>_USE_LFN</tt> to 1, 2 or 3, and add a Unicode code con=
+version function <tt>ff_convert()</tt> and <tt>ff_wtoupper()</tt> to the=
+ project. The LFN feature requiers a certain working buffer in addition.=
+ The buffer size can be configured by <tt>_MAX_LFN</tt> corresponding to=
+ the available memory size. The size of long file name will reach up to =
+255 characters, so that the <tt>_MAX_LFN</tt> should be set to 255 for f=
+ull featured LFN operation. If the size of working buffer is insufficien=
+t for the given file name, the file function fails with <tt>FR_INVALID_N=
+AME</tt>. When enable the LFN feature with re-entrant feature, <tt>_USE_=
+LFN</tt> must be set to 2 or 3. In this case, the file function allocate=
+s the working buffer on the stack or heap. The working buffer occupies <=
+tt>(_MAX_LFN + 1) * 2</tt> bytes.</p>
+<table class=3D"lst2 rset">
+<caption>LFN cfg on ARM7</caption>
+<tr><th>Code page</th><th>Program size</th></tr>
+<tr><td>SBCS</td><td>+3.7K</td></tr>
+<tr><td>932(Shift-JIS)</td><td>+62K</td></tr>
+<tr><td>936(GBK)</td><td>+177K</td></tr>
+<tr><td>949(Korean)</td><td>+139K</td></tr>
+<tr><td>950(Big5)</td><td>+111K</td></tr>
+</table>
+<p>When the LFN feature is enabled, the module size will be increased de=
+pends on the selected code page. Right table shows how many bytes increa=
+sed when LFN feature is enabled with some code pages. Especially, in the=
+ CJK region, tens of thousands of characters are being used. Unfortunate=
+ly, it requires a huge OEM-Unicode bidirectional conversion table and th=
+e module size will be drastically increased that shown in the table. As =
+the result, the FatFs with LFN feature with those code pages will not ab=
+le to be implemented to most 8-bit microcontrollers.</p>
+<p>Note that the LFN feature on the FAT file system is a patent of Micro=
+soft Corporation. This is not the case on FAT32 but most FAT32 drivers c=
+ome with the LFN feature. FatFs can swich the LFN feature off by configu=
+ration option. When enable LFN feature on the commercial products, a lic=
+ense from Microsoft may be required depends on the final destination.</p=
+>
+</div>
+
+<div class=3D"para" id=3D"unicode">
+<h3>Unicode API</h3>
+<p>In default, FatFs supports ANSI/OEM code set on the API but FatFs can=
+ also switch the code set to Unicode. This means the FatFs supports the =
+True LFN feature. For more information, refer to the description in the =
+<a href=3D"filename.html">file name</a>.</p>
+</div>
+
+<div class=3D"para" id=3D"reentrant">
+<h3>Re-entrancy</h3>
+<p>The file operations to the different volume is always re-entrant and =
+can work simultaneously. The file operations to the same volume is not r=
+e-entrant but it can also be configured to thread-safe with <tt>_FS_REEN=
+TRANT</tt> option. In this case, also the OS dependent synchronization o=
+bject control functions, <tt>ff_cre_syncobj(), ff_del_syncobj(), ff_req_=
+grant() and ff_rel_grant()</tt> must be added to the project.</p>
+<p>When a file function is called while the volume is in use by any othe=
+r task, the file function is suspended until that task leaves file funct=
+ion. If wait time exceeded a period defined by <tt>_TIMEOUT</tt>, the fi=
+le function will abort with <tt>FR_TIMEOUT</tt>. The timeout feature mig=
+ht not be supported on some RTOS.</p>
+<p>There is an exception on <tt>f_mount()</tt> and <tt>f_mkfs()</tt> fun=
+ction. These functions are not re-entrant to the same volume. When use t=
+hese functions, all other task must close the corresponding file on the =
+volume and avoid to access the volume.</p>
+<p>Note that this section describes on the re-entrancy of the FatFs modu=
+le itself but also the low level disk I/O layer must be re-entrant.</p>
+</div>
+
+<div class=3D"para" id=3D"dup">
+<h3>Duplicated File Access</h3>
+<p>FatFs module does not support the shareing controls of duplicated fil=
+e access in default. It is permitted when open method to a file is only =
+read mode. The duplicated open in write mode to a file is always prohibi=
+ted and open file must not be renamed, deleted, or the FAT structure on =
+the volume can be collapted.</p>
+<p>The file shareing control can also be available when <tt>_FS_LOCK</tt=
+> is set to 1 or grater. The value specifies the number of files to mana=
+ge simultaneously. In this case, if any open, rename or remove that viol=
+ating the file shareing rule that described above is attempted, the file=
+ function will fail with <tt>FR_LOCKED</tt>. If number of open files get=
+s larger than <tt>_FS_LOCK</tt>, the <tt>f_open()</tt> function will fai=
+l with <tt>FR_TOO_MANY_OPEN_FILES</tt>.</p>
+</div>
+
+<div class=3D"para" id=3D"fs1">
+<h3>Performance Effective File Access</h3>
+<p>For good performance on reading/writing files on the small embedded s=
+ystem, application programmer should consider what process is done in th=
+e FatFs module. The file data on the volume is transferred in following =
+sequence by <tt>f_read()</tt> function.</p>
+<p>Figure 1. Sector miss-aligned read (short)<br>
+<img src=3D"../img/f1.png" width=3D"490" height=3D"110" alt=3D"">
+</p>
+<p>Figure 2. Sector miss-aligned read (long)<br>
+<img src=3D"../img/f2.png" width=3D"490" height=3D"140" alt=3D"">
+</p>
+<p>Figure 3. Sector aligned read<br>
+<img src=3D"../img/f3.png" width=3D"490" height=3D"119" alt=3D"">
+</p>
+<p>The file I/O buffer is a sector buffer to read/write a partial data o=
+n the sector. The sector buffer is either file private sector buffer on =
+each file object or shared sector buffer on the file system object. The =
+buffer configuration option <tt>_FS_TINY</tt> determins which sector buf=
+fer is used for the file data transfer. When tiny buffer (1) is selected=
+, data memory consumption is reduced 512 bytes each file object. In this=
+ case, FatFs module uses only a sector buffer on the file system object =
+for file data transfer and FAT/directory access. The disadvantage of the=
+ tiny buffer configuration is: the FAT data cached in the sector buffer =
+will be lost by file data transfer and it must be reloaded at every clus=
+ter boundary. However it will be suitable for most application from view=
+ point of the decent performance and low memory comsumption.</p>
+<p>Figure 1 shows that a partial sector, sector mis-aligned part of the =
+file, is transferred via the file I/O buffer. On long data transfer show=
+n in Figure 2, middle of transfer data that covers one or more sector is=
+ transferred to the application buffer directly. Figure 3 shows that the=
+ case of entier transfer data is aligned to the sector boundary. In this=
+ case, file I/O buffer is not used. On the direct transfer, the maximum =
+extent of sectors are read with <tt>disk_read()</tt> function at a time =
+but the multiple sector transfer never across the cluster boundary even =
+if it is contiguous.</p>
+<p>Therefore taking effort to sector aligned read/write accesss avoids b=
+uffered data transfer and the read/write performance will be improved. B=
+esides the effect, cached FAT data will not be flushed by file data tran=
+sfer on the tiny configuration so that it can achieve same performance a=
+s non-tiny configuration with small memory footprint.</p>
+</div>
+
+<div class=3D"para" id=3D"fs2">
+<h3>Considerations on Flash Memory Media</h3>
+<p>To maximize the write performance of flash memory media, such as SDC =
+and CFC, it must be controlled in consideration of its characteristitcs.=
+</p>
+<h4>Using Mutiple-Sector Write</h4>
+<div class=3D"rset">
+Figure 6. Comparison between Multiple/Single Sector Write<br>
+<img src=3D"../img/f6.png" width=3D"630" height=3D"148" alt=3D"fig.6">
+</div>
+<p>The write throughput of the flash memory media becomes the worst at s=
+ingle sector write and it increases proportional to the number of sector=
+s per a write transaction. This effect more appers at more fast bus cloc=
+k and its ratio often becomes grater than ten. The number of write trans=
+action also affects the life time of the media. Therefore the applicatio=
+n program should write the data in large block as possible. The ideal bl=
+ock size is cluster size or power of 2 bytes and the byte offset should =
+be aligned to the block. Of course all layers between the application an=
+d the media must support multiple sector write feature, however most of =
+open-source disk drivers lack it. Do not split a multiple sector write r=
+equest into single sector writes or the write throughput gets poor. Note=
+ that FatFs module and its sample disk drivers supprt multiple sector re=
+ad/write feature.</p>
+<h4>Forcing Memory Erase</h4>
+<p>When remove a file with <tt>f_remove()</tt> function, the data cluste=
+rs occupied by the file are marked 'free' on the FAT. But the data secto=
+rs containing the file data are not that applied any process, so that th=
+e file data left occupies a part of the flash memory array as 'live bloc=
+k'. If the file data is forced erased on removing the file, the number o=
+f free blocks on the flash memory will be increased. This may skip inter=
+nal block erase operation to the data block on next write. As the result=
+ the write performance might be improved. To enable this feature, set <t=
+t>_USE_ERASE</tt> to 1. Note that this is a feature with expectation of =
+internal process of the flash memory media. It may not always effective =
+and <tt>f_remove()</tt> function will take a time to remove a large file=
+. Most applications will not need this feature.</p>
+</div>
+
+<div class=3D"para" id=3D"critical">
+<h3>Critical Section</h3>
+<p>If a write operation to the FAT volume is interrupted due to any acci=
+dental failure, such as sudden blackout, incorrect disk removal and unre=
+coverable disk error, the FAT structure on the volume can be collapted. =
+Following images shows the critical section of the FatFs module.</p>
+<div class=3D"lset">
+Figure 4. Long critical section<br>
+<img src=3D"../img/f4.png" width=3D"320" height=3D"436" alt=3D"fig.4">
+</div>
+<div class=3D"lset">
+Figure 5. Minimized critical section<br>
+<img src=3D"../img/f5.png" width=3D"320" height=3D"436" alt=3D"fig.5">
+</div>
+<br class=3D"clr">
+<p>An interruption in the red section can cause a cross link; as a resul=
+t, the object being changed can be lost. If an interruption in the yello=
+w section is occured, there is one or more possibility listed below.</p>=
+
+<ul>
+<li>The file data being rewrited is collapted.</li>
+<li>The file being appended returns initial state.</li>
+<li>The file created as new is gone.</li>
+<li>The file created as new or overwritten remains but no content.</li>
+<li>Efficiency of disk use gets worse due to lost clusters.</li>
+</ul>
+<p>Each case does not affect the files that not opened in write mode. To=
+ minimize risk of data loss, the critical section can be minimized like =
+shown in Figure 5 by minimizing the time that file is opened in write mo=
+de or using <tt>f_sync()</tt> function properly.</p>
+</div>
+
+<div class=3D"para" id=3D"fs3">
+<h3>Extended Use of APIs</h3>
+<p>These are examples of extended use of FatFs APIs. New item will be ad=
+ded whenever a useful code is found.</p>
+<ol>
+<li><a href=3D"../img/app1.c">Open or create a file for append</a></li>
+<li><a href=3D"../img/app2.c">Empty a directory</a></li>
+<li><a href=3D"../img/app3.c">Allocate contiguous area to the file</a></=
+li>
+</ol>
+</div>
+
+<div class=3D"para" id=3D"license">
+<h3>About FatFs License</h3>
+<p>This is a copy of the FatFs license document that included in the sou=
+rce codes.</p>
+<pre>/*-----------------------------------------------------------------=
+-----------/
+/  FatFs - FAT file system module  R0.09b                    (C)ChaN, 20=
+13
+/-----------------------------------------------------------------------=
+------/
+/ FatFs module is a generic FAT file system module for small embedded sy=
+stems.
+/ This is a free software that opened for education, research and commer=
+cial
+/ developments under license policy of following trems.
+/
+/  Copyright (C) 2013, ChaN, all right reserved.
+/
+/ * The FatFs module is a free software and there is NO WARRANTY.
+/ * No restriction on use. You can use, modify and redistribute it for
+/   personal, non-profit or commercial products UNDER YOUR RESPONSIBILIT=
+Y.
+/ * Redistributions of source code must retain the above copyright notic=
+e.
+/
+/-----------------------------------------------------------------------=
+------/</pre>
+<p>Therefore FatFs license is one of the BSD-style license but there is =
+a big difference. Because FatFs is for embedded projects, the conditions=
+ for redistributions in binary form, such as embedded code, hex file and=
+ binary library, is not specified to increase its usability. The documen=
+tation of the distributions need not include about FatFs and its license=
+ document, and it may also. Of course FatFs is compatible with the proje=
+cts under GNU GPL. When redistribute it with any modification, the licen=
+se can also be changed to GNU GPL or BSD-style license.</p>
+</div>
+
+<p class=3D"foot"><a href=3D"../00index_e.html">Return</a></p>
+</body>
+</html>
+
+------------VTgUKIiNXbuDeHCEETunFo
+Content-Disposition: inline; filename=css_e.css
+Content-Type: text/css; name=css_e.css
+Content-Location: http://elm-chan.org/fsw/ff/css_e.css
+Content-Transfer-Encoding: 8bit
+
+* {margin: 0; padding: 0; border-width: 0;}
+body {margin: 8px; background-color: #e0ffff; font-color: black; font-family: serif; line-height: 133%; max-width: 1024px;}
+a:link {color: blue;}
+a:visited {color: darkmagenta;}
+a:hover {background-color: #a0ffff;}
+a:active {color: darkmagenta; overflow: hidden; outline:none; position: relative; top: 1px; left: 1px;}
+abbr {border-width: 1px;}
+
+p {margin: 0 0 0.3em 1em;}
+em {font-style: normal; font-weight: bold; margin: 0 0.1em;}
+strong {}
+pre {border: 1px dashed gray; margin: 0.5em 1em; padding: 0.5em; line-height: 1.2em; font-size: 85%; font-family: "Consolas", "Courier New", monospace; background-color: white;}
+pre span.c {color: green;}
+pre span.k {color: blue;}
+pre span.arg {font-style: italic;}
+tt {margin: 0 0.2em; font-size: 0.85em; font-family: "Consolas", "Courier New", monospace; }
+tt.arg {font-style: italic;}
+ol {margin: 0.5em 2.5em;}
+ul {margin: 0.5em 2em;}
+dl {margin: 0.5em 1em;}
+dd {margin: 0 2em;}
+dt {font-size: 0.85em; font-family: "Consolas", "Courier New", monospace;}
+dl.par dt {margin: 0.5em 0 0 0 ; font-style: italic; }
+dl.ret dt {margin: 0.5em 0 0 0 ; font-size: 0.85em; font-family: "Consolas", "Courier New", monospace;}
+hr {border-width: 1px; margin: 1em;}
+div.abst {font-family: sans-serif;}
+div.para {clear: both; font-family: serif;}
+div.ret a {font-size: 0.85em; font-family: "Consolas", "Courier New", monospace; }
+.equ {text-indent: 0; margin: 1em 2em 1em;}
+.indent {margin-left: 2em;}
+.rset {float: right; margin: 0 0 0.5em 0.5em;}
+.lset {float: left; margin: 0 0.5em 0.5em 0.5em;}
+ul.flat li {list-style-type: none; margin: 0;}
+a.imglnk img {border: 1px solid;}
+.iequ {white-space: nowrap; font-weight: bold;}
+.clr {clear: both;}
+.it {font-style: italic;}
+.mfd {font-size: 0.7em; padding: 0 1px; border: 1px solid; white-space : nowrap}
+
+h1 {line-height: 1em; font-size: 2em; font-family: sans-serif; padding: 0.3em 0 0.3em;}
+p.hdd {float: right; text-align: right; margin-top: 0.5em;}
+hr.hds {clear: both; margin-bottom: 1em;}
+
+h2 {font-size: 2em; font-family: sans-serif; background-color: #d8d8FF; padding: 0.5em 0.5em; margin: 0 0 0.5em;}
+h3 {font-size: 1.5em; font-family: sans-serif; margin: 1.5em 0 0.5em;}
+h4 {font-size: 1.2em; font-family: sans-serif; margin: 1em 0 0.2em;}
+h5 {font-size: 1em; font-family: sans-serif; margin: 0.5em 0 0em;}
+small {font-size: 80%;}
+.indent {margin-left: 2em;}
+
+/* Tables */
+table {margin: 0.5em 1em; border-collapse: collapse; border: 2px solid black; }
+th {background-color: white; border-style: solid; border-width: 1px 1px 2px; border-color: black; padding: 0 3px; vertical-align: top; white-space: nowrap;}
+td {background-color: white; border: 1px solid black; padding: 0 3px; vertical-align: top; line-height: 1.3em;}
+table.lst td:first-child {font-size: 0.85em; font-family: "Consolas", "Courier New", monospace;}
+table.lst2 td {font-size: 0.85em; font-family: "Consolas", "Courier New", monospace;}
+table caption {font-family: sans-serif; font-weight: bold;}
+tr.lst3 td { border-width: 2px 1px 1px; }
+
+p.foot {clear: both; text-indent: 0; margin: 1em 0.5em 1em;}
+
+------------VTgUKIiNXbuDeHCEETunFo
+Content-Disposition: inline; filename=modules.png
+Content-Type: image/png; name=modules.png
+Content-Location: http://elm-chan.org/fsw/ff/img/modules.png
+Content-Transfer-Encoding: Base64
+
+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
+
+------------VTgUKIiNXbuDeHCEETunFo
+Content-Disposition: inline; filename=f1.png
+Content-Type: image/png; name=f1.png
+Content-Location: http://elm-chan.org/fsw/ff/img/f1.png
+Content-Transfer-Encoding: Base64
+
+iVBORw0KGgoAAAANSUhEUgAAAeoAAABuBAMAAAAaFU1zAAAAMFBMVEUAAABNTU1o
+aGh8fHyMjIwA/wCampqnp6eysrK9vb3Hx8fQ0NDd3d3p6enw8PD///9cnKCRAAAA
+CXBIWXMAAA7EAAAOxAGVKw4bAAAE/ElEQVR4nO2czXIbRRDH25LIh2wzClzggsML
+IIorFZQDVxe5cPcLUIgzBydPYF85JXfKhW4cpYIHsHkCO/AAHimuWLEUD9PzIa0t
+r+Od6ZF3PfNfl7Xayfb8f+rp2dFKMYgYBbdt4FaUqONRog7XCYCAWVcgztvvt+4d
+qoY6PohJ69tWZxlOZhYuiENtXx/TDb/AT0SdZKnPdl5/998XanfQxkNDNmQE/RQy
+lBFnb9cz1Kdr05ptmv7g2cmc+mS/25/eV7uc6W757VIrN7Yh68XDl831W9hRe0Px
+WIia2h3sIDFgDWw9ELzRcYrP8KegoYwkWk3A+68bhzCR+CM53pXXcWtT+nqBvp7I
+xqKuhKbu/v5Q7f2JR9RBqB8jNW6nzd5LvlYwsom/NvWllvZG7KADB9tyloHGvvL6
+fK/B2bvmK+kLG4u6MrNZyyT41xm1eNWx1EPG247jCT5/1/KnHtb7Aj7F53/DqvLa
+wqaR8oWNRV0JnWukx72N+Qi3zHIDcK1u+P7kKVMVsvrot0d9PSa/+fi8lnvCxaey
+2xUBk9ZKH2AfD/y1YjI184eNRV0JYXKtnsl5sduf2NlsnmvnuQN2+a6ukObRw4O2
+HpPj5tmD6wxlpGYzENPuBvQ65h+g10yusbGoK2Hqek8lePyHeP3Vv/rK1dsere+a
+uj5wHuGD3sBUCG7a57RxkjtLXHnlerN+1IaxnHlGazIl6PX5Xt3UNcPGoq6Epj6F
+TdwbHYvZKuWemHwyUF5Ft3HoSs0f2wqZb6J1tHGdoYw41OUq5XyrfgjiSzS3sq28
+jmFzUhcvPpMvCzY6eQsnGNVshcxzLbae/px7wjLdhRKc3rcVgpsek6IH/dwTlmgu
+mOCsaStEjW01JuW4Pc49QT9wx/5cz1uG3tRzm+4w9T+ruU13l5rXXua2WWpw1Ie6
+DhTXU4FzXdIxlKgdlKhd2qnPu6EqQU1+ewl0D6Wm5sVulNxA+u1QualD5FpdHfmP
+bnr2IfckcRepPdcBNtdVo/aLa+uaxF2VqOncJWrCuHhvKD7qrAx/ZNTm4n13qXOv
+PuwuU+flmiBu1agjrWuSuIna3x2/fL+r5NR+q3kruLyKCnYX8tlHTlvm3QddThap
+aeKGyjWRu+DUpZzDw9d1CddmC2+OolibLUxCUazN9FvCTMZp4mbeaJayri08KTUn
+H0Nh1mYz7GCV47cOIPkU4CoPjCCuVZD74Qu93Fz51Nop0X126g92K5HrclIvRoXr
+24vFvWI281QQ6swcThK3nHV9+SC7vt01Lp0q8UkuuRK1gxK1Szv1eTdUonZQxan9
+VvP57gPFJaJ2PD1wTkIpUTuo2tSRKVHHo0QdjxJ1PErU8ShRx6NEHY8SdTxK1PGI
+hJpf9R/hmGClvdNCQz37lREyB/hDVpwiKAU1yFwD03YY44DfjuKMsSC31RhFUAJq
+rrC5GuYynhzZ+MP9qTlXf8Jr9sC4riX/ZJNQY67Np9YMv3MmbSp2X2r52mFw+8BL
+Ry2YzjVDTybd3tQYFIDr2ByfsxJRZ0Y4E2Z4U4xwi1tG6ouzmZnKKGYzjcvtA5a1
+KA91jryvXIirX06uZ7NyUl/6LJJ2lWJWQmW5ci1JJsulWaUsIyatQjik/+sP1AqS
+l5DYJKFJqJf6FQuKlzQYNUHg3C+teGNXMdf+MVJdUynOOTzO63X5lajjUaKOR3FS
+/w+rFfJHm+DVPAAAAABJRU5ErkJggg==
+
+------------VTgUKIiNXbuDeHCEETunFo
+Content-Disposition: inline; filename=f2.png
+Content-Type: image/png; name=f2.png
+Content-Location: http://elm-chan.org/fsw/ff/img/f2.png
+Content-Transfer-Encoding: Base64
+
+iVBORw0KGgoAAAANSUhEUgAAAeoAAACMBAMAAABBmff6AAAAMFBMVEUAAABNTU1o
+aGh8fHyMjIwA/wCampqnp6eysrK9vb3Hx8fQ0NDZ2dnm5ufw8PD///+wDu42AAAA
+CXBIWXMAAA7EAAAOxAGVKw4bAAAFKElEQVR4nO2czW7cNhDHZz/a2HE23DSXFj3E
+PfbQOnmA1AHaq+FccvcLFHWfYJ1rL24eoLCPRQs39hM4b2CjLQL05CAPkHAdwOt2
+vWZJ6mNly4xX5FChpPkzQLRiOJqfhhxytVRANFHwoR34ICLq5oiomyOi9iYOwLgs
+8ScmXouX8H1U8VCf2+vsdcrwJNZlag7tg+hkVPOj9s5RivcC9a/nd988eKsOJ219
+ri9LicpRs5NehnrUO2snVZNV24tEvBnqldGCeDHQhxC7UepQy1NPbmRqEk8vHxdT
+Guu1uejTvWMm+JK+2pwilj0d2AlsCvjW9hqFlKcWbQGT+90jGEv84/aREMqd0/4K
+gHg6J3j3oawsdpGEenRzd0sdjQfyjD4J8I2Osyrrv88LOCiOwEH9KaQrqKUHx+xw
+GQ4HQoxBEip3Nna6nP17c3uL31KVRf2KstmQRQEe7SfU7L9OSt1X97uY4dj6wQsU
+6mFnX8Bd9fkvWNDu9FXVsfRa+i4rC/oVx1rRq6OhSHt4yiwL2I1u3tp65k7dEjDu
+t/YBjtSJP1uJO9pvWVRlQb9i6mGc1f4WMpvtDi5R969wZybr3dXvQA9D2Pvs2edy
+MKr8sPj21ZKxSZ767IY8ebZ+D3aX43+h3MnEWlUW9Csd14c6wD+J80/efKFnLpk8
+Fv+Jx/WOZQ+fZ/NxVvgDfmmLn39T+WHj+famscnVM9e73qslOJ2X2eyWdEu5s7HT
+icc1U5UF/Upy+LrKg5x9LaarlB/E3lcR9QhW7Kh7C70kK6iyqI8OVx+ZM2N+ldKR
+q5Tztc4RCBmNyVproN05hZVxRzz9VPqsKi2c8ybO2izJCtMyvN0yN6nBOpyzxaUk
+K0xjfdL92NykFtTrgyQrqKLHtZxzF8xNakG9/TzJCqqc3tlUWHDb3CSm5rZXtGxX
+gu4vm+tqSz3p75sra0sNX76vMvpLfemx0jXX9mXXUZ5jHWgfImoLEbVNPXa7GdVY
+au5wlXKo7Z/YGQQiJbdRKdQc8Kn17Mif2Onxdd6j2M3H2nEdkMS6atRudpNxjeJd
+lajxvCNqona0Gz1Gj/1lTaG+aFFz15faOPuwOlObYo1gt2rUDR3XKHaJOjzvfFO7
+rebN3vmy+/gjq5L59uF679C//l5DHMbM1Uzqkn8sA2d/idreSqldnIeyDidqoq43
+danpLJzvXERN1ERN1PWgLnHqit+mIGqiJmqiJmqsp4VW1EVfR/JA7WbFasIGq3sF
+GP4SdcnUduOi8tQOjapLbZf4Q6K2IZj9TmWs85B+ybWinn3L4PR3r8pTF1GKHRR1
+tEfRqxiiv2jUzDd1tPeoadTRSjQw6oIDtaDScR0Uteds1sgcXqf52uUGhEFd3qPh
+kFakRE3URB0gte2KKW5e0WekblaImqiJmqiJurrUzdyhQdRETdREXQvqZu6UJmqi
+RlM2bwRD7TuZXdytFMqbTb6pWYjU3jv4RepA3lj0Tc2FL2q3p4WJcnsuUOzy/F6O
+AN5ENgUFzW4+cQTQw9/jHtLdDPt/icn3RBy7uTsQFDVqrI1jPowc7onaFGsEuz6y
+WXZrAYrd7G0Nd1xntpHg2M1H3M0ucg9P6NOtgLh2p9Ru64CE+pqrGK9u9IEh2PUm
+b9Txrjgnu95EsbaQod10XOPaxZIX6kwOR7WLJh/U2fka0y6e/PTwmeux280oorYQ
+UdvUY7ebUURtoYpTu63mzd57sotEbdncc0x8iagtVG3qhomomyOibo6Iujn6H+jO
+5NlXzEN4AAAAAElFTkSuQmCC
+
+------------VTgUKIiNXbuDeHCEETunFo
+Content-Disposition: inline; filename=f3.png
+Content-Type: image/png; name=f3.png
+Content-Location: http://elm-chan.org/fsw/ff/img/f3.png
+Content-Transfer-Encoding: Base64
+
+iVBORw0KGgoAAAANSUhEUgAAAeoAAAB3BAMAAAA+zB4gAAAAMFBMVEUAAABNTU1o
+aGh8fHyMjIwA/wCampqnp6eysrK9vb3Hx8fQ0NDZ2dnh4eHr6+v///9EQzuJAAAA
+CXBIWXMAAA7EAAAOxAGVKw4bAAADhUlEQVR4nO2cTXLTMBTHX5wwbT6o0mEDq8IJ
+wnAA2gXrlg37nADCCUpPQLeswp6ZTm6QI9CBA9ScIGraadLm4yH5owRTPBPZkuXo
+/dOZRH6R5v2e5CdZdQzooqBoBwoRUbsjoi6pgMm/9aro8cSkoDXPSs3B+x4eDC0f
+4X0enukUPLttZ6VmNzsr1JPHcy82LY4yuqdJ8Ob6gGF3G3lz98vuEE/Ep9qrnaWX
+UiVR5myxtWLhbNWUs7s5CU75KZs0Bn3e8Ot+57bxtc9b08bddkqVRFmgeQjLl7UR
+zAT+2LtAvIHPOG0fAoRhfC2MOinWFZwPztkl4x3O5GscfFrUrlspVRJlQQ0IY+bv
+g3+MOIPaBfa+1fHTWY2zMIzSqBFibQF/LmgBGF95YdvfS6mSKIfUl9UhwhNZ/glN
+bIvub0tTGEZptEkw9oRTTDr4p6+xe/AhpUqiLL5fQZi1K0OAC3nghyiKsQ1xo5xJ
+ozYEBcFki4vz2o9GeDAgGQ5gmFIlUeZsviUOznt7MNiPviH6ebWvpVGP/2qCu4Zw
+qlcbRWP75KnsOw4pyefhmetqx+/AtC6yWUvktN6ZJ87rahxGadSKkYuuqinGf1cp
+VbFKWXarI8AXI1x2K8c4gUOcwuGsGoZRGnX6m49+NVOMG7AifVDc66dYN5U6XU5T
+82K9MK2M1CWNFoSeu0cdk6uoKGpQVHTZCEEDYppWVEHUj96p6Z467GvFVt6i+etu
+yIU6OK+zUJvtcJ4PNWakNjznB0PLAmqzQzzwmKgLojY6xMMQEzVRm6Q2eWKHDhM1
+URM1UeugNpjEowATNVETNVETdW7U5qauyN+cqLPtFpaVWrGVkvc1URM1Uf+f2tjU
+FYeXqImaqG2kVkuAJafm697IbiP1+j2n1tdxdImaqIlaP7VCOlOhvq9UUmoOKknc
+Nmq91x+QeHeDOp7draPWuyYNsblt1MHPZPRqNXlYsVtohBryp1Zs5a8RrhvavhGu
+eQ8pSmduUduaw/Wm8Lh121YpZjZTLKM2tTVs19UHURP1ZlPTzjBREzVRE3Vpqd38
+rz1REzVR20itvplVZmrFVpy+e5aoiZqoiXojqN38FRtREzVRbx61uRQeR5ioidog
+tZtPiXGT2uQAR1ue/uTmk77K+VS3rNRFSHWbL+97C0ulmFqxeomfzIlEvZ7KTe2Y
+iNodEbU7Imp39BvgqQQHYH/3owAAAABJRU5ErkJggg==
+
+------------VTgUKIiNXbuDeHCEETunFo
+Content-Disposition: inline; filename=f6.png
+Content-Type: image/png; name=f6.png
+Content-Location: http://elm-chan.org/fsw/ff/img/f6.png
+Content-Transfer-Encoding: Base64
+
+iVBORw0KGgoAAAANSUhEUgAAAnYAAACUBAMAAADsaXlqAAAAMFBMVEUAAAAAAP9N
+TU1oaGh8fHyMjIwA/wCampr/gICnp6eysrK9vb3Hx8fU1NTm5ub///+xD7/mAAAA
+CXBIWXMAAAAAAAAAAAHqZRakAAAFEklEQVR4nO2cTW7bRhiGP0gRAseWp76BkF3R
+FtEFGvUG7iLdVjmCT5B02aXRdQsHvYCNXsDZFmgTIj2AhDZBF11o4CYobECazg9F
+iZZMMq8oUYTeRzZFaahPw8czFCnArxiCIlV3oMbQHQ7d4dAdDt3h0B0O3eHQHQ7d
+4dAdjnOnxf1MH83WHNed+6PFV3VHVw0z7NmXqk10cksJ7gbR1Ni7W+5OR1Fvuu27
+5FUng6GMoufO3aS/mY5uId5d4/KXqTGZe37+Pr1+cf5SXr+4dKs7PPK8u1b/G/He
+RIuyyzfHdv0/Obdt3cd2cfLAmJ9bQ1E3nXMjT4wZ9k8unn89kidaifjmXcS721f7
+sbtw+3HPLk9/37dtkXxrrg+iy5uDYV/MxW/7RgZusHX0I7vhQCutXHO1O1ER3t1h
++zDlzjTsb8c0bdvkKxlcKd27Um7brn3OveJ9u/W+fc+uOneuudqdqAjvTjVV2p2/
+iT++TbqPtIjSyiQt9tO3+eCmtRe7c83V7kRFBHfd3rJxF3ADy5j0uBtLeywHybir
+sP9VEtydnlkv/yTufvLHu1duznYH0dn1wbBnj3fH8fHOPjuxI00OY3euudqdqIjg
+7uVrMW8eO2+RNSRR365d208JY/6WT+1JXmtkXrRG0fHNw/NwptI5Nl3l3Y3v+eZd
+ZNk1Ga/TikF3OHSHQ084dIdDdzh0h0N3OHSHs8SdTp7LvlDV5X0FoKWOf8MlfVaJ
+sxx39ubvVkfnvddWsuhOz3TkufMb0N0M70KJzp2Tboft/BalV55wrpTy1VSNJN7h
+TrRSebsRBoty26+6v+54p7y+2rvTzkghd3Zs5g/QfKbjzq6VcQjYECu68zu8+liJ
+S7kvBGvtzqso5k6bMt1p/471mbJ3nd85I7mfFbbd/eZumI873ll1/p1XLLVBtu2c
+tEZTduvc1WjYbZ27OkF3OEvOUWQ9fF8G362pcx/RvSx3QeBTfXR09EmZi3LcVd89
+uqM7uqM7uqM7uqM7uqM7uqM7uqM7uqM7uqO76t2J/wq07MXqVN+9XHekAHSHQ3c4
+dIdDdzh0h0N3OHSHQ3c4dIdDdzh0h0N3OHSHQ3c4dIdDdzh0h+Pd/SDP5iQy6rMg
+PpHtcNxc4o5RnzmELK2Fp+bv0+uM+kxwUv5tjnww4J9fmA+fuTAyRn0WIiQBtkbO
+3auGOf3VuWPUZyH8ZHwr7Tg2sBMvGfVZgHAg+6vBqM+PR6Z36XEXYNRnJv6zoj3e
+i93FxztGfRbB6zhpnMXuPnwpjPosysI1GS/SCnNL1eeT+9X0o47ccveHn62kEJyi
+OHSHQ3c4dIdDdzh0h5N2l1zZu2ihnJinnf4awJNyp5M4Jj17dFdCk6pVdtM6SLlT
+SR5TcJeZ50l3t90Z7WLo/Pd3OXmeyuX8aeODFzfR0+1j0Z0SrefG3Z15nuKthZ9N
+9HT7WJizLjRw5i4jzzMed8rHTe4kOe4yMiljd1rRnUOHDM/EXWaep3cn2uzslF08
+v/MZs+GzIjvP053fiQ4v2U3KuK7Y0SlbhrtdHXa8nl0BusPJyfss55/80/80XvOa
+We6CwKfrC0ioeU26w2vSHV6T7vCadIfXpDu8Jt3hNekOr0l3eE26w2vSHV6T7vCa
+dIfXpDu8Jt3hNekOr5nvbs0hnTWumeuOFIDucOgOh+5w6A6H7nDoDofucOgOh+5w
+6A6H7nDoDofucOgOh+5w6A6H7nDoDud/DSunqSnQ4FIAAAAASUVORK5CYII=
+
+------------VTgUKIiNXbuDeHCEETunFo
+Content-Disposition: inline; filename=f4.png
+Content-Type: image/png; name=f4.png
+Content-Location: http://elm-chan.org/fsw/ff/img/f4.png
+Content-Transfer-Encoding: Base64
+
+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
+
+------------VTgUKIiNXbuDeHCEETunFo
+Content-Disposition: inline; filename=f5.png
+Content-Type: image/png; name=f5.png
+Content-Location: http://elm-chan.org/fsw/ff/img/f5.png
+Content-Transfer-Encoding: Base64
+
+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
+
+------------VTgUKIiNXbuDeHCEETunFo--

@@ -1,0 +1,788 @@
+Content-Type: multipart/related; start=<op.mhtml.1377691215542.8b6e3a7234610f04@192.168.11.56>; boundary=----------jxyFj0JVAzZXyURIBVEQP5
+Content-Location: http://thestarman.narod.ru/asm/mbr/PartTables.htm
+Subject: =?utf-8?Q?Introduction=20to=20Partition=20Tables?=
+MIME-Version: 1.0
+
+------------jxyFj0JVAzZXyURIBVEQP5
+Content-Disposition: inline; filename=PartTables.htm
+Content-Type: text/html; charset=UTF-8; name=PartTables.htm
+Content-ID: <op.mhtml.1377691215542.8b6e3a7234610f04@192.168.11.56>
+Content-Location: http://thestarman.narod.ru/asm/mbr/PartTables.htm
+Content-Transfer-Encoding: 8bit
+
+<script type="text/javascript" src="/abnl/?narodads=1&s=othestarman"></script><HTML><HEAD><title>Introduction to Partition Tables</title>
+<meta http-equiv="keywords" content="Partition Table, Extended Boot Record, EBR, Nested partitions, Extended partition table, Chained paritions, MBR, Master Boot Record">
+<meta http-equiv="description" content="Understanding Partition Tables.">
+<META NAME="COPYRIGHT" CONTENT="&copy; 2004, 2013 by Daniel B. Sedory">
+<META NAME="robots" CONTENT="ALL">
+<META NAME="revisit-after" CONTENT="30 days">
+<META NAME="distribution" CONTENT="Global">
+<META NAME="robots" CONTENT="INDEX">
+<META NAME="revisit-after" CONTENT="30">
+<link href="mbr.css" rel="stylesheet" type="text/css">
+</HEAD>
+<BODY bgcolor="#FFFFFF" leftmargin="25" topmargin="25">
+<BR>
+<center>
+ <font size="7"><b><font size="6">MBR/EBR </font>Partition Tables</b></font><br><br>
+ <font face="Verdana,Arial,Helvetica" size="4"><b>Copyright &copy; 2004, 2007, 2013 by Daniel B. Sedory<br>
+ </b><font color="#FF0000" size="3"><b><font face="Arial, Helvetica, sans-serif">NOT 
+ to be reproduced in any form without Permission of the Author!</font></b></font></font> 
+</center><BR>
+<HR>
+<ul><font face="Arial, Helvetica, sans-serif" size="3">
+ <li> &nbsp;<b><font face="Verdana, Arial, Helvetica, sans-serif">I</font>ntroduction</b></li>
+ <ul>
+  <li> &nbsp;<a href="#mbr">The Master Boot Record (<b>MBR</b>)</a></li>
+  <li> &nbsp;<a href="#pri"><b>Primary</b> Partitions</a></li>
+  <li>&nbsp;<a href="#pte">A Partition Table Entry</a></li>
+  <ul>
+   <li>&nbsp;<a href="#Decoding">Decoding the CHS values</a></li>
+  </ul>
+  <br>
+  <li> &nbsp;<a href="#ext"><b>Extended</b> Partitions</a></li>
+  <li> &nbsp;<a href="PartTables2.htm#ebr" target="P2">An Extended Boot Record 
+   (<b>EBR</b>)</a></li>
+  <br>
+  <li> &nbsp;<a href="PartTables2.htm#nest" target="P2">Extended partitions 
+   are chained, <b>not</b> <i>nested</i></a></li>
+ </ul>
+ <br>
+ <li> &nbsp;<a href="PartTables3.htm#xamps" target="P3"><b>Partition Table Examples</b></a></li>
+ <ul>
+  <li> &nbsp;<a href="PartTables3.htm#20GBpt" target="P3">20 
+   GB Hard Drive (with NTFS, FAT32 and Linux Partitions)</a></li>
+ </ul>
+ <br>
+ <li> &nbsp;<a href="#FN"><b>Footnotes</b></a></li>
+</font></ul>
+<HR>
+<br>
+<h1><font face="Verdana, Arial, Helvetica, sans-serif">Introduction</font></h1>
+<h2><a name="mbr">&nbsp;</a> <font face="Arial, Helvetica, sans-serif">The Master Boot Record (MBR)</font></h2>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3">In the late 1970s and early 80s, many different <i>microcomputer</i> manufacturers
+ were vying for their share of the market: Apple&#153;, Atari&#153;, RadioShack's Tandy&#153; (TRS-80) and others across the world had already found
+ buyers when the IBM&reg; <i>Personal Computer&#153;</i> arrived on the scene. By the time <b><i>PC</i></b> became a generic term for any <i>personal
+ computer</i>, many were using some form of Microsoft's <b>DOS</b>. So, due to the sheer number of early PCs based on IBM <i><b>PC</b></i> DOS (which
+ included all the &quot;PC-compatibles&quot; and those now <A NAME=R1>running</A> <b>MS-Windows&#153;</b> or distributions of <b>Linux</b>), the
+ <i>original</i> PC's basic <b>MBR</b> structure (see table below) effectively became the <i>default</i> standard.<sup><a href="#N1">[<b>1</b>]</a></sup></font></p>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3">The <b>MBR</b> (which is always located on the first sector of a hard disk) contains
+ that disk's <i>Master </i>(or <i>Primary</i>)<b> Partition Table</b>; often the only partition table on many PCs today. The partition table comprises
+ <b><i>only</i></b> 12.5% (<b>64</b> bytes) of this <b>512</b>-byte sector:</font></p>
+<div align="center"><table width="540" border="1" cellspacing="0" cellpadding="0">
+ <tr> 
+  <td colspan="5"> 
+   <div align="center"><font face="Verdana, Arial, Helvetica, sans-serif"><font size="4" face="Arial, Helvetica, sans-serif">Basic 
+    Structure of the Master Boot Record Sector</font></font></div>
+  </td>
+ </tr>
+ <tr> 
+  <td colspan="2" align="center"><b><font face="Arial, Helvetica, sans-serif">Offsets (within sector)<br></font></b></td>
+  <td rowspan="2" width="85"><div align="center"><font face="Arial, Helvetica, sans-serif"><b>Length<br>(in <i>bytes</i>)</b></font></div></td>
+  <td rowspan="2"><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="4"><b>Description</b></font></div></td>
+ </tr>
+ <tr> 
+  <td width="100"><div align="center"><b><font face="Arial, Helvetica, sans-serif"><i>in Decimal</i></font></b></div></td>
+  <td width="100"><div align="center"><font face="Arial, Helvetica, sans-serif"><b><i>in Hex</i></b></font></div></td>
+ </tr>
+ <tr> 
+  <td width="100" height="35"><div align="center"><font face="Courier New, Courier, mono" size="2"><b>000 - 445</b></font></div></td>
+  <td width="100" height="35"><div align="center"><font face="Courier New, Courier, mono" size="2"><b>000 - 1BD</b></font></div></td>
+  <td width="85" height="35"><div align="center"><font face="Courier New, Courier, mono"><b><font size="4">446</font></b></font></div></td>
+  <td height="35"><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif"><font size="4">Code Area</font></font></div></td>
+ </tr>
+ <tr> 
+  <td width="100" height="35" bgcolor="#CCFFCC"><div align="center"><font face="Courier New, Courier, mono" size="2"><b>446 - 509</b></font></div></td>
+  <td width="100" height="35" bgcolor="#CCFFCC"><div align="center"><font face="Courier New, Courier, mono" size="2"><b>1BE - 1FD</b></font></div></td>
+  <td width="85" height="35" bgcolor="#CCFFCC"><div align="center"><font face="Courier New, Courier, mono" size="4"><b>64</b></font></div></td>
+  <td height="35" bgcolor="#CCFFCC"><div align="center"><font size="4" face="Verdana, Arial, Helvetica, sans-serif"><i>Master </i>Partition Table</font></div></td>
+ </tr>
+ <tr> 
+  <td width="100" height="35"><div align="center"><font face="Courier New, Courier, mono" size="2"><b>510 - 511</b></font></div></td>
+  <td width="100" height="35"><div align="center"><font face="Courier New, Courier, mono" size="2"><b>1FE - 1FF</b></font></div></td>
+  <td width="85" height="35"><div align="center"><font face="Courier New, Courier, mono" size="4"><b>2</b></font></div></td>
+  <td height="35"><div align="center"><font size="3" face="Verdana, Arial, Helvetica, sans-serif"><b>Boot Record Signature</b></font></div></td>
+ </tr>
+</table><font face="Times New Roman, Times, serif" size="3"><b>Table 1.</b></font></div>
+<BR>
+<table width="640" border="0" cellspacing="0" cellpadding="0" align="center">
+ <tr> 
+  <td valign="top"> 
+   <p><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><font face="Times New Roman, Times, serif" size="4"><b>Table 2.</b></font>
+    <A NAME=R2>This</A> should remove any confusion over what constitutes a <i>valid </i>Boot Record signature; sometimes called its <i>Magic 
+    number,</i> and often expressed as the 16-bit hexadecimal <b>Word</b>, <b>0xAA55</b> (<i>or:</i> <b>AA55h</b>) for the
+    <i>little-endian</i><sup><a href="#N2">[<b>2</b>]</a></sup> PC.</font></p>
+  </td>
+  <td align="right" width="342">
+   <table border="1" cellspacing="0" cellpadding="0" width="330">
+    <tr><td colspan="4"><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="4">Boot Record Signature</font></div></td></tr>
+    <tr> 
+     <td colspan="2" width="170"><div align="center"><b><font face="Arial, Helvetica, sans-serif">Offset (within sector)</font></b></div></td>
+     <td rowspan="2" height="60"><div align="center"><font face="Arial, Helvetica, sans-serif"><b>Byte Values<br></b>( Hexadecimal )</font></div></td>
+    </tr>
+    <tr> 
+     <td><div align="center"><i><font face="Arial, Helvetica, sans-serif">Decimal</font></i></div></td>
+     <td><div align="center"><i><font face="Arial, Helvetica, sans-serif">in Hex</font></i></div></td>
+    </tr>
+    <tr> 
+     <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b><font size="3">510</font></b></font></div></td>
+     <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b><font size="3">1FE</font></b></font></div></td>
+     <td><div align="center"><b><font face="Courier New, Courier, mono" size="4">55</font></b></div></td>
+    </tr>
+    <tr> 
+     <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b><font size="3">511</font></b></font></div></td>
+     <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b><font size="3">1FF</font></b></font></div></td>
+     <td><div align="center"><font size="4" face="Courier New, Courier, mono"><b>AA</b></font></div></td>
+    </tr>
+   </table>
+  </td>
+ </tr>
+</table>
+<p><a name="pri">&nbsp;</a></p>
+<h2><font face="Arial, Helvetica, sans-serif"><i>Primary</i> Partitions</font></h2>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="4"><font size="3">This <i>standard</i> MBR structure has always contained
+ a <b>Partition Table</b> with <b>four <i>16-byte</i> entries</b> as follows:</font></p>
+<div align="center"><table width="600" border="1" cellspacing="0" cellpadding="0">
+ <tr> 
+  <td colspan="5" bgcolor="#CCFFCC">
+   <div align="center"><font size="4" face="Arial, Helvetica, sans-serif">The <i>standard</i> 64-byte <i>Primary</i> Partition Table</font></div>
+  </td>
+ </tr>
+ <tr> 
+  <td colspan="2" align="center"><b><font face="Arial, Helvetica, sans-serif">Offsets (within MBR sector)<br></font></b></td>
+  <td rowspan="2" width="85"><div align="center"><font face="Arial, Helvetica, sans-serif"><b>Length<br>(in <i>bytes</i>)</b></font></div></td>
+  <td colspan="2" rowspan="2"><div align="center"><b><font face="Arial, Helvetica, sans-serif" size="4">Contents</font></b></div></td>
+ </tr>
+ <tr> 
+  <td width="110"><div align="center"><b><font face="Arial, Helvetica, sans-serif"><i>in Decimal</i></font></b></div></td>
+  <td width="110"><div align="center"><font face="Arial, Helvetica, sans-serif"><b><i>in Hex</i></b></font></div></td>
+ </tr>
+ <tr> 
+  <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b>446 - 461</b></font></div></td>
+  <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b>1BE - 1CD</b></font></div></td>
+  <td><div align="center"><font face="Courier New, Courier, mono" size="3"><b>16</b></font></div></td>
+  <td colspan="2"><div align="center"><font face="Arial, Helvetica, sans-serif" size="3">Table Entry for Primary Partition <b># 1</b></font></div></td>
+ </tr>
+ <tr> 
+  <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b>462 - 477</b></font></div></td>
+  <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b>1CE - 1DD</b></font></div></td>
+  <td><div align="center"><font face="Courier New, Courier, mono" size="3"><b>16</b></font></div></td>
+  <td colspan="2"><div align="center"><font face="Arial, Helvetica, sans-serif" size="3">Table Entry for Primary Partition <b># 2</b></font></div></td>
+ </tr>
+ <tr> 
+  <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b>478 - 493</b></font></div></td>
+  <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b>1DE - 1ED</b></font></div></td>
+  <td><div align="center"><font face="Courier New, Courier, mono" size="3"><b>16</b></font></div></td>
+  <td colspan="2"><div align="center"><font face="Arial, Helvetica, sans-serif" size="3">Table Entry for Primary Partition <b># 3</b></font></div></td>
+ </tr>
+ <tr> 
+  <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b>494 - 509</b></font></div></td>
+  <td><div align="center"><font face="Courier New, Courier, mono" size="2"><b>1EE - 1FD</b></font></div></td>
+  <td><div align="center"><font face="Courier New, Courier, mono" size="3"><b>16</b></font></div></td>
+  <td colspan="2"><div align="center"><font face="Arial, Helvetica, sans-serif" size="3">Table Entry for Primary Partition <b># 4</b></font></div></td>
+ </tr>
+</table><font face="Times New Roman, Times, serif" size="3"><b>Table 3.</b></font></div>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3">Thus, disks using this <i>standard </i>table can have <i>no more than</i>
+ <b>four Primary</b> partitions, or as we'll describe in the next section, <i>up to</i> <b>three</b> Primary partitions plus <b>one Extended</b> partition.
+ These early partitioning tools (called <a href="FDISK.htm" target="fdsk">FDISK</a>; short for <b>F</b>ixed <b>Disk</b>) even for DOS versions 3.30 and
+ later, were programmed to create only a single Primary partition; though it was possible for other non-DOS primary partitions to exist, then multiple
+ <i>logical drives</i> would be created within a single <i>Extended </i>primary partition. Under NT-type operating systems, such as Windows XP, Disk
+ Management will allow three Primary partitions to be created, before requiring an Extended partition for more <i>logical drives</i>.</font></p>
+<p><a name="pte">&nbsp;</a></p>
+<h2><font face="Arial, Helvetica, sans-serif">A Partition Table Entry</font></h2>
+<p><font face="Verdana, Arial, Helvetica, sans-serif">Both the <b>MBR</b> and 
+  <i><a href="PartTables2.htm#ebr" target="EBR">Extended Boot Records</a> </i> 
+  use the same <i>general format</i> for entries within their partition tables:</font></p>
+<div align="center"><table width="500" border="1" cellspacing="0" cellpadding="2">
+ <tr> 
+  <td colspan="3" bgcolor="#CCFFCC"> 
+   <div align="center"><font size="4" face="Arial, Helvetica, sans-serif">Structure of a <i>16-byte </i>Partition Table Entry</font></div>
+  </td>
+ </tr>
+ <tr> 
+  <td align="center"><font face="Arial, Helvetica, sans-serif" size="3"><b>Relative Offsets<br>(<i>within entry</i>)</b></font></td>
+  <td><div align="center"><font face="Arial, Helvetica, sans-serif" size="3"><b>Length<br>(<i>bytes</i>)</b></font></div></td>
+  <td><div align="center"><b><font face="Arial, Helvetica, sans-serif" size="4">Contents</font></b></div></td>
+ </tr>
+ <tr>
+  <td><div align="right"><font face="Courier New, Courier, mono" size="3"><b>0&nbsp;&nbsp;</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>1</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>Boot Indicator (<font face="Arial, Helvetica, sans-serif">80h
+   = <i>active</i></font>)</b></font></div></td>
+ </tr>
+ <tr bgcolor="#99CCCC"> 
+  <td><div align="right"><font face="Courier New, Courier, mono" size="3"><b>1 - 3&nbsp;&nbsp;</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>3</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>Starting CHS values</b></font></div></td>
+ </tr>
+ <tr>
+  <td><div align="right"><font face="Courier New, Courier, mono" size="3"><b>4&nbsp;&nbsp;</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>1</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b><i>Partition-type</i> Descriptor</b></font></div></td>
+ </tr>
+ <tr bgcolor="#99CCCC"> 
+  <td><div align="right"><font face="Courier New, Courier, mono" size="3"><b>5 - 7&nbsp;&nbsp;</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>3</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif"><b>Ending CHS values</b></font></div></td>
+ </tr>
+ <tr>
+  <td><div align="right"><font face="Courier New, Courier, mono" size="3"><b>8 - 11&nbsp;</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>4</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif"><b>Starting Sector</b></font></div></td>
+ </tr>
+ <tr>
+  <td><div align="right"><font face="Courier New, Courier, mono" size="3"><b>12 - 15&nbsp;</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>4</b></font></div></td>
+  <td><div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>Partition Size (in sectors)</b></font></div></td>
+ </tr>
+</table><font face="Times New Roman, Times, serif" size="3"><b>Table 4.</b></font></div>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3">Since disk editors often display 16 bytes per line <i>starting with offset
+ <b>000</b></i> and partition tables begin at offset <b>1BE</b>h within these sectors, it's highly likely you'll see the entries <i>overlapping
+ </i>each display line. For example, here's a simple (single entry) MBR Partition Table with columns for the offset of each 16-byte line and its
+ individual bytes of data, followed by the DOS characters representing (if possible) each of those bytes (or a 'dot' for those bytes with no
+ simple ASCII equivalent):</font></p>
+<div align=center><TABLE border="1" cellspacing="0" cellpadding="5" bordercolor="#CCCCCC">
+<TR><TD><pre>Offset  0  1  2  3  4  5  6  7  8  9  A  B  C  D  <b>E</b>  F   ASCII characters
+
+  <b>1B</b>0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 <span class="ltgrn"><b><u>80</u></b> 01</span>   ................
+  1C0  <span class="ltgrn">01 00 <b><u>0B</u></b> <u>1F 3F 33</u> <u>3F 00 00 00</u> <u>41 99 01 00</u></span> 00 00   ....?3?...A.....
+  1D0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+  1E0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+  1F0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 <b class="yel">55 AA</b>   ..............U.</pre>
+</TD></TR></TABLE>
+ <font face="Arial, Helvetica, sans-serif" size="3"><b>Table 5.</b> Hexadecimal display of bytes within an MBR sector's Partition Table; its
+ <b>first</b><br>and only <a name="R3">entry</a> has been <i>highlighted</i> in <span class="ltgrn">light green</span> and the MBR Boot signature
+ in <b class="yel">yellow</b>.</font></div>
+<p><font face="Arial, Helvetica, sans-serif" size="3">Due to the prevalence of utility tools, such as Power Quest's <b><i>Partition Table Editor</i>
+ <sup><a href="#N3">[3]</a></sup></b>, techs are rarely required to manually <i>decode</i> then <i>re-encode</i> an edited entry; but even if they were,
+ the ever increasing size of hard disks, usually makes this task much easier now. For the sake of completeness, we'll explain all the details here for
+ decoding a partition table entry (compare with Tables 4 and 5 above)<b>:</b></font></p>
+<p><font face="Courier New, Courier, mono" size="4"><b>1.</b></font><font face="Arial, Helvetica, sans-serif" size="3"><b>Boot Indicator.</b> <font
+ face="Verdana, Arial, Helvetica, sans-serif">I</font>n this case, it's <b>80</b>h, but you'll rarely, if ever, see anything except <b>00</b>h in
+ Extended Boot Records. Technically, only the &quot;Active&quot; (bootable) <b><i>Primary </i></b>partition is ever supposed to have its 'high bit'
+ set (making that byte, 80h). Some boot managers might allow logical partitions to be set active, but more likely a boot manager will never use this
+ indicator when doing so.<br>
+ <font face="Courier New, Courier, mono" size="4"><b><br>2.</b></font> <b><i>Starting Sector</i> </b>&nbsp;<b>in CHS values</b> (<b>3</b> bytes). These
+ values pinpoint the location of a partition's first sector, <b><i>if </i></b>&nbsp;it's <i>within</i> the first <b>1024 cylinders</b> of a hard disk.
+ When a sector is beyond that point, the CHS tuples are normally set to their maximum allowed values of <b>1023, 254, 63</b>; which stand for the
+ <b>1024</b>th cylinder, <b>255</b>th head and <b>63</b>rd sector, due to the fact, <b>cylinder</b> and <b>head</b> <i>counts</i> begin at <b>zero</b>.
+ These values appear on the disk as the three bytes:<b><font face="Verdana, Arial, Helvetica, sans-serif"> FE FF FF </font></b>(in that order).</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3"><b>Note:</b> These bytes are somewhat in the order of <b>Head</b>, <b>Sector</b> and<b> Cylinder</b>,
+ but the cylinder value requires more than 8-bits (one byte) and the sector value uses less than 8-bits, making this conversion rather difficult at times.
+ <A NAME=R4>The</A> <b><font face="Courier New, Courier, mono">01 01 00</font></b> in our example above, stands for <b>CHS </b>(<b>0, 1, 1</b>) &nbsp;or
+ LBA Sector 63; the 64th sector on the disk, since its count begins at <b>LBA 0 </b><sup><a href="#N4">[<b>4</b>]</a></sup>. The 3-byte <i>Ending</i> CHS
+ values will be dealt with in detail under the <a href="#Decoding">Decoding CHS Values</a> section below.<br>
+<br>
+ <font face="Courier New, Courier, mono" size="4"><b>3.</b></font> <b>Partition Type</b> Descriptor. Its single byte allows for only 256 possible values
+ to indicate all types of partitions that can exist under the DOS/<i>Basic Disk</i> partitioning scheme. In this case, <b>0B</b>h, indicates a <b>FAT32</b>
+ file system. See our page here on: <a href="PartTypes.htm" target="PT"><b>Partition Types</b></a>.<br>
+<br>
+ <font face="Courier New, Courier, mono" size="4"><b>4.</b></font> <i><b>Ending Sector</b> </i>&nbsp;<b>in CHS values</b> (<b>3</b> bytes);
+ <b><font face="Courier New, Courier, mono">1F 3F 33 </font></b>in our example above. See: <a href="#Decoding">Decoding CHS Values</a>.<br>
+<br>
+ <font face="Courier New, Courier, mono" size="4"><b>5.</b></font> <a name="SS"><b>Starting Sector</b></a> (<b>4</b> bytes). <b>LBA</b> (Absolute Sector)
+ value. This value uniquely identifies the first sector of a partition just as <i>Starting</i> CHS values do. But it does so by using a 4-byte <b>L</b>ogical
+ <b>B</b>lock <b>A</b>ddress (starts counting from Absolute Sector <b>0</b>), which means it can locate the beginning of a partition within the first
+ &nbsp;<b>FFFF FFFF</b>h or <b>4,294,967,296 </b>sectors, for hard disks up to about 2,199,023,255,552 bytes (exactly <b>2,048 GiB</b>)!</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3">Well, if that's true, then why did many computers have a limit problem at about <b>137 GB</b>?
+ Because many <b>BIOS</b> chips use only <b>28-bits</b> for this value (a Hexadecimal number of <b>FFF FFFF</b>h or exactly <b>128 GiB</b>) instead of the
+ <b>32-bits</b> used by partition tables! See <a href="../6to64bits.htm" target="6-64"><b>6 to 64 Bits:</b> Hexadecimal Numbers Significant to
+ Drive/Partition Limits</a> for more details.</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3">When you obtain all <b>4</b> bytes of this value (as stored on a <i>little-endian</i><sup><a
+ href="#N2">[<b>2</b>]</a></sup> computer), the byte-order must first be reversed. So, for our example above, the: <b><font
+ face="Courier New, Courier, mono">3F 00 00 00</font></b>, becomes only: <b>3F</b> hex. This means that our first (and ony) partition begins at Absolute
+ Sector <b>3F</b>h, which is also LBA <b>63</b> (or the 64th sector on the disk). This is the first possible boot sector for any drive having 63 sectors
+ per head/track.<br><font face="Courier New, Courier, mono" size="4"><b><br>6.</b></font> <b>Partition Size</b> in Total sectors (<b>4</b> bytes). As with
+ the <b>Starting Sector</b> values, these four bytes allow for a number up to 2,048 GiB for the size of each partition, and are also stored on disk in
+ <i>little-endian.</i> So the stored bytes, <font face="Courier New, Courier, mono"><b>41 99 01 00</b></font>, become: <font
+ face="Courier New, Courier, mono"><b>19941</b> hex</font>, for a <b>size</b> of: <b>104,769 sectors</b>, or at 512 bytes/sector that's: 53,641,728 bytes
+ (or only about <b>51 MiB</b>).</font></p><p><a name="Decoding">&nbsp;</a></p>
+<h3><font face="Arial, Helvetica, sans-serif">Decoding CHS Values</font></h3>
+<p><font face="Arial, Helvetica, sans-serif" size="3">Although a <b>Head</b> number is fairly easy to compute (it's always whatever value [<i>plus</i>
+ <b>1</b>] is in the <b>first byte</b> of either the CHS <i>Starting </i>or <i>Ending </i>3-byte fields), the <b>Sector</b> and<b> Cylinder</b> numbers are
+ encoded into an odd arrangement of <b>6-bits</b> and <b>10-bits</b>, respectively, within the <b>second</b> and <b>third</b> bytes; making them more
+ difficult to work with. The following diagram (see explanation below), attempts to make both the layout of a<b> 3-byte</b> <b>CHS <i>tuple</i></b> and
+ <i>how to decode its numbers, <b>visually</b> </i>clear<b>:</b></font></p>
+<p align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="7"><b>CHS Bytes</b><br></font><img src="Figure1.png" width="680" height="392"><br>
+ <br><font face="Arial, Helvetica, sans-serif"><b><font face="Times New Roman, Times, serif" size="4">Figure 1.</font></b> &nbsp;A 3-byte CHS field encodes
+ Cylinder (10-bits), Head (8-bits) and Sector (6-bits) values.</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3"><i><b>How to decode</b></i> the three CHS bytes: The <b>8 bits</b> (<font
+ face="Courier New, Courier, mono"><b><font color="#0000FF">1111 1110</font></b></font>) shown in the &quot;Head&quot; byte equal <font
+ face="Verdana, Arial, Helvetica, sans-serif"><b>FE</b></font> in <a href="../hexawhat.html" target="HW">hexadecimal</a> (or <b>254</b>). Since their count
+ begins with Head <b>0</b>, this refers to its 255th head. The &quot;Sector&quot; value is computed from the first <b>six bits</b> (starting with the
+ <i>least-significant </i>bit, <b>bits 0 through 5</b>). Thus, the second CHS byte (<b>BF</b>h) yields: Sector <b>3F</b>h (or <b>63</b>); from the bits:
+ <font face="Courier New, Courier, mono"><b><font color="#0000FF">11 1111</font></b></font>.</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3">The Cylinder value, which is <b>10 bits</b> in length, receives its two most-significnat bits (<font
+ face="Courier New, Courier, mono"><b><font color="#0000FF">10</font></b></font>, in this case) from those of the second CHS byte (<font
+ face="Courier New, Courier, mono"><b><font color="#0000FF">10</font>11 1111</b></font> = <b>BF</b>h), <i>but</i> retains the original <b>third</b> byte
+ (<b>D3</b>h, in this case) as its lowest 8 bits. The result, <font face="Courier New, Courier, mono"><b><font color="#0000FF">10 1101 0011</font></b></font>,
+ gives us <b>2D3</b>h, or <b>723</b>, as the Cylinder value. Thus, the CHS <i>tuple </i>in the diagram above, for some partition's <i>Ending Sector </i>is:
+ (<b>723</b>, <b>254</b>, <b>63</b>).</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3">The CHS <i>Ending Sector, </i><span class="ltgrn"><font face="Courier New, Courier, mono"><b>1F 3F
+ 33</b></font></span> in <b>Table 5</b>, for a roughly 53.6 MB partition, is decoded as follows:<br>
+ Byte 1. <b>1F</b>h = <b>31</b>. &nbsp;(There are only <b>32</b> heads per cylinder for this disk drive).<br>
+ Byte 2. <b>3F</b>h = 63. &nbsp;(<font face="Courier New, Courier, mono"><b><font color="#0000FF">0011 1111</font></b></font>); no significance to bits 6
+ and 7 (both are zero); <b>63</b> sectors per head.<br>
+ Byte 3. <b>33</b>h = 51. &nbsp;(Bits 6 and 7 of Byte 2 <b>--&gt;</b> bits 8 and 9: <font face="Courier New, Courier, mono"><b><font color="#0000FF">00
+ 0011 0011</font></b></font> for a cylinder value of <b>51</b>).<br>
+ Thus, the data above corresponds to an <i>Ending Sector </i>CHS <i>tuple</i> of: <b>51, 31, 63</b> (for <b>52</b> cylinders, <b>32</b> heads and <b>63</b>
+ sectors). If you had a Partition Table calculator, you'd find that's equivalent to LBA sector: <b>104,831</b>, and LBA 104,831 - LBA <b>62</b> = 104,768;
+ the same size of the partition in sectors we arrived at when computing it from the &quot;Partition Size&quot; entry above!</font></p>
+<table border="1" cellspacing="0" cellpadding="8" bordercolor="#000000">
+ <tr>
+  <td> 
+   <p><font face="Arial, Helvetica, sans-serif" size="3"><b><font color="#990000" face="Verdana, Arial, Helvetica, sans-serif" size="4">NOTE:</font></b><br>
+    <br>For partitions which <b>begin</b> <i>or</i> <b>end</b> <b><i>beyond</i></b> &nbsp;the <b>1024</b>th cylinder, the three CHS bytes should always be
+    filled with: <span class="ltgrn"><font face="Courier New, Courier, mono"><b>FE FF FF</b></font></span> ; which are <i>decoded</i> as follows:<br>
+    <br>Byte 1<b>: &nbsp;FE</b>h = <b>254</b> &nbsp;for a total of <b>255</b> heads.<br>
+    <br>Bytes 2 and 3<b>: &nbsp;FF</b>h and <b>FF</b>h &#151; split into two full binary counts of <b>6 bits</b> (<font
+    face="Courier New, Courier, mono" color="#0000FF"><b>11 1111</b></font>; <b>3F</b>h = <b>63</b> sectors), and <b>10 bits</b> (<font
+    face="Courier New, Courier, mono" color="#0000FF"><b>11 11111 1111</b></font>) or <b>3FF</b>h = <b>1023</b> for a total of <b>1024</b> cylinders.
+    CHS<b>: 1023</b>, <b>254</b>, <b>63</b>.<br><br>
+    This <i>tuple </i> corresponds to an <b>LBA sector</b> of: <font face="Courier New, Courier, mono" size="4"><b>16450559</b></font>. That's a point where
+    about <b>&nbsp;8.4 GB</b> of hard disk sectors could be accessed (<b>16,450,560</b> sectors <b><font face="Verdana, Arial, Helvetica, sans-serif">*</font></b>
+    <b>512 </b>bytes/sector = <b>8,422,686,720</b> bytes).</font></p>
+   <p><font face="Arial, Helvetica, sans-serif" size="3"><b>16-byte partition table entries</b> can <b>not </b> exceed <b>1024</b> cylinders for their
+    <i><b>Starting</b></i> and <i><b>Ending</b></i><b> CHS bytes!</b> &nbsp;When utility programs display CHS <i>tuples</i> with a cylinder value larger than
+    1023, they can only do so by computing <i>pseudo-</i>CHS values from the 4-byte &quot;Starting Sector&quot; or &quot;Partition Size&quot; values.</font></p>
+  </td>
+ </tr>
+</table>
+<p>&nbsp;</p>
+<p><a name="ext">&nbsp;</a></p>
+<h2><font face="Arial, Helvetica, sans-serif"><i>Extended</i> Partitions</font></h2>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="4"><b>If</b> a hard disk's <b>MBR</b> has an <b>Extended Partition</b> entry in its <i>Master
+ </i>Partition Table, then each Extended Boot Record (<b>EBR</b>) must also be examined.</font></p>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3">It's <i>very important</i> that you <b><font color="#CC0000">understand this:</font></b> Any
+ Extended partition entry in the <b>MBR</b>, only describes what can be thought of as an <b><i>envelope</i></b> (or a <b><i>black box</i></b>) which
+ <i>might </i>contain <i>up to </i><b>23</b> <i><b>Logical</b> drives </i>under the older <i>IBM&reg;/Microsoft&reg; </i>DOS 3.30 (or later) operating
+ systems; and possibly more under Windows 2000/XP or some other operating system (Linux, e.g., does not use <i>drive letters </i>for its partitions). The
+ point is: Until some utility program or operating system <i>reads </i>the first <b>Extended</b> partition table (and any others it might link to)
+ <i><b>inside</b> </i>the <b>Extended partition</b>, it's impossible to know what's in there!</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3">Before the release of MS-DOS 3.30, hard disk sizes were exceeding 120 MB, yet no popular operating
+ system could access partitions greater than about 30 MB. So the industry had to come up with a solution that allowed consumers to use all that available
+ disk space; and soon! HDD manufacturers were already advertising much larger drives would be ready in the near future, but a proven file system that could
+ use all that space would take a much longer time to produce. What the <font face="Verdana, Arial, Helvetica, sans-serif">IBM</font> and Microsoft
+ programmers came up with was a solution that was still <i>compatible </i>with all existing <i>Master</i> Partition Tables, but allowed for more than a
+ single DOS partition to be created: One of the four possible Primary partitions would become a special type, called an Extended partition, that could have
+ its contents divided into many <i>logical </i>drives that could all be accessed by the operating system!</font></p>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>Extended Partition</b> entries usually have Partition Types of either <b>05h </b> or
+ <b>0Fh</b>; depending upon the size of the disk.</font></p>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3">The following diagram shows a typical 40 GB HDD with a small FAT32 partition at the
+ beginning of the disk. The remainder of the disk is enclosed within an Extended partition:</font></p>
+<p align="center"><img src="EBR1.gif" width="674" height="106"><br><b>Figure 2.</b></p>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3">The only way to figure out just how many <b>Logical Drives</b> there are <i><b>within</b>
+ </i>an <b>Extended Partition</b> is by <i>jumping to <b>each</b> </i><b>Extended</b> partition table in the <b>E</b>xtended <b>B</b>oot <b>R</b>ecords
+ until you've found the last <b>EBR</b> table. These EBRs can be described as being <i>chained </i>together by each <b>link</b> to the next EBR table from
+ its previous link. Therefore, to obtain the complete <i>layout </i>of any hard disk that contains an Extended partition, you need a copy or a summary of
+ the data in the <i><b>Extended</b> </i>partition tables of each <b>EBR</b> as well as the <i>Master </i>Partition Table!</font></p>
+
+<p align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="5"> 
+  <a href="PartTables2.htm">Next Page</a> --&gt;</font></p>
+
+<p><a name="FN">&nbsp;</a></p>
+<HR>
+<font face="Verdana, Arial, Helvetica, sans-serif" size="5"><b>Footnotes</b></font> 
+<p><a name="N1"><sup><font face="Verdana" size="4"><b>1</b></font></sup></a><font face="Arial, Helvetica, sans-serif" size="3">[<a href="#R1">Return 
+ to Text</a>] Deviations from this <i>standard </i>table structure may exist on some systems<b>:</b> Around the time of MS-DOS 3.30, the <a
+ href="DOS33MBR.htm" target="NEC">NEC <i>Powermate</i></a> could use a special <i>eight-entry</i> table, and later on, PTS-DOS, first developed in Russia,
+ used a special fifth entry preceding the common 64-byte table (both the free demo of PTS disk editor and its successor, the <img
+ src="../../img/offsite.gif" width="33" height="11"> <a href="http://www.acronis.com/homecomputing/products/diskeditor/" target="Ade"> <i>Acronis </i>disk
+ editor</a>, display references to this entry; which, coincidentally, <i>conflicts</i> with the location of the Windows NT Disk signature).</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3"><b>NOTE:</b> Neither the &quot;Dynamic Disk&quot; partitions of Microsoft Windows 2000/XP/2003 (rather
+ than the more usual &quot;Basic Disk&quot; partitions), nor the special <img src="../../img/offsite.gif" width="33" height="11"> <a
+ href="http://en.wikipedia.org/wiki/GUID_Partition_Table" target="wikiGUID">GUID Partition Table</a> (GPT) which may be used by a Microsoft Windows <b>7</b>
+ or <b>8</b> install (part of the new <img src="../../img/offsite.gif" width="33" height="11"> <a href="http://www.uefi.org/" target="UEFI">EFI spec</a>)
+ employ the MBR partitioning scheme described on this page. However, both of those partitioning schemes do create a &quot;protective&quot; MBR sector with
+ special entries to keep previous operating systems and partitioning tools from overwriting any data in their GUID partitions. See our page on the <a
+ href="GPT.htm" target=GPT>GPT Protective MBR and EFI Partitions</a>.</font></p>
+<p><a name="N2"><sup><font face="Verdana" size="4"><b>2</b></font></sup></a><font face="Arial, Helvetica, sans-serif" size="3">[<a href="#R2">Return 
+ to Text</a>] [<a href="#SS">Return to: <i>Starting Sectors</i></a>] Any <font face="Verdana, Arial, Helvetica, sans-serif"><i><b>I</b></i></font><b><i>BM-compatible</i></b> 
+ (&quot;PC&quot;) computer (whether its CPU is an <font face="Verdana">I</font>ntel&reg;, AMD&reg; or some other manufacturer's processor), has what's known
+ as a <i><b>little-endian</b> </i>memory architecture; as opposed for example, to the <i>big-endian </i>architecture of the Motorola&reg; processors in a
+ Macintosh or PowerPC system. This <i><b>Little-endian</b> </i>architecture refers to the order of the bytes found in memory (or on a storage medium) for
+ hexadecimal numbers composed of more than a single byte; where the <b>least-significant byte</b> will occur at a lower (or preceding) position than its
+ most-significant byte (or any more significant bytes in-between). Thus, the Hex number, <font face="Courier New, Courier, mono">38DA75C6</font>h, as seen
+ in a PC's memory would occur as: <font face="Courier New, Courier, mono">C6 75 DA 38</font>; whereas, a <i>Big-endian</i> system simply has: <font
+ face="Courier New, Courier, mono">38 DA 75 C6</font>. This order was established so the first <i>little-endian </i>processors could start working on
+ arithmetic problems as soon as the first byte of a large number was accessed; basically the same as we do when adding the least-significant digits of two
+ large numbers first, carrying any remainder over to the next column, and finally adding together the most-significant digits last. <b>(</b>Cf. our note on
+ <a href="NTFSBR.htm#16s" target="mshex">Microsoft's very confusing way of referring to hex numbers</a> in documentation and on their web site by using
+ their own <i>nonstandard definition for little-endian Hex numbers! </i><b>)</b></font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3"><b>Note:</b> Contrary to what some sites may state, although Jonathan Swift did use the term
+ &quot;Big-endian&quot; in his work, <img src="../../img/offsite.gif" width="33" height="11"> <i><a href="http://swift.thefreelibrary.com/Gullivers-Travels"
+ target="FreeLib">Gulliver's Travels</a></i>, you'll <i><b>never</b></i> &nbsp;find the term 'Little-endian' in that text. Swift used &quot;small&quot; and
+ &quot;small end&quot; and even &quot;larger end&quot; before mentioning the &quot;Big-endians,&quot; but never wrote, <i>little end. </i>It's easy to
+ search the whole book online as proof. Chapters Four and Five (of Part One) contain most of the terms he actually used in relation to our discussion. The
+ incorrect references might be due to Danny Cohen's paper, <img src="../../img/offsite.gif" width="33" height="11"> <a href="http://www.ietf.org/rfc/ien/ien137.txt"
+ target="IEN137">Internet Engineering Note (IEN) 137</a>: <i>&quot;On Holy Wars and a Plea for Peace&quot; </i>(1 April 1980) in which (see his Appendix) he
+ not only used the phrase &quot;little end&quot; (instead of &quot;small end&quot;), but repeatedly described the Lilliputians as being Little-Endians;
+ though Swift never used that term. For further studies on <b>Endianness</b>, see the <img src="../../img/offsite.gif" width="33" height="11"> <a
+ href="http://www.rdrop.com/%7Ecary/html/endian_faq.html" target="EndFAQ">Endian FAQ</a> (which includes Cohen's paper).</font></p>
+<p><a name="N3"><sup><font face="Verdana" size="4"><b>3</b></font></sup></a><font face="Arial, Helvetica, sans-serif" size="3">[<a href="#R3">Return 
+ to Text</a>] This tool is still available as a free download from Symantec's FTP site: <a href="ftp://ftp.symantec.com/" target="SYMT">ftp://ftp.symantec.com/public/</a> 
+ . </font><font face="Arial, Helvetica, sans-serif" size="3">The Windows&#153; 
+ version of <i><b>Partition Table Editor</b> </i>is located here:<br>
+ <a href="ftp://ftp.symantec.com/public/english_us_canada/tools/pq/utilities/PTEDIT32.zip" target="SYMTwin">ftp://ftp.symantec.com/public/english_us_canada/tools/pq/utilities/PTEDIT32.zip</a> 
+ . &nbsp;A <a href="ftp://ftp.symantec.com/public/english_us_canada/tools/pq/utilities/ptedit.zip" target="SYMTdos">DOS version is also available</a>; which
+ could be used on hard disks containing only DOS or to check the partitions made by Linux or some other OS. We've even used this DOS version to test MS-DOS
+ 3.30 partitions under <a href="http://sourceforge.net/projects/bochs/" target="Bochs">BOCHS</a>! The old demo of <a href="../../tool/de/PTS-DE.htm"
+ target="ptsde">PTS-Disk Editor</a> is also quite nice for quickly checking Extended partitions under DOS.</font></p>
+<p><a name="N4"><sup><font face="Verdana" size="4"><b>4</b></font></sup></a><font face="Arial, Helvetica, sans-serif" size="3">[<a href="#R4">Return 
+ to Text</a>] To thoroughly understand how CHS <i>tuples </i>correspond to LBA values for the same sectors on a disk, we recommend downloading a handy 
+ little Windows&#153; utility, <b>PT Calc</b>, which we've made available <a href="../../tool/pq/ptcalc2.zip">here</a>. (The original version can still be
+ found elsewhere on the Net (as ptcalc.zip), but its window will appear in the lower-right hand corner of a 1024x768 screen size.)</font></p>
+<hr>
+<p align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="5"><a href="PartTables2.htm">Next Page</a> --&gt;</font></p>
+<hr>
+<p><font face="Verdana" size="5"><i><font size="3">Updated:</font></i> <font size="3">July 22, 2007 (2007.07.22); February 21, 2009 (2009.02.21);
+ December 9, 2012 (2012.12.09).<br><font face="Verdana" size="5"><font size="3">Last Update:</font> <font size="3"><b>March 2, 2013</b>. (2013.03.02)</font></font></p>
+<p align="center"><b><font face="Arial">You can write to us here: <A HREF="../../FF.html" TARGET=SISTER>contact page</a></font> (opens in a new window)</b>.<BR>
+ <BR><img src="../../img/left.gif" width="33" height="14"> <font size="5"><a href="index.html">MBR and Boot Records Index</a><BR>
+ <BR><img src="../../img/left.gif" width="33" height="14"> <a href="../../index.html"><b>The Starman's Realm Index Page</b></a></font></p>
+<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p></BODY></html><div><span id="openstat2323431"></span><script type="text/javascript">var openstat = { counter: 2323431, next: openstat };(function(d, t, p) {var j = d.createElement(t); j.async = true; j.type = "text/javascript";j.src = ("https:" == p ? "https:" : "http:") + "//openstat.net/cnt.js";var s = d.getElementsByTagName(t)[0]; s.parentNode.insertBefore(j, s);})(document, "script", document.location.protocol);</script><script type="text/javascript">new Image().src = "http://counter.yadro.ru/hit;narodcounter?r"+escape(document.referrer)+((typeof(screen)=="undefined")?"":";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+";"+Math.random();</script></div>
+------------jxyFj0JVAzZXyURIBVEQP5
+Content-Disposition: inline; filename=default.js
+Content-Type: application/javascript; charset=UTF-8; name=default.js
+Content-Location: http://thestarman.narod.ru/abnl/?narodads=1&s=othestarman
+Content-Transfer-Encoding: Base64
+
+ZG9jdW1lbnQud3JpdGUoJzxkaXYgc3R5bGU9IndpZHRoOjBweDtoZWlnaHQ6MHB4
+O3Bvc2l0aW9uOmZpeGVkO3JpZ2h0OjBweDt0b3A6MHB4O2Rpc3BsYXk6bm9uZTsi
+IGlkPSJkVmFQZFg3S1ZiIj48c2NyJysnaXB0IHR5cGU9InRleHQvamF2YXNjcmlw
+dCIgc3JjPSIvYWJubC8/bmFyb2RhZHM9MyZpZD1hUGRYN0tWYiI+PC9zY3InKydp
+cHQ+PC9kaXY+Jyk7CmZ1bmN0aW9uIHJlc2l6ZURpdigpewoJdmFyIFdYLFdZLEJY
+LEJZOwoJdmFyIG89ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImRWYVBkWDdLVmIi
+KSx0LGQ7CglpZiAoIW8pIHJldHVybjsKCWlmICghKHQ9ZG9jdW1lbnQuZ2V0RWxl
+bWVudEJ5SWQoIndyYXBwZXJYYVBkWDdLVmIiKSkpIFdYPTA7CgllbHNlIFdYPXQu
+dmFsdWU7CglpZiAoISh0PWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJ3cmFwcGVy
+WWFQZFg3S1ZiIikpKSBXWT0wOwoJZWxzZSBXWT10LnZhbHVlOwoJaWYgKCEodD1k
+b2N1bWVudC5nZXRFbGVtZW50QnlJZCgiYmFubmVyWGFQZFg3S1ZiIikpKSBCWD0w
+OwoJZWxzZSBCWD10LnZhbHVlOwoJaWYgKCEodD1kb2N1bWVudC5nZXRFbGVtZW50
+QnlJZCgiYmFubmVyWWFQZFg3S1ZiIikpKSBCWT0wOwoJZWxzZSBCWT10LnZhbHVl
+OwoJZD1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgibWFpbmFkc2R2YVBkWDdLVmIi
+KTsKCWlmIChkKXsKCQlpZiAoQlg8MCkgZC5zdHlsZS53aWR0aD0iMTAwJSI7CgkJ
+ZWxzZSBpZiAoQlg+MCkgZC5zdHlsZS53aWR0aD1CWCsicHgiOwoJCWlmIChCWTww
+KSBkLnN0eWxlLmhlaWdodD0iMTAwJSI7CgkJZWxzZSBpZiAoQlk+MCkgZC5zdHls
+ZS5oZWlnaHQ9QlkrInB4IjsKCQlkLnN0eWxlLm92ZXJmbG93PSJoaWRkZW4iOwoJ
+fQoJQlg9cGFyc2VJbnQoQlgpK3BhcnNlSW50KFdYKTsKCUJZPXBhcnNlSW50KEJZ
+KStwYXJzZUludChXWSk7CglpZiAoQlg8MCkgby5zdHlsZS53aWR0aD0iMTAwJSI7
+CgllbHNlIGlmIChCWD4wKSBvLnN0eWxlLndpZHRoPUJYKyJweCI7CglpZiAoQlk8
+MCkgby5zdHlsZS5oZWlnaHQ9IjEwMCUiOwoJZWxzZSBpZiAoQlk+MCkgby5zdHls
+ZS5oZWlnaHQ9QlkrInB4IjsKCW8uc3R5bGUuZGlzcGxheT0nJzsKfQpkb2N1bWVu
+dC53cml0ZSgnPHNjcicrJ2lwdCB0eXBlPSJ0ZXh0L2phdmFzY3JpcHQiPnJlc2l6
+ZURpdigpOzwvc2NyJysnaXB0PicpOwpuZXcgSW1hZ2UoKS5zcmMgPSAiaHR0cDov
+L2NvdW50ZXIueWFkcm8ucnUvaGl0O25hcm9kYWRzdDI/ciIrZXNjYXBlKGRvY3Vt
+ZW50LnJlZmVycmVyKSsoKHR5cGVvZihzY3JlZW4pPT0idW5kZWZpbmVkIik/IiI6
+IjtzIitzY3JlZW4ud2lkdGgrIioiK3NjcmVlbi5oZWlnaHQrIioiKyhzY3JlZW4u
+Y29sb3JEZXB0aD9zY3JlZW4uY29sb3JEZXB0aDpzY3JlZW4ucGl4ZWxEZXB0aCkp
+KyI7dSIrZXNjYXBlKGRvY3VtZW50LlVSTCkrIjsiK01hdGgucmFuZG9tKCk7
+
+------------jxyFj0JVAzZXyURIBVEQP5
+Content-Disposition: inline; filename=mbr.css
+Content-Type: text/css; name=mbr.css
+Content-Location: http://thestarman.narod.ru/asm/mbr/mbr.css
+Content-Transfer-Encoding: 8bit
+
+/* highlight colors */
+
+ .ltpnk {background-color: #FFCCFF}
+ .ltred {background-color: #FFCCCC}
+ .ltyel {background-color: #FFFFCC}
+ .yel99 {background-color: #FFFF99}
+ .yel66 {background-color: #FFFF66}
+ .yel   {background-color: #FFFF00}
+ .ltgrn {background-color: #CCFFCC}
+ .grn99 {background-color: #99FF99}
+ .grnb  {background-color: #B3FFB3}
+ .ltgry {background-color: #CCCCCC}
+ .ltcyn {background-color: #CCFFFF}
+ .sblu  {background-color: #00CCFF}
+ .vio   {background-color: #CCCCFF}
+ .mystb {background-color: #99CCFF}
+ .dblu  {background-color: #6666CC}
+ .pnk99 {background-color: #FF99FF}
+
+ .blu {color:#0000FF; font-weight:bold}
+ .brn {color:#990000; font-weight:bold}
+ .grn {color:#006600; font-weight:bold}
+ .red {color:#FF0000; font-weight:bold}
+
+------------jxyFj0JVAzZXyURIBVEQP5
+Content-Disposition: inline; filename=Figure1.png
+Content-Type: image/png; name=Figure1.png
+Content-Location: http://thestarman.narod.ru/asm/mbr/Figure1.png
+Content-Transfer-Encoding: Base64
+
+iVBORw0KGgoAAAANSUhEUgAAAqgAAAGICAMAAAC6IuLFAAADAFBMVEUAAACAAAAA
+gACAgAAAAICAAIAAgICAgIAKCgoUFBQeHh4oKCgyMjI8PDxGRkZQUFBaWlpkZGRu
+bm54eHiCgoKMjIyWlpagoKCqqqq0tLS+vr7IyMjS0tLc3Nzm5ubw8PAzMzMzM2Yz
+M5kzM8wzM/8zMzIzZjMzZmYzZpkzZswzZv8zZjIzmTMzmWYzmZkzmcwzmf8zmTIz
+zDMzzGYzzJkzzMwzzP8zzDIz/zMz/2Yz/5kz/8wz//8z/zIzMjMzMmYzMpkzMswz
+Mv8zMjJmMzNmM2ZmM5lmM8xmM/9mMzJmZjNmZmZmZplmZsxmZv9mZjJmmTNmmWZm
+mZlmmcxmmf9mmTJmzDNmzGZmzJlmzMxmzP9mzDJm/zNm/2Zm/5lm/8xm//9m/zJm
+MjNmMmZmMplmMsxmMv9mMjKZMzOZM2aZM5mZM8yZM/+ZMzKZZjOZZmaZZpmZZsyZ
+Zv+ZZjKZmTOZmWaZmZmZmcyZmf+ZmTKZzDOZzGaZzJmZzMyZzP+ZzDKZ/zOZ/2aZ
+/5mZ/8yZ//+Z/zKZMjOZMmaZMpmZMsyZMv+ZMjLMMzPMM2bMM5nMM8zMM//MMzLM
+ZjPMZmbMZpnMZszMZv/MZjLMmTPMmWbMmZnMmczMmf/MmTLMzDPMzGbMzJnMzMzM
+zP/MzDLM/zPM/2bM/5nM/8zM///M/zLMMjPMMmbMMpnMMszMMv/MMjL/MzP/M2b/
+M5n/M8z/M///MzL/ZjP/Zmb/Zpn/Zsz/Zv//ZjL/mTP/mWb/mZn/mcz/mf//mTL/
+zDP/zGb/zJn/zMz/zP//zDL//zP//2b//5n//8z//////zL/MjP/Mmb/Mpn/Msz/
+Mv//MjIyMzMyM2YyM5kyM8wyM/8yMzIyZjMyZmYyZpkyZswyZv8yZjIymTMymWYy
+mZkymcwymf8ymTIyzDMyzGYyzJkyzMwyzP8yzDIy/zMy/2Yy/5ky/8wy//8y/zIy
+MjMyMmYyMpkyMswyMv8yMjLAwMD/AAAA/wD//wAAAP//AP8A//////9FioMCAAAa
+BElEQVR4nO2dSZLjuBJEef4+Rm7UJ6mV9mn2b5AHqEUvyvRLA0XEiIEgwaDcF1kS
+nAEEhKcgCSmzphsEBdA0OgEIKhFAhUIIoEIhBFChEAKoUAgBVCiEACoUQgAVCiGA
+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
+AElFTkSuQmCC
+
+------------jxyFj0JVAzZXyURIBVEQP5
+Content-Disposition: inline; filename=EBR1.gif
+Content-Type: image/gif; name=EBR1.gif
+Content-Location: http://thestarman.narod.ru/asm/mbr/EBR1.gif
+Content-Transfer-Encoding: Base64
+
+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
+s0Abn70xnkRbtEZ7tEibtN4ZAQA7
+
+------------jxyFj0JVAzZXyURIBVEQP5
+Content-Disposition: inline; filename=offsite.gif
+Content-Type: image/gif; name=offsite.gif
+Content-Location: http://thestarman.narod.ru/img/offsite.gif
+Content-Transfer-Encoding: Base64
+
+R0lGODlhIQALALMAAMDAwCEhIWNjY729vf8xAP+ca5zO7xhKpWuc/xBCpQg5nAAA
+AP///wAAAAAAAAAAACH5BAEAAAAALAAAAAAhAAsAAAR+EMhJK13Y2sC79wMQLEZg
+ZBNRBUnrMm8SiAZsKMyZqhPrJrAgMDBgHA4JhVKx2PFEQBgwJjPVDDVEYUvoeiUB
+KWMcHMuMxqTCy2aLxNOWdIRNXLXcNhgujQcEAQcwSgxMTj1RclREVjkKWE0SXRQf
+lR1gJo8okhqdnQthnhIRACH+HUNyZWF0ZWQgYnkgVGhlIFN0YXJtYW4sIDE5OTkA
+ACH/C1RoZSBTdGFybWFuADs=
+
+------------jxyFj0JVAzZXyURIBVEQP5
+Content-Disposition: inline; filename=left.gif
+Content-Type: image/gif; name=left.gif
+Content-Location: http://thestarman.narod.ru/img/left.gif
+Content-Transfer-Encoding: Base64
+
+R0lGODlhIQAOAKIGAAAAAAAAgL+/v4CAgAAA/////8zMzAAAACH5BAEAAAYALAAA
+AAAhAA4AAANqaLrc/jCCSWe8qpbNiwCYQwlfZ35LRaXTRgLeBwhnRdx4xpHD/P4m
+FwCXM/hkqtiE1nkRbyxQSuib7QS9JwFDoZK+g2yAMA5wvZ8BLwwok7fcpWcS7lEC
++HwINgfULRl5ensqgAyFIYkRCQAh/h0AACH/CwA7
+
+------------jxyFj0JVAzZXyURIBVEQP5--

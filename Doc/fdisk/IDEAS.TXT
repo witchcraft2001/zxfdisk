@@ -1,0 +1,23 @@
+
+    Disk Partition manager v 1.00
+  =================================
+
+Phisical drive: 1 -     4 Gb QUANTUM FIREBALL
+
+    #   Name    Description     Status               Start          Lenght
+  -------------------------------------------------------------------------
+    0.		BOOT BLOCK    	Installed	         0	        63
+    1.	C:	USER PARTITION	Used     	        63	   4194241
+    2.    	FREE SPACE    	Not used	   4194304	   4194304
+
+
+--------------------------------------------------------------------------------
+ Use [] and [] keys for select partition and following for command:
+
+ A - Auto configuration
+ B - Install Master Boot block to the hard disk
+ C - Creat partition
+ D - Delete partition
+ F - Change physical drive
+ H - Help
+ S - Set active partition

@@ -1,0 +1,761 @@
+.PRINTX "HDD utility"
+
+HDD_TYPE EQU 1
+
+WAIT_HDD MACRO
+	LOCAL LL1
+LL1:
+	LD BC,P_HDST
+	IN A,(C)
+	BIT 7,A
+	JR NZ,LL1
+	ENDM
+
+;**************************************
+
+EXP_HDD_NEW:
+	PUSH AF
+	LD A,C
+	CP 10h
+	JR C,HD_CMD_XX
+	POP AF
+	JP EXP_HDD
+
+;**************************************
+;HD_EXP_EXE:
+;	POP AF
+;	CALL HD_CMD_X
+;	JP HD_EXP_RET
+;
+;HD_CMD:
+;	POP AF
+;	CALL HD_CMD_X
+;	JP HD_DOS_RET
+;
+;
+;HD_CMD_X:
+;	PUSH AF
+
+HD_CMD_XX:		; C - COMAND ( 5 - RD, 6 - WR )
+	LD A,C          ; 0 - INIT, 1 - DIAG
+	AND A
+	JP Z,HD_CMD_0	; инициализация
+	DEC A
+	JP Z,HD_CMD_1	; ??
+	DEC A
+	JP Z,HD_CMD_2	; тест
+	DEC A
+	JP Z,HD_CMD_3	; preread
+	DEC A
+	JP Z,HD_CMD_4	; read bpb
+	DEC A
+	JP Z,HD_CMD_5	; read
+	DEC A
+	JP Z,HD_CMD_6	; write
+	DEC A
+	JP Z,HD_CMD_7	; set IDE number
+	DEC A
+	JP Z,HD_CMD_8	; read next sectors
+
+	POP AF
+	SCF
+	RET
+
+;**********************************
+
+HD_BPB_PREP:
+
+	LD D,A
+	IN A,(PAGE3)
+	EX AF,AF'
+	LD A,SYS_PAGE
+	OUT (PAGE3),A
+	LD A,(HD_IDF_ADR+12)
+	LD E,A
+	EX AF,AF'
+	OUT (PAGE3),A
+	LD A,D
+	LD D,0
+	LD IX,0
+	LD B,1
+
+
+HD_PREPARE:
+
+	PUSH AF
+	PUSH HL
+	CALL HD_CALC_SECS
+	JR NC,HD_PREP_L1
+	POP HL
+	POP AF
+	SCF
+	RET
+
+HD_PREP_L1:
+
+	LD A,B
+	LD BC,P_S_CNT	; Установить число секторов для чтения
+	OUT (C),A
+	LD BC,P_S_NUM
+	OUT (C),L	; СЕКТОР
+	LD BC,P_C_LOW
+	OUT (C),E	; дорожка low
+	LD BC,P_C_HIG
+	OUT (C),D	; дорожка high
+
+	LD BC,P_HD_CS
+	DEC B
+	IN A,(C)
+	AND 0F0H
+	OR H
+	INC B
+
+	OUT (C),A
+
+	POP HL		; BUFER & PAGE
+	POP AF
+	AND A
+	RET
+
+;**********************************
+
+NEXT_ADD_SEC:
+	PUSH AF
+
+	LD A,B
+	LD BC,P_S_CNT	; Установить число секторов для чтения
+	OUT (C),A
+
+	LD BC,P_S_NUM-256
+	IN A,(C)
+	ADC A,E
+	INC B
+	OUT (C),A	; sector
+
+	LD BC,P_C_LOW-256
+	IN A,(C)
+	ADC A,D
+	INC B
+	OUT (C),A	; дорожка low
+
+	LD BC,P_C_HIG-256
+	IN A,(C)
+	ADC A,0
+	INC B
+	OUT (C),A	; дорожка high
+
+	LD BC,P_HD_CS-256
+	IN A,(C)
+	LD D,A
+	ADC A,0
+	AND 0FH
+	LD E,A
+	LD A,D
+	AND 0F0h
+	OR E
+	INC B
+	OUT (C),A	; HEADS
+
+	POP AF
+	RET
+
+;**********************************
+
+HD_CMD_3:		; ПОДГОТОВКА К ВНЕШНИМ ОПЕРАЦИЯМ R/W
+	POP AF
+
+	AND A
+	INC B
+	DEC B
+	RET Z
+	CALL HD_WAIT
+	RET C
+	CALL HD_PREPARE
+	RET C
+
+	EXX
+	LD C,PAGE3
+	IN B,(C)
+	EXX
+	OUT (PAGE3),A
+	EX AF,AF'
+
+	LD A,0C0H
+	OUT (RGADR),A
+
+	LD BC,P_CMD
+	LD A,20H
+;	OUT (C),A
+
+	AND A
+	RET
+
+;	SCF
+;	RET
+
+
+HD_CMD_4:
+	POP AF
+	CALL HD_WAIT
+	RET C
+	CALL HD_BPB_PREP
+	RET C
+
+	JR HD_RD_L1
+
+
+;*******************	; FOR LBA ONLY - NEXT_READ
+HD_CMD_8:		; HL - bufer, A - page
+			; B - numer of sectors
+			; DE - add_par (next+DE)  (d.b. 1 for NEXT)
+	POP AF
+	AND A
+	INC B
+	DEC B
+	RET Z		; ret if 0 sectors
+	CALL HD_WAIT
+	RET C
+
+	CALL NEXT_ADD_SEC
+
+	JR HD_RD_L1
+
+HD_CMD_5:
+	POP AF		; HL - BUFER, A - PAGE !!!
+
+HD_RD_CMD:
+	AND A
+	INC B
+	DEC B
+	RET Z
+	CALL HD_WAIT
+	RET C
+	CALL HD_PREPARE
+	RET C
+
+HD_RD_L1:
+
+
+	EXX
+	LD C,PAGE3
+	IN B,(C)
+	EXX
+	OUT (PAGE3),A
+	EX AF,AF'
+
+	LD A,0C0H
+	OUT (RGADR),A
+
+	LD BC,P_CMD
+	LD A,20H
+	OUT (C),A
+
+HD_RD_L2:
+	WAIT_HDD
+
+	BIT 3,A
+	JR NZ,HD_READ_CONT
+
+	LD A,0
+	OUT (RGADR),A
+HD_RET:
+	EXX
+	OUT (C),B
+	EXX
+	LD BC,P_ERR
+	IN A,(C)
+	AND A
+	SCF
+	RET NZ
+
+	EX AF,AF'
+	AND A
+	RET
+
+HD_READ_CONT:
+	LD BC,P_DATS
+
+HD_RD_CONT1:
+	REPT 16
+	INI ; всего 16 раз INI - оптимально.
+	ENDM
+     	JP NZ,HD_RD_CONT1
+HD_RD_CONT2:
+	REPT 16
+	INI ; всего 16 раз INI - оптимально.
+	ENDM
+     	JP NZ,HD_RD_CONT2
+
+;	INIR
+;	INIR
+
+	LD A,H
+	OR L
+	JR NZ,HD_RD_L2
+
+	LD A,SYS_PAGE
+	OUT (PAGE3),A
+	EX AF,AF'
+	LD HL,RAMD_FAT
+	LD L,A
+	LD A,(HL)
+	OUT (PAGE3),A
+	EX AF,AF'
+	LD HL,0C000H
+	JR HD_RD_L2
+
+;***********************************************
+
+HD_CMD_6:
+	POP AF		; HL - BUFER, A - PAGE !!!
+
+HD_WR_CMD:
+	AND A
+	INC B
+	DEC B
+	RET Z
+
+	CALL HD_WAIT
+	RET C
+	CALL HD_PREPARE
+	RET C
+
+	EXX
+	LD C,PAGE3
+	IN B,(C)
+	EXX
+	OUT (PAGE3),A
+	EX AF,AF'
+
+	LD BC,P_CMD
+	LD A,30H
+	OUT (C),A
+
+HD_WR_L2:
+	WAIT_HDD
+
+	BIT 3,A
+	JP Z,HD_RET
+
+;#######################################
+IF HDD_TYPE EQ 1
+
+	LD BC,P_DATS+100H
+	LD D,32
+HD_WR_CONT1:
+	REPT 16
+	OUTI ; всего 16 раз OUTI - оптимально.
+	ENDM
+	DEC D
+     	JP NZ,HD_WR_CONT1
+
+;#######################################
+ELSE
+	LD D,64
+	LD BC,P_DATS+100H
+
+HD_WR_LOOP:
+
+	INC HL
+	OUTI
+	DEC HL
+	DEC HL
+	OUTI
+	INC HL
+
+	INC HL
+	OUTI
+	DEC HL
+	DEC HL
+	OUTI
+	INC HL
+
+	INC HL
+	OUTI
+	DEC HL
+	DEC HL
+	OUTI
+	INC HL
+
+	INC HL
+	OUTI
+	DEC HL
+	DEC HL
+	OUTI
+	INC HL
+
+	DEC D
+	JR NZ,HD_WR_LOOP
+ENDIF
+
+;#######################################
+	LD A,H
+	OR L
+	JR NZ,HD_WR_L2
+
+	LD A,SYS_PAGE
+	OUT (PAGE3),A
+	EX AF,AF'
+	LD HL,RAMD_FAT
+	LD L,A
+	LD A,(HL)
+	OUT (PAGE3),A
+	EX AF,AF'
+
+	LD HL,0C000H
+	JR HD_WR_L2
+
+;********************************************************
+HD_CMD_1:
+
+	POP AF
+HD_CMD1_EX:
+	ld a,0A0h
+	LD BC,P_HD_CS
+	OUT (C),A
+	LD A,90h		; DIAGNOSTICS
+	CALL HD_CMD_EXE
+	AND A
+	BIT 0,A
+	RET Z
+	LD BC,P_ERR
+	IN A,(C)
+	CP 1
+	RET Z
+	SCF
+	RET
+
+;**********************************************
+
+HD_CMD_2:
+	POP AF
+
+	LD E,0
+
+	LD BC,P_HD_CS
+	LD A,0A0H
+	OUT (C),A
+
+	CALL TEST_HDD_DRV
+
+	JR NZ,NO_HDD1
+	SET 0,E
+NO_HDD1:
+
+	LD BC,P_HD_CS
+	LD A,0B0H
+	OUT (C),A
+
+	CALL TEST_HDD_DRV
+
+	JR NZ,NO_HDD2
+	SET 1,E
+NO_HDD2:
+
+	LD A,E
+	AND A
+	SCF
+	RET Z	; HDD absent !
+	AND A
+	RET
+
+TEST_HDD_DRV:
+	LD HL,01FEH
+	LD BC,P_S_CNT
+	OUT (C),L
+	LD BC,P_S_NUM
+	OUT (C),H
+	LD BC,P_S_CNT+256
+	IN A,(C)
+	CP L
+	RET NZ
+	LD BC,P_S_NUM+256
+	IN A,(C)
+	CP H
+	RET
+
+HD_CMD_0:
+
+	POP AF
+
+	LD BC,P_HD_CS
+	LD A,0A0H
+	OUT (C),A
+
+	CALL TEST_HDD_DRV
+
+	JR NZ,HD_ABSENT
+
+HD_C0_L3:
+
+	WAIT_HDD
+
+	LD BC,P_CMD
+	LD A,0ECH
+	OUT (C),A
+
+	WAIT_HDD
+;HD_C0_L1:
+;
+;	LD BC,P_HDST
+;	IN A,(C)
+;	BIT 7,A
+;	JR NZ,HD_C0_L1
+
+	BIT 3,A
+	JR NZ,HD_C0_L2
+
+	SCF
+	RET
+
+HD_ABSENT:
+	LD BC,P_HD_CS
+	LD A,0B0H
+	OUT (C),A
+
+	CALL TEST_HDD_DRV
+	JR Z,HD_C0_L3
+
+	SCF
+	RET
+
+HD_C0_L2:
+	LD BC,P_DATS
+	LD HL,HD_IDF_ADR
+	IN A,(PAGE3)
+	LD D,A
+	LD A,SYS_PAGE
+	OUT (PAGE3),A
+	INIR
+	INIR
+
+;HD_C0_L4:
+;	LD BC,P_HDST
+;	IN A,(C)
+;	BIT 7,A
+;	JR NZ,HD_C0_L4
+
+	LD A,(HD_IDF_ADR+12); число секторов
+	LD C,A
+	LD B,0
+	LD HL,0
+	LD A,(HD_IDF_ADR+6) ; число головок
+LOOP_XX:
+	ADD HL,BC
+	DEC A
+	JR NZ,LOOP_XX
+	LD (HD_IDF_ADR+4),HL
+
+	WAIT_HDD
+
+	LD BC,P_HD_CS
+	DEC B
+	IN A,(C)
+	AND 010H
+	LD B,A
+	LD A,(HD_IDF_ADR+6) ; число головок
+
+	DEC A
+	AND 0FH
+	OR 0A0H
+	OR B
+
+	LD H,A
+	LD A,(HD_IDF_ADR+99)
+	BIT 1,A
+	JR Z,HD_C0_NO_LBA
+
+	SET 6,H
+
+HD_C0_NO_LBA:
+	LD BC,P_HD_CS
+	OUT (C),H
+
+	LD A,(HD_IDF_ADR+12)	; число секторов
+
+	LD BC,P_S_CNT
+	OUT (C),A
+	LD A,D
+	OUT (PAGE3),A
+
+	LD A,91H        ; SET HDD PARAMETERS
+	CALL HD_CMD_EXE
+	RET
+
+;	RET C
+;	LD A,1FH	; RECALIBRATE
+;	CALL HD_CMD_EXE
+;	RET
+
+HD_CMD_EXE:
+	CALL HD_WAIT
+	RET C
+	LD BC,P_CMD
+	OUT (C),A
+
+HD_WAIT:
+	PUSH DE
+	PUSH BC
+	PUSH AF
+
+	LD DE,0
+
+HD_WAIT1:
+	LD BC,P_HDST
+	IN A,(C)
+	BIT 7,A
+	JR Z,HD_W_EXIT
+	DEC DE
+	LD A,D
+	OR E
+	JR NZ,HD_WAIT1
+
+	POP AF
+	POP BC
+	POP DE
+	SCF
+	RET
+
+HD_W_EXIT:
+	POP AF
+	POP BC
+	POP DE
+	AND A
+	RET
+
+;****************************
+HDD_LBA:
+	POP BC
+	LD L,E
+	LD E,D
+	DB 0DDH
+	LD D,L
+	DB 0DDH
+	LD A,H
+	AND 0Fh		; XOR A ??????
+	LD H,A
+	RET
+
+;***********************************
+
+HD_CALC_SECS:
+
+	PUSH BC
+	LD BC,P_HD_CS
+	DEC B
+	IN A,(C)
+	BIT 6,A
+	JR NZ,HDD_LBA
+
+	POP BC
+
+	DB 0DDH
+	LD A,H
+	AND A
+	SCF
+	RET NZ		; ошибка, слишком большой HDD..
+
+;*******************************
+;	IX,DE - абсолютный номер сектора
+
+	PUSH IX
+	POP HL
+
+	IN A,(PAGE3)
+	LD C,A
+	LD A,SYS_PAGE
+	OUT (PAGE3),A
+	LD A,C
+	LD (COPY_PAGE3),A
+
+	LD BC,(HD_IDF_ADR+4) ; число секторов на цилиндре
+
+			; HL,DE - номер сектора
+			; BC - число секторов на цилиндре
+
+	LD A,16		; HL,DE разделить на BC
+	SCF
+DIV_LOOP:
+	EX DE,HL
+	ADD HL,HL
+	EX DE,HL
+	ADC HL,HL
+
+	SBC HL,BC	; сравнить HL и BC
+	JR NC,NO_ADD	; переноса не было - +1!
+	ADD HL,BC
+	DEC A
+	JR NZ,DIV_LOOP
+	JR DIV_END
+NO_ADD: INC DE
+	DEC A
+	JR NZ,DIV_LOOP
+DIV_END:	; DE - результат, HL - остаток
+
+		; DE - цилиндр
+	LD A,(HD_IDF_ADR+12)	; A - число секторов на дорожке
+				; HL - номер сектора в цилиндре
+	LD B,0
+	LD C,A
+
+;	LD BC,(MS_BPB+S_P_T)	; ЧИСЛО СЕКТОРОВ НА ДОРОЖКЕ
+	XOR A
+HD_CALC_LOOP2:
+	SBC HL,BC
+	INC A
+	JR NC,HD_CALC_LOOP2
+
+	DEC A		; A - головка
+	ADD HL,BC	; L - сектор
+	INC L
+	LD H,A		; HL - HEAD,SEC
+
+	LD A,(COPY_PAGE3)
+	OUT (PAGE3),A
+
+	POP BC
+	AND A
+	RET
+
+;************************************************
+
+HD_CMD_7:
+	POP AF
+	BIT 0,A
+	LD A,21h
+	JR Z,IDE_1
+	LD A,01h
+IDE_1:	OUT (0BCh),A
+	RET
+
+;************************************************
+
+;	DB 'HDD_DRV_END'
+
+; Вход:
+; C - команда
+;   0 - INIT - входных пар нет => A - число поддерживаемых дисков.
+;   1 - RESET - выбор диска A - номер диска от 0 =>
+;   2 - (STATUS)
+;   3 - MEDIA CHECK - A - номер диска => A = 0 - old. #FF - new (всегда #FF)
+;   4 - READ BPB - A - диск HL - адрес в текущей странице.
+;   5 - READ - A - диск, IX:DE сектор, HL - адрес, B - число секторов
+;   6 - WRITE - '' -
+;
+; ошибки - CF - A - ошибка
+;
+; 0 - нет ошибки
+; 1 - неверная команда
+; 2 - неверный номер диска
+; 3 - неверный формат (не MS-DOS)
+; 4 - нет готовности
+; 5 - ошибка позиционирования
+; 6 - сектор не найден
+; 7 - ошибка CRC
+; 8 - защита записи
+; 9 - ошибка чтения
+; 10 - ошибка записи
+; 11 - ГЛЮК
+;
+
+

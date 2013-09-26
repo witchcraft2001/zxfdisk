@@ -1,0 +1,344 @@
+01   0000             		device	zxspectrum128
+02   0000             
+03   0000             CR	EQU	13
+04   0000             LF	EQU	10
+05   0000             EN	EQU	00
+06   0000             	include "DOS_EQU.asm"
+01+  0000             
+02+  0000             VERSION	EQU	#00
+03+  0000             CHDISK	EQU	#01
+04+  0000             CURDISK	EQU	#02
+05+  0000             DSKINFO	EQU	#03
+06+  0000             G_ENTRY	EQU	#04
+07+  0000             
+08+  0000             BOOTDSK	EQU	#09
+09+  0000             CREATE	EQU	#0A
+10+  0000             CREAT_N	EQU	#0B
+11+  0000             ERASE	EQU	#0D
+12+  0000             DELETE	EQU	#0E
+13+  0000             MOVE	EQU	#0F
+14+  0000             RENAME	EQU	#10
+15+  0000             OPEN	EQU	#11
+16+  0000             CLOSE	EQU	#12
+17+  0000             READ	EQU	#13
+18+  0000             WRITE	EQU	#14
+19+  0000             MOVE_FP	EQU	#15
+20+  0000             ATTRIB	EQU	#16
+21+  0000             GET_D_T	EQU	#17
+22+  0000             PUT_D_T	EQU	#18
+23+  0000             F_FIRST	EQU	#19
+24+  0000             F_NEXT	EQU	#1A
+25+  0000             MKDIR	EQU	#1B
+26+  0000             RMDIR	EQU	#1C
+27+  0000             CHDIR	EQU	#1D
+28+  0000             CURDIR	EQU	#1E
+29+  0000             SYSTIME	EQU	#21
+30+  0000             SETTIME	EQU	#22
+31+  0000             
+32+  0000             WAITKEY	EQU	#30
+33+  0000             SCANKEY	EQU	#31
+34+  0000             ECHOKEY	EQU	#32
+35+  0000             CTRLKEY	EQU	#33
+36+  0000             EDIT	EQU	#34
+37+  0000             K_CLEAR	EQU	#35
+38+  0000             
+39+  0000             SETWIN	EQU	#38
+40+  0000             SETWIN1	EQU	#39
+41+  0000             SETWIN2	EQU	#3A
+42+  0000             SETWIN3	EQU	#3B
+43+  0000             FREEMEM	EQU	#3C
+44+  0000             GETMEM	EQU	#3D
+45+  0000             RETMEM	EQU	#3E
+46+  0000             SETMEM	EQU	#3F
+47+  0000             
+48+  0000             EXEC	EQU	#40
+49+  0000             EXIT	EQU	#41
+50+  0000             WAIT	EQU	#42
+51+  0000             
+52+  0000             GSWITCH	EQU	#43
+53+  0000             DOSNAME	EQU	#44
+54+  0000             
+55+  0000             SETVMOD	EQU	#50
+56+  0000             GETVMOD	EQU	#51
+57+  0000             LOCATE	EQU	#52
+58+  0000             CURSOR	EQU	#53
+59+  0000             SELPAGE	EQU	#54
+60+  0000             SCROLL	EQU	#55
+61+  0000             CLEAR	EQU	#56
+62+  0000             RDCHAR	EQU	#57
+63+  0000             WRCHAR	EQU	#58
+64+  0000             WINCOPY	EQU	#59
+65+  0000             WINREST	EQU	#5A
+66+  0000             PUTCHAR	EQU	#5B
+67+  0000             PCHARS	EQU	#5C
+68+  0000             RES_PRN	EQU	#5D
+69+  0000             CTRLPRN	EQU	#5E
+70+  0000             PRINT	EQU	#5F
+71+  0000             
+72+  0000             
+07   0000             
+08   0000             	org #8100-#16
+09   80EA             EXEHeader
+10   80EA 45 58 45    	db "EXE"
+11   80ED 00          	db	0
+12   80EE 16 00       	dw	FdiskStart-EXEHeader	;Header lenght
+13   80F0 00 00       	dw	0
+14   80F2 5D 01       	dw	FdiskEnd-FdiskStart	;Primary Loader Lenght
+15   80F4             	dw	0,0,0
+15   80F4 000000000000
+16   80FA 00 81       	dw	FdiskStart	; Load address
+17   80FC 00 81       	dw	FdiskStart	; Start address
+18   80FE FF 80       	dw	FdiskStart-1	; Stack address
+19   8100             FdiskStart
+20   8100 F3          	di
+21   8101 21 C6 81    	ld	hl,strHello
+22   8104 0E 5C       	ld	c, PCHARS	
+23   8106 D7          	rst	10h
+24   8107             	;определение доступных устройств
+25   8107 0E 5F       	ld	c,5fh
+26   8109 DD 21 4D 82 	ld	ix,listDrives
+27   810D CF          	rst	8
+28   810E 38 4D       	jr	c,exit
+29   8110 DD 7E 00    	ld	a,(ix)
+30   8113 FE 02       	cp	2
+31   8115 38 50       	jr	c,exitNoDisks
+32   8117 DD 7E 02    	ld	a,(ix+2)
+33   811A A7          	and	a
+34   811B 28 4A       	jr	z,exitNoDisks
+35   811D 6F          	ld	l,a
+36   811E 01 E4 81    	ld	bc,strHards
+37   8121 CD 6C 81    	call	PRNUM
+38   8124 21 E4 81    	ld	hl,strHards
+39   8127 0E 5C       	ld	c,PCHARS
+40   8129 D7          	rst	10h
+41   812A DD 46 02    	ld	b,(ix+2)
+42   812D AF          	xor	a
+43   812E             lpGetHDDPar
+44   812E F5          	push	af
+45   812F C5          	push	bc
+46   8130 F5          	push	af
+47   8131 F6 80       	or	#80
+48   8133 0E 58       	ld	c,#58
+49   8135 CF          	rst	8
+50   8136 01 47 82    	ld	bc,strHDDInfo.sec
+51   8139 CD 6C 81    	call	PRNUM
+52   813C 6C          	ld	l,h
+53   813D 01 3A 82    	ld	bc,strHDDInfo.head
+54   8140 CD 6C 81    	call	PRNUM
+55   8143 EB          	ex	de,hl
+56   8144 01 2D 82    	ld	bc,strHDDInfo.cyl
+57   8147 CD 73 81    	call	PRNUM0
+58   814A F1          	pop	af
+59   814B 6F          	ld	l,a
+60   814C 01 1C 82    	ld	bc,strHDDInfo.drv
+61   814F CD 6C 81    	call	PRNUM
+62   8152 21 16 82    	ld	hl,strHDDInfo
+63   8155 0E 5C       	ld	c,PCHARS
+64   8157 D7          	rst	10h
+65   8158 C1          	pop	bc
+66   8159 F1          	pop	af
+67   815A 3C          	inc	a
+68   815B 10 D1       	djnz	lpGetHDDPar
+69   815D 21 E1 81    exit	ld	hl,CRLF
+70   8160 0E 5C       exitMsg	ld	c, PCHARS	
+71   8162 D7          	rst	10h
+72   8163 01 41 00    	ld	bc, EXIT
+73   8166 D7          	rst	10h
+74   8167             exitNoDisks
+75   8167 21 FC 81    	ld	hl,strNoDisks
+76   816A 18 F4       	jr	exitMsg
+77   816C             	include	"prnum.asm"
+01+  816C             ;-----------T--------------------------------------------------¬
+02+  816C             ;¦ PRNUM    ¦ В L-число, в BC-адрес в памяти                   ¦
+03+  816C             ;¦ PRNUM0   ¦ В HL-число, в BC-адрес в памяти                  ¦
+04+  816C             ;¦          ¦ Регистры HL,DE,IX не изменяются                  ¦
+05+  816C             ;+----------+--------------------------------------------------+
+06+  816C             ;¦Пребразование 8-ми и 16-ти битных чисел в текстовый формат в ¦
+07+  816C             ;¦системе DEC/HEX (переменная HEXDEC=0 или HEXDEC="#")         ¦
+08+  816C             ;L--------------------------------------------------------------
+09+  816C             
+10+  816C D5          PRNUM		push de
+11+  816D 1E 02       		ld   e,2
+12+  816F 26 00       		ld   h,0
+13+  8171 18 03       		jr   PRNUM1
+14+  8173 D5          PRNUM0		push de
+15+  8174 1E 04       		ld   e,4
+16+  8176 E5          PRNUM1		push hl
+17+  8177 3A C5 81    		ld   a,(HEXDEC_PRNUM)
+18+  817A 02          		ld   (bc),a
+19+  817B A7          		and  a
+20+  817C 3A C4 81    		ld   a,(NUMFILL_PRNUM)
+21+  817F 57          		ld   d,a
+22+  8180 3E 0A       		ld   a,#0A
+23+  8182 28 06       		jr   z,PRN1	;98CF
+24+  8184 16 30       		ld   d,#30
+25+  8186 3E 10       		ld   a,#10
+26+  8188 1D          		dec  e
+27+  8189 03          		inc  bc
+28+  818A 08          PRN1		ex   af,af'	;98CF
+29+  818B 7A          		ld   a,d
+30+  818C 02          PRN2		ld   (bc),a
+31+  818D 03          		inc  bc
+32+  818E 1D          		dec  e
+33+  818F 20 FB       		jr   nz,PRN2	;98D1
+34+  8191 C5          PRN6		push bc		;98D6
+35+  8192 08          		ex   af,af'
+36+  8193 4F          		ld   c,a
+37+  8194 08          		ex   af,af'
+38+  8195 AF          		xor  a
+39+  8196 11 01 00    		ld   de,#0001
+40+  8199 CB 25       PRN4		sla  l		;98DE
+41+  819B CB 14       		rl   h
+42+  819D 17          		rla
+43+  819E B9          		cp   c
+44+  819F 38 09       		jr   c,PRN3	;98EF
+45+  81A1 91          		sub  c
+46+  81A2 CB 33       		sli  e
+47+  81A4 CB 12       		rl   d
+48+  81A6 30 F1       		jr   nc,PRN4	;98DE
+49+  81A8 18 06       		jr   PRN7	;98F5
+50+  81AA CB 23       PRN3		sla  e		;98EF
+51+  81AC CB 12       		rl   d
+52+  81AE 30 E9       		jr   nc,PRN4	;98DE
+53+  81B0 EB          PRN7		ex   de,hl	;98F5
+54+  81B1 C1          		pop  bc
+55+  81B2 FE 0A       		cp   #0A
+56+  81B4 1E 37       		ld   e,#37
+57+  81B6 30 02       		jr   nc,PRN5	;98FF
+58+  81B8 1E 30       		ld   e,#30
+59+  81BA 83          PRN5		add  a,e	;98FF
+60+  81BB 02          		ld   (bc),a
+61+  81BC 0B          		dec  bc
+62+  81BD 7C          		ld   a,h
+63+  81BE B5          		or   l
+64+  81BF 20 D0       		jr   nz,PRN6	;98D6
+65+  81C1 E1          		pop  hl
+66+  81C2 D1          		pop  de
+67+  81C3 C9          		ret
+68+  81C4 20          NUMFILL_PRNUM	DB	#20
+69+  81C5 00          HEXDEC_PRNUM	DB	0	;#00 - DEC, "#" - HEX
+78   81C6             
+79   81C6             strHello
+80   81C6             	DB	CR,LF,"FDISK v.0.1 by Hard/WCG",CR,LF
+80   81C6 0D0A464449534B20762E302E3120627920486172642F5743470D0A
+81   81E1 0D 0A 00    CRLF	DB	CR,LF,EN
+82   81E4             strHards
+83   81E4             	db	"000 hard disks found!",CR,LF,EN
+83   81E4 3030302068617264206469736B7320666F756E64210D0A00
+84   81FC             strNoDisks
+85   81FC             	db	"Not found any hard disk",CR,LF,EN
+85   81FC 4E6F7420666F756E6420616E792068617264206469736B0D0A00
+86   8216             strHDDInfo
+87   8216             	db	"Drive "
+87   8216 447269766520
+88   821C             .drv	db	"000:",CR,LF,"Cylinders: "
+88   821C 3030303A0D0A43796C696E646572733A20
+89   822D             .cyl	db	"00000 Heads: "
+89   822D 30303030302048656164733A20
+90   823A             .head	db	"000 Sectors: "
+90   823A 30303020536563746F72733A20
+91   8247             .sec	db	"000",CR,LF,EN
+91   8247 3030300D0A00
+92   824D             listDrives
+93   824D 00          	ds	16
+94   825D             FdiskEnd
+95   825D             
+96   825D             	savebin "fdisk.exe",EXEHeader,FdiskEnd-EXEHeader
+
+Value    Label
+------ - -----------------------------------------------------------
+0x000D   CR
+0x000A   LF
+0x0000   EN
+0x0000 X VERSION
+0x0001 X CHDISK
+0x0002 X CURDISK
+0x0003 X DSKINFO
+0x0004 X G_ENTRY
+0x0009 X BOOTDSK
+0x000A X CREATE
+0x000B X CREAT_N
+0x000D X ERASE
+0x000E X DELETE
+0x000F X MOVE
+0x0010 X RENAME
+0x0011 X OPEN
+0x0012 X CLOSE
+0x0013 X READ
+0x0014 X WRITE
+0x0015 X MOVE_FP
+0x0016 X ATTRIB
+0x0017 X GET_D_T
+0x0018 X PUT_D_T
+0x0019 X F_FIRST
+0x001A X F_NEXT
+0x001B X MKDIR
+0x001C X RMDIR
+0x001D X CHDIR
+0x001E X CURDIR
+0x0021 X SYSTIME
+0x0022 X SETTIME
+0x0030 X WAITKEY
+0x0031 X SCANKEY
+0x0032 X ECHOKEY
+0x0033 X CTRLKEY
+0x0034 X EDIT
+0x0035 X K_CLEAR
+0x0038 X SETWIN
+0x0039 X SETWIN1
+0x003A X SETWIN2
+0x003B X SETWIN3
+0x003C X FREEMEM
+0x003D X GETMEM
+0x003E X RETMEM
+0x003F X SETMEM
+0x0040 X EXEC
+0x0041   EXIT
+0x0042 X WAIT
+0x0043 X GSWITCH
+0x0044 X DOSNAME
+0x0050 X SETVMOD
+0x0051 X GETVMOD
+0x0052 X LOCATE
+0x0053 X CURSOR
+0x0054 X SELPAGE
+0x0055 X SCROLL
+0x0056 X CLEAR
+0x0057 X RDCHAR
+0x0058 X WRCHAR
+0x0059 X WINCOPY
+0x005A X WINREST
+0x005B X PUTCHAR
+0x005C   PCHARS
+0x005D X RES_PRN
+0x005E X CTRLPRN
+0x005F X PRINT
+0x80EA   EXEHeader
+0x8100   FdiskStart
+0x825D   FdiskEnd
+0x81C6   strHello
+0x824D   listDrives
+0x815D   exit
+0x8167   exitNoDisks
+0x81E4   strHards
+0x816C   PRNUM
+0x812E   lpGetHDDPar
+0x8247   strHDDInfo.sec
+0x823A   strHDDInfo.head
+0x822D   strHDDInfo.cyl
+0x8173   PRNUM0
+0x821C   strHDDInfo.drv
+0x8216   strHDDInfo
+0x81E1   CRLF
+0x8160   exitMsg
+0x81FC   strNoDisks
+0x8176   PRNUM1
+0x81C5   HEXDEC_PRNUM
+0x81C4   NUMFILL_PRNUM
+0x818A   PRN1
+0x818C   PRN2
+0x8191   PRN6
+0x8199   PRN4
+0x81AA   PRN3
+0x81B0   PRN7
+0x81BA   PRN5

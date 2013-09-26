@@ -1,0 +1,22 @@
+IDESYS Equ 06ABH ; Системный регистр IDE /W
+
+ IDECOM Equ 07EBH ; Регистр комманд /W
+ IDESTAT Equ 07CBH ; Регистр состояния /R
+ IDEHeadW Equ 06EBH ; Регистр номера головы /W
+ IDEHeadR Equ 06CBH ; Регистр номера головы /R
+ IDESECTW Equ 03EBH ; Регистр номера сектора /W
+ IDESECTR Equ 03CBH ; Регистр номера сектора /R
+ IDECYLHW Equ 05EBH ; Регистр ст.байта номера циллиндра /W
+ IDECYLHR Equ 05CBH ; Регистр ст.байта номера циллиндра /R
+ IDECYLLW Equ 04EBH ; Регистр мл.байта номера циллиндра /W
+ IDECYLLR Equ 04CBH ; Регистр мл.байта номера циллиндра /R
+ SECTNUMW Equ 02EBH ; Регистр счетчика секторов /W
+ SECTNUMR Equ 02CBH ; Регистр счетчика секторов /R
+ IDEERROR Equ 01CBH ; Регистр ошибок /R
+ IDEPRED Equ 01EBH ; Регистр стартового цилиндра предк./W
+ IDEDATHW Equ 00CBH ; Рег.данных: ст.байт - Запись
+ IDEDATHR Equ 00EBH ; Рег.данных: ст.байт - Чтение
+ IDEDATLW Equ 00EBH ; Рег.данных: мл.байт - Запись
+ IDEDATLR Equ 00CBH ; Рег.данных: мл.байт - Чтение
+
+ Доступ к ним включается при установке CP/M=1 и ROM14=1.

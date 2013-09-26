@@ -1,0 +1,361 @@
+console.asm(28): error: Unrecognized instruction: PCHARS
+001   0000             ;Ввод текста
+002   0000             ;hl - адрес буфера
+003   0000             ;a - макс количество символов
+004   0000             ;Выход:
+005   0000             ;hl - адрес начала буфера
+006   0000             ;a - кол-во введенных симв
+007   0000             ;C = 1 - выход по бряку
+008   0000             EditString
+009   0000 32 A3 00    	ld	(.edMax),a
+010   0003 22 A4 00    	ld	(.edBuf),hl
+011   0006 E5          	push	hl
+012   0007 D1          	pop	de
+013   0008 13          	inc	de
+014   0009 4F          	ld	c,a
+015   000A 06 00       	ld	b,0
+016   000C 36 20       	ld	(hl),32
+017   000E ED B0       	ldir
+018   0010 AF          	xor	a
+019   0011 32 A8 00    	ld	(.edCur),a
+020   0014 70          	ld	(hl),b
+021   0015 ED 5B 23 02 	ld	de,(COORDS)
+022   0019 ED 53 A6 00 	ld	(.edCRDS),de
+console.asm(23): error: Label not found: CursorOff
+023   001D CD 00 00    .k2	call	CursorOff
+024   0020             
+025   0020 ED 5B A6 00 	ld	de,(.edCRDS)
+026   0024 ED 53 23 02 	ld	(COORDS),de
+027   0028 2A A4 00    	ld	hl,(.edBuf)
+console.asm(28): error: Unrecognized instruction: PCHARS
+028   002B             	PCHARS
+029   002B ED 5B A6 00 	ld	de,(.edCRDS)
+030   002F 3A A8 00    	ld	a,(.edCur)
+031   0032 82          	add	a,d
+032   0033 57          	ld	d,a
+033   0034 ED 53 23 02 	ld	(COORDS),de
+console.asm(34): error: Label not found: CursorOn
+034   0038 CD 00 00    	call	CursorOn
+035   003B FD CB 01 AE .key	RES	5, (IY+1) ;сброс флага "ANY KEY"
+036   003F FB          	ei
+037   0040 76          .nokey	halt
+038   0041 CD 54 1F        call    8020
+039   0044 30 57           jr  nc,.break
+040   0046 FD CB 01 6E 	BIT	5, (IY+1) 
+041   004A 28 F4           JR	Z,.nokey	;пока не нажмут что-либо
+042   004C 3A 08 5C    	ld	a,(23560)
+043   004F FE 0C       	cp	0x0c
+044   0051 28 29       	jr	z,.del
+045   0053 FE 0D       	cp	13
+046   0055 28 3B       	jr	z,.enter
+047   0057 47          	ld	b,a
+048   0058 2A A4 00    	ld	hl,(.edBuf)
+049   005B 3A A8 00    	ld	a,(.edCur)
+050   005E 4F          	ld	c,a
+051   005F 3A A3 00    	ld	a,(.edMax)
+052   0062 B9          	cp	c
+053   0063 28 B8       	jr	z,.k2
+054   0065 79          	ld	a,c
+055   0066 85          	add	a,l
+056   0067 6F          	ld	l,a
+057   0068 30 01       	jr	nc,.k1
+058   006A 24          	inc	h
+059   006B 70          .k1	ld	(hl),b
+060   006C 3A A3 00    	ld	a,(.edMax)
+061   006F 4F          	ld	c,a
+062   0070 3A A8 00    	ld	a,(.edCur)
+063   0073 B9          	cp	c
+064   0074 30 A7       	jr	nc,.k2
+065   0076 3C          	inc	a
+066   0077 32 A8 00    	ld	(.edCur),a
+067   007A 18 A1       	jr	.k2
+068   007C 3A A8 00    .del	ld	a,(.edCur)
+069   007F A7          	and	a
+070   0080 28 9B       	jr	z,.k2
+071   0082 3D          	dec	a
+072   0083 32 A8 00    	ld	(.edCur),a
+073   0086 2A A4 00    	ld	hl,(.edBuf)
+074   0089 85          	add	a,l
+075   008A 6F          	ld	l,a
+076   008B 30 01       	jr	nc,.k3
+077   008D 24          	inc	h
+078   008E 36 20       .k3	ld	(hl),32
+079   0090 18 8B       	jr	.k2
+console.asm(80): error: Label not found: CursorOff
+080   0092 CD 00 00    .enter	call	CursorOff
+081   0095 3A A8 00    	ld	a,(.edCur)
+082   0098 2A A4 00    	ld	hl,(.edBuf)
+083   009B A7          	and	a
+084   009C C9          	ret
+085   009D             .break
+086   009D 2A A4 00        ld  hl,(.edBuf)
+087   00A0 AF              xor a
+088   00A1 37              scf
+089   00A2 C9              ret    
+090   00A3 00          .edMax	db	0	;макс символов
+091   00A4 00 00       .edBuf	dw	0	;буфер для текста
+092   00A6 00 00       .edCRDS	dw	0	;сохраненные координаты
+093   00A8 00          .edCur	db	0	;тек символ
+094   00A9             ;Заливает экран атрибутом 7 и бордер 0, очищает экран
+095   00A9             InitConsole
+096   00A9 AF          	xor	a
+097   00AA D3 FE       	out	(#fe),a
+098   00AC 21 FF 5A    	ld	hl,#5aff
+099   00AF 11 FE 5A    	ld	de,#5afe
+100   00B2 36 07       	ld	(hl),7
+101   00B4 01 00 03    	ld	bc,768
+102   00B7 ED B8       	lddr
+103   00B9 C3 BC 00    	jp	ClearScr
+104   00BC             
+105   00BC             ClearScr
+106   00BC 21 00 40    	ld	hl,#4000
+107   00BF 54          	ld	d,h
+108   00C0 5D          	ld	e,l
+109   00C1 1C          	inc	e
+110   00C2 01 FF 17    	ld	bc,6143
+111   00C5 75          	ld	(hl),l
+112   00C6 ED B0       	ldir
+113   00C8 21 00 00    	ld	hl,0
+114   00CB 22 23 02    	ld	(COORDS),hl
+115   00CE C9          	ret
+116   00CF             ;Пауза
+117   00CF 3E 01       PAUSE1  ld a,1
+118   00D1 FB          PAUSE   ei 
+119   00D2 21 78 5C            ld hl,23672
+120   00D5 36 00               ld (hl),0
+121   00D7 BE          WAIT1   cp (hl) 
+122   00D8 C8                  ret z 
+123   00D9 18 FC               jr WAIT1
+124   00DB             ;Печать строки 64 символа
+125   00DB 7E          Print   ld a,(hl) 
+126   00DC B7                  or a 
+127   00DD C8                  ret z
+128   00DE FE 0A       	cp 10
+129   00E0 28 18       	jr z,.pskip
+130   00E2 FE 0D               cp 13
+131   00E4 28 17               jr z,.C13
+132   00E6 FE 20       	cp 32
+133   00E8 28 05       	jr z,.skipSym
+134   00EA E5                  push hl
+135   00EB CD 15 01            call PrintSym
+136   00EE E1                  pop hl
+137   00EF             .skipSym
+138   00EF 3A 24 02    	ld a,(COORDS+1)
+139   00F2 3C          	inc a
+140   00F3 FE 40       	cp 64
+141   00F5 30 06       	jr nc,.C13
+142   00F7             	
+143   00F7             .nextcrd
+144   00F7 32 24 02    	ld (COORDS+1),a
+145   00FA 23          .pskip  inc hl
+146   00FB 18 DE               jr Print
+147   00FD             .C13
+148   00FD 3A 23 02            ld a,(COORDS)	;Y
+149   0100 FE 17       	cp 23
+150   0102 38 07       	jr c,.noscroll
+151   0104 E5          	push	hl
+152   0105 CD E0 01    	call ScrollUP
+153   0108 E1          	pop	hl
+154   0109 18 04       	jr .prtNullX
+155   010B             .noscroll
+156   010B 3C          	inc a
+157   010C 32 23 02    	ld (COORDS),a
+158   010F             .prtNullX
+159   010F AF          	xor a
+160   0110 32 24 02    	ld (COORDS+1),a
+161   0113 18 E5       	jr .pskip
+162   0115             PrintSym
+163   0115 4F          	ld c,a
+164   0116 CB 3F               srl a
+165   0118 6F                  ld l,a
+166   0119 26 00               ld h,0
+167   011B 29                  add hl,hl
+168   011C 29                  add hl,hl
+169   011D 29                  add hl,hl
+console.asm(170): error: Label not found: font64
+170   011E 11 00 00            ld de,font64
+171   0121 19                  add hl,de
+172   0122 E5          	push hl
+173   0123 ED 5B 23 02         ld de,(COORDS)
+174   0127 CD C6 01    	call COORD
+175   012A D1          	pop de
+176   012B EB          	ex de,hl
+177   012C 3A 25 02            ld a,(ShiftSymb)
+178   012F EE 01               xor 1
+179   0131 32 25 02            ld (ShiftSymb),a
+180   0134 79                  ld a,c
+181   0135 20 2A               jr nz,.PR1
+182   0137 E6 01               and 1
+183   0139 20 10               jr nz,.PR2
+184   013B 06 08               ld b,8
+185   013D 7E          .LP1    ld a,(hl) 
+186   013E E6 F0               and 240
+187   0140 4F                  ld c,a 
+188   0141 1A                  ld a,(de) 
+189   0142 E6 0F               and 15
+190   0144 B1                  or c 
+191   0145 12                  ld (de),a 
+192   0146 23                  inc hl
+193   0147 14                  inc d 
+194   0148 10 F3               djnz .LP1
+195   014A C9                  ret
+196   014B 06 08       .PR2    ld b,8
+197   014D 7E          .LP2    ld a,(hl) 
+198   014E CB 27               sla a
+199   0150 CB 27               sla a
+200   0152 CB 27               sla a
+201   0154 CB 27               sla a
+202   0156 4F                  ld c,a 
+203   0157 1A                  ld a,(de) 
+204   0158 E6 0F               and 15
+205   015A B1                  or c
+206   015B 12                  ld (de),a
+207   015C 23                  inc hl
+208   015D 14                  inc d 
+209   015E 10 ED               djnz .LP2
+210   0160 C9                  ret
+211   0161 E6 01       .PR1    and 1
+212   0163 28 10               jr z,.PR3
+213   0165 06 08               ld b,8
+214   0167 7E          .LP3    ld a,(hl) 
+215   0168 E6 0F               and 15
+216   016A 4F                  ld c,a
+217   016B 1A                  ld a,(de)
+218   016C E6 F0               and 240
+219   016E B1                  or c
+220   016F 12                  ld (de),a
+221   0170 23                  inc hl
+222   0171 14                  inc d 
+223   0172 10 F3               djnz .LP3
+224   0174 C9                  ret
+225   0175 06 08       .PR3    ld b,8
+226   0177 4E          .LP4    ld c,(hl) 
+227   0178 CB 39               srl c
+228   017A CB 39               srl c
+229   017C CB 39               srl c
+230   017E CB 39               srl c
+231   0180 1A                  ld a,(de) 
+232   0181 E6 F0               and 240
+233   0183 B1                  or c 
+234   0184 12                  ld (de),a
+235   0185 23                  inc hl
+236   0186 14                  inc d 
+237   0187 10 EE               djnz .LP4
+238   0189 C9                  ret 
+239   018A 14          DOWND   inc d
+240   018B 7A                  ld a,d
+241   018C E6 07               and 7
+242   018E C0                  ret nz
+243   018F 7B                  ld a,e
+244   0190 C6 20               add a,32
+245   0192 5F                  ld e,a
+246   0193 D8                  ret c
+247   0194 7A                  ld a,d
+248   0195 D6 08               sub 8
+249   0197 57                  ld d,a
+250   0198 C9                  ret 
+251   0199 7D          ADRZ    ld a,l
+252   019A E6 07               and 7
+253   019C 0F                  rrca
+254   019D 0F                  rrca
+255   019E 0F                  rrca
+256   019F 84                  add a,h
+257   01A0 65                  ld h,l
+258   01A1 6F                  ld l,a
+259   01A2 7C                  ld a,h
+260   01A3 E6 18               and #18
+261   01A5 F6 40               or #40
+262   01A7 67                  ld h,a
+263   01A8 C9                  ret
+264   01A9 7D          ADRATR  ld a,l
+265   01AA E6 07               and 7
+266   01AC 0F                  rrca
+267   01AD 0F                  rrca
+268   01AE 0F                  rrca
+269   01AF 84                  add a,h
+270   01B0 65                  ld h,l
+271   01B1 6F                  ld l,a
+272   01B2 7C                  ld a,h
+273   01B3 E6 18               and #18
+274   01B5 0F                  rrca
+275   01B6 0F                  rrca
+276   01B7 0F                  rrca
+277   01B8 F6 58               or #58
+278   01BA 67                  ld h,a
+279   01BB C9                  ret 
+280   01BC 7B          DOWN8   ld a,e
+281   01BD C6 20               add a,32
+282   01BF 5F                  ld e,a
+283   01C0 D0                  ret nc
+284   01C1 7A                  ld a,d
+285   01C2 C6 08               add a,8
+286   01C4 57                  ld d,a
+287   01C5 C9                  ret
+288   01C6 CB 3A       COORD   srl d 
+289   01C8 3E 00               ld a,0
+290   01CA 38 02               jr c,LF1
+291   01CC 3E 01               ld a,1
+292   01CE 32 25 02    LF1     ld (ShiftSymb),a
+293   01D1 7B                  ld a,e
+294   01D2 E6 07               and 7
+295   01D4 0F                  rrca
+296   01D5 0F                  rrca
+297   01D6 0F                  rrca
+298   01D7 82                  add a,d
+299   01D8 6F                  ld l,a
+300   01D9 7B                  ld a,e
+301   01DA E6 18               and #18
+302   01DC F6 40               or #40
+303   01DE 67                  ld h,a
+304   01DF C9                  ret 
+305   01E0             
+306   01E0             ScrollUP
+307   01E0 21 20 40    	ld hl,#4020
+308   01E3 11 00 40    	ld de,#4000
+309   01E6 06 17               ld b,23
+310   01E8 C5          .SCR1    push bc
+311   01E9 CD 0C 02            call CopyRow
+312   01EC 5D                  ld e,l
+313   01ED 54                  ld d,h
+314   01EE 7D                  ld a,l
+315   01EF C6 20               add a,32
+316   01F1 6F                  ld l,a
+317   01F2 30 04               jr nc,.SCR2
+318   01F4 3E 08               ld a,8
+319   01F6 84                  add a,h
+320   01F7 67                  ld h,a
+321   01F8 C1          .SCR2    pop bc
+322   01F9 10 ED               djnz .SCR1
+323   01FB 0E 08               ld c,8
+324   01FD EB                  ex de,hl 
+325   01FE 06 20       .SCR3    ld b,32
+326   0200 E5                  push hl 
+327   0201 36 00       .SCR4    ld (hl),0
+328   0203 2C                  inc l
+329   0204 10 FB               djnz .SCR4
+330   0206 E1                  pop hl
+331   0207 24                  inc h
+332   0208 0D                  dec c
+333   0209 20 F3               jr nz,.SCR3
+334   020B C9                  ret
+334   020C E5          CopyRow push hl
+335   020D D5           push de 
+336   020E 01 20 00            ld bc,32
+337   0211 3E 08               ld a,8
+337   0213 C5          .SCR5    push bc
+337   0214 D5           push de
+338   0215 E5           push hl
+339   0216 ED B0               ldir
+339   0218 E1                  pop hl
+339   0219 D1           pop de
+340   021A C1           pop bc
+341   021B 14                  inc d
+342   021C 24                  inc h
+343   021D 3D                  dec a
+344   021E 20 F3               jr nz,.SCR5
+344   0220 D1                  pop de
+345   0221 E1           pop hl
+346   0222 C9                  ret 
+347   0223 00 00       COORDS	DW	0	;Y,X
+348   0225             ShiftSymb
+349   0225 00          	db	0

@@ -1,0 +1,1 @@
+_TARGET	equ	_ZX128

@@ -1,0 +1,810 @@
+Content-Type: multipart/related; start=<op.mhtml.1377691208682.89bb976b28271304@192.168.11.56>; boundary=----------GYHan9KQwMxFat3s8OX3D9
+Content-Location: http://thestarman.narod.ru/asm/mbr/PartTables2.htm
+Subject: =?utf-8?Q?Introduction=20to=20Partition=20Tables?=
+MIME-Version: 1.0
+
+------------GYHan9KQwMxFat3s8OX3D9
+Content-Disposition: inline; filename=PartTables2.htm
+Content-Type: text/html; charset=UTF-8; name=PartTables2.htm
+Content-ID: <op.mhtml.1377691208682.89bb976b28271304@192.168.11.56>
+Content-Location: http://thestarman.narod.ru/asm/mbr/PartTables2.htm
+Content-Transfer-Encoding: 8bit
+
+<script type="text/javascript" src="/abnl/?narodads=1&s=othestarman"></script><HTML><HEAD><title>Introduction to Partition Tables</title>
+<meta http-equiv="keywords" content="Partition Table, Extended Boot Record, EBR, Nested partitions, Extended partition table, Chained paritions, MBR, Master Boot Record">
+<meta http-equiv="description" content="Understanding Partition Tables.">
+<META NAME="COPYRIGHT" CONTENT="&copy; 2004 by Daniel B. Sedory">
+<META NAME="robots" CONTENT="ALL">
+<META NAME="revisit-after" CONTENT="30 days">
+<META NAME="distribution" CONTENT="Global">
+<META NAME="robots" CONTENT="INDEX">
+<META NAME="revisit-after" CONTENT="30">
+<link href="mbr.css" rel="stylesheet" type="text/css">
+</HEAD>
+<BODY bgcolor="#FFFFFF" leftmargin="25" topmargin="25">
+<BR>
+<center>
+  <font size="7"><b><font size="6">MBR/EBR </font>Partition Tables</b></font><br>
+  <font face="Verdana,Arial,Helvetica" size="4">(Page 2)<br><br><b>Copyright &copy; 2004, 2007 
+  by Daniel B. Sedory<br>
+  </b><font color="#FF0000" size="3"><b><font face="Arial, Helvetica, sans-serif">NOT 
+  to be reproduced in any form without Permission of the Author!</font></b></font></font> 
+</center><BR>
+<HR>
+<ul><font size="3" face="Arial, Helvetica, sans-serif"> 
+  <li> &nbsp;<b><font face="Verdana">I</font>ntroduction</b></li>
+  <ul>
+    <li> &nbsp;The Master Boot Record (<b>MBR</b>)</li>
+    <li> &nbsp;<b>Primary</b> Partitions</li>
+    <li>&nbsp;A Partition Table Entry</li>
+    <ul>
+      <li>&nbsp;Decoding the CHS values</li>
+    </ul>
+    <br>
+    <li> &nbsp;<b>Extended</b> Partitions</li>
+    <li> &nbsp;<a href="#ebr">An Extended Boot Record (<b>EBR</b>)</a></li>
+    <br>
+    <li> &nbsp;<a href="#nest">Extended partitions are chained, <b>not</b> <i>nested</i></a></li>
+  </ul>
+  <br>
+  <li> &nbsp;<a href="PartTables3.htm#xamps" target="P3"><b>Partition Table Examples</b></a></li>
+  <ul>
+    <li> &nbsp;<a href="PartTables3.htm#20GBpt" target="P3"><font face="Arial, Helvetica, sans-serif">20 
+      GB Hard Drive (with NTFS, FAT32 and Linux Partitions)</font></a></li>
+  </ul>
+</font></ul>
+<HR>
+<a name="ebr">&nbsp;</a>
+<h2><font face="Arial, Helvetica, sans-serif">An Extended Boot Record</font></h2>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>Extended Boot 
+  Records</b> are similar in structure to the MBR, but the majority of them will 
+  contain nothing more than partition table data and the AA55h Boot Record signature; 
+  the first <A NAME=R5>446</A> bytes being <i>zero-filled</i>. Exceptions occur 
+  in cases where a programmer decides to use this <i>normally</i> &quot;unused 
+  area&quot; for his own code or data<sup><a href="#N5">[<b>5</b>]</a></sup> (just 
+  as the programmers of many DDOs, such as EZ-drive or Maxblast, had done in the 
+  past. For example, the Linux boot managers, <a href="LILOmbr.htm" target="lilo">LILO</a> 
+  and <a href="GRUB.htm" target="grub">GRUB</a> also make use of the so-called 
+  &quot;unused area&quot; between the <b>MBR</b> and first possible Volume Boot 
+  Record sector).</font></p>
+<div align="center"><table width="540" border="1" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td colspan="6"> 
+        <div align="center"><font size="4" face="Arial, Helvetica, sans-serif">Structure 
+          of an <i><b>Extended Boot Record </b></i><b>(</b>EBR<b>)</b> Sector</font></div>
+    </td>
+  </tr>
+  <tr> 
+    <td colspan="2" align="center"> <b><font face="Arial, Helvetica, sans-serif">Offsets 
+      (within sector)<br>
+      </font></b></td>
+    <td rowspan="2" colspan="2"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif"></font></div>
+      <div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="4"><b>Description</b></font></div>
+    </td>
+    <td rowspan="2" width="85"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif"><b>Length<br>
+        (in <i>bytes</i>)</b></font></div>
+    </td>
+  </tr>
+  <tr> 
+    <td width="100"> 
+      <div align="center"><b><font face="Arial, Helvetica, sans-serif"><i>in Decimal</i></font></b></div>
+    </td>
+    <td width="100"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif"><b><i>in Hex</i></b></font></div>
+    </td>
+  </tr>
+  <tr bgcolor="#FFCCFF"> 
+    <td width="100" height="35"> 
+      <div align="center"><font face="Courier New, Courier, mono" size="2"><b>000 
+        - 445</b></font></div>
+    </td>
+    <td width="100" height="35"> 
+      <div align="center"><font face="Courier New, Courier, mono" size="2"><b>000 
+        - 1BD</b></font></div>
+    </td>
+    <td colspan="2" height="35"> 
+      <div align="center"><font face="Courier New, Courier, mono"><b></b></font></div>
+      <div align="center"><font face="Verdana, Arial, Helvetica, sans-serif"><b>Normally 
+        Unused <sup><a href="#N5">[5]</a></sup></b></font></div>
+    </td>
+    <td width="85" height="35"> 
+      <div align="center"><font face="Courier New, Courier, mono"><b><font size="4">446</font></b></font></div>
+    </td>
+  </tr>
+  <tr bgcolor="#CCFFCC"> 
+    <td width="100" height="35"> 
+      <div align="center"><font face="Courier New, Courier, mono" size="2"><b>446 
+        - 509</b></font></div>
+    </td>
+    <td width="100" height="35"> 
+      <div align="center"><font face="Courier New, Courier, mono" size="2"><b>1BE 
+        - 1FD</b></font></div>
+    </td>
+    <td colspan="2" height="35"> 
+      <div align="center"><font size="4" face="Verdana, Arial, Helvetica, sans-serif">EBR 
+        Partition Table</font></div>
+    </td>
+    <td width="85" height="35"> 
+      <div align="center"><font face="Courier New, Courier, mono" size="4"><b>64</b></font></div>
+    </td>
+  </tr>
+  <tr> 
+    <td width="100" height="35"> 
+      <div align="center"><font face="Courier New, Courier, mono" size="2"><b>510</b></font></div>
+    </td>
+    <td width="100" height="35"> 
+      <div align="center"><font face="Courier New, Courier, mono" size="2"><b>1FE</b></font></div>
+    </td>
+    <td width="85" height="35">
+      <div align="center"><font face="Courier New, Courier, mono" size="4"><b>55</b></font></div>
+    </td>
+    <td height="70" rowspan="2"> 
+      <div align="center"><font size="3" face="Verdana, Arial, Helvetica, sans-serif"><b>Boot 
+        Record Signature</b></font></div>
+    </td>
+    <td rowspan="2" height="70"> 
+      <div align="center"><font face="Courier New, Courier, mono" size="4"><b>2</b></font></div>
+      </td>
+  </tr>
+  <tr> 
+    <td width="100" height="35"> 
+      <div align="center"><font face="Courier New, Courier, mono" size="2"><b>511</b></font></div>
+    </td>
+    <td width="100" height="35"> 
+      <div align="center"><font face="Courier New, Courier, mono" size="2"><b>1FF</b></font></div>
+    </td>
+    <td width="85" height="35">
+      <div align="center"><font face="Courier New, Courier, mono" size="3"><b><font size="4">AA</font></b></font></div>
+    </td>
+  </tr>
+</table><font face="Times New Roman, Times, serif" size="3"><b>Table 6.</b></font></div>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3">The <i>usual</i> 
+  contents of an Extended Boot Record's partition table:</font></p>
+<div align="center"><table width="590" border="1" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td colspan="5" bgcolor="#CCFFCC"> 
+      <div align="center"><font size="4" face="Arial, Helvetica, sans-serif">An 
+        <i><b>EBR</b></i> Partition Table</font></div>
+    </td>
+  </tr>
+  <tr> 
+    <td colspan="2" align="center"> <b><font face="Arial, Helvetica, sans-serif">Offsets 
+      (within sector)<br>
+      </font></b></td>
+    <td rowspan="2" width="80"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif"><b>Length<br>
+        (in <i>bytes</i>)</b></font></div>
+    </td>
+    <td colspan="2" rowspan="2"> 
+      <div align="center"><b><font face="Arial, Helvetica, sans-serif" size="4">Contents</font></b></div>
+    </td>
+  </tr>
+  <tr> 
+    <td width="108"> 
+      <div align="center"><b><font face="Arial, Helvetica, sans-serif"><i>in Decimal</i></font></b></div>
+    </td>
+    <td width="108"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif"><b><i>in Hex</i></b></font></div>
+    </td>
+  </tr>
+  <tr> 
+    <td> 
+      <div align="center"><font face="Courier New, Courier, mono"><font size="2"><b>446 
+        - 461</b></font></font></div>
+    </td>
+    <td> 
+      <div align="center"><font face="Courier New, Courier, mono"><b><font size="2">1BE 
+        - 1CD</font></b></font></div>
+    </td>
+    <td> 
+      <div align="center"><font face="Courier New, Courier, mono" size="3"><b>16</b></font></div>
+    </td>
+      <td colspan="2"> 
+        <div align="right"><font face="Arial, Helvetica, sans-serif" size="3"><b>Table 
+          Entry for this Logical Partition </b></font></div>
+      </td>
+  </tr>
+  <tr> 
+    <td> 
+      <div align="center"><font face="Courier New, Courier, mono"><font face="Courier New, Courier, mono"><font size="2"><b>462 
+        - 477</b></font></font></font></div>
+    </td>
+    <td> 
+      <div align="center"><font face="Courier New, Courier, mono"><font size="2"><b>1CE 
+        - 1DD</b></font></font></div>
+    </td>
+    <td> 
+      <div align="center"><font face="Courier New, Courier, mono" size="3"><b>16</b></font></div>
+    </td>
+      <td colspan="2"> 
+        <div align="right"><font face="Arial, Helvetica, sans-serif" size="3">If 
+          present, <b>link</b> to <b>next Logical partition </b></font></div>
+      </td>
+  </tr>
+  <tr> 
+    <td bgcolor="#FFCCFF"> 
+      <div align="center"><font face="Courier New, Courier, mono"><font face="Courier New, Courier, mono"><font size="2"><b>478 
+        - 509</b></font></font></font></div>
+    </td>
+    <td bgcolor="#FFCCFF"> 
+      <div align="center"><font face="Courier New, Courier, mono"><font size="2"><b>1DE 
+        - 1FD</b></font></font></div>
+    </td>
+    <td bgcolor="#FFCCFF"> 
+      <div align="center"><font face="Courier New, Courier, mono" size="3"><b>32</b></font></div>
+    </td>
+    <td colspan="2" bgcolor="#FFCCFF"> 
+      <div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><b>Normally 
+        Unused<!-- <sup><a href="#N6">6</a></sup> --></b></font></div>
+    </td>
+  </tr>
+</table><font face="Times New Roman, Times, serif" size="3"><b>Table 7.</b></font></div>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3">This next diagram 
+  shows only one of <i>many</i> possible ways the extended partition in <b>Figure 2</b> 
+  may actually be divided:</font></p>
+<p align="center"><img src="EBR2.gif" width="674" height="106"><br>
+  <b>Figure 3.</b></p>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3">So, we consider 
+  it just as important to copy and store the data contained in any<b> EBR</b> 
+  sectors as you would for the <b>MBR</b>, and to store these copies elsewhere 
+  (not on the same hard disk) <i>and/or</i> write down just the data bytes from 
+  each partition table entry in a notebook. <a name="R6">If</a> the OS can no 
+  longer read any EBR sector's contents, you'll have a better chance of fixing 
+  problems (or recovering your data) knowing the contents of these tables! You 
+  may use Power Quest's <b>PartInfo</b><sup><a href="#N6">[<b>6</b>]</a></sup> 
+  program <b>(</b>which lists all the data from each of the <b><i>daisy-chained</i></b> 
+  Extended partition tables; as well as the MBR<b>)</b> to save the data as a 
+  single <b>text file</b> on a floppy diskette; along with a <b>binary</b> copy 
+  of your <b>MBR</b> sector. But even if you delete the partition table data or 
+  overwrite an MBR sector, you can still recover your partitions using <img src="../../img/offsite.gif" width="33" height="11"> 
+  <a href="http://www.cgsecurity.org/wiki/TestDisk" target="TD">TestDisk</a>.</font></p>
+
+<p><a name="nest">&nbsp;</a></p>
+<h2><font face="Arial, Helvetica, sans-serif"><i>Nesting</i> of Extended partitions
+  only a concept; not reality!</font></h2>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3"><a name="R7">Although</a> 
+  some authors have described each <i>logical </i>drive (or partition) within 
+  an Extended partition as being <i>nested</i> inside all preceding logical partitions,<sup><a href="#N7">[<b>7</b>]</a></sup> 
+  we've never found any concrete examples which support those statements! As a 
+  matter of fact, every single partitioning utility we've tested so far,<sup><a href="#N8">[<b>8</b>]</a></sup> 
+  has always produced EBRs with partition table data (and corresponding <i>partitions</i>) 
+  which could be displayed the same way you'd find them in a Windows&#153; 2000 
+  or XP Disk Management<i> Snap-in</i> MMC (see <b>Figure 3</b> above): Each logical 
+  drive is independently situated within the single all-encompassing Extended 
+  partition; even though data in the first and each successive EBR <i>links</i> 
+  their logical partitions, like pendants <i>strung together</i> by an invisible 
+  chain.</font></p>
+
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="3">The following comments 
+  concern various disk structures and areas in <b>Figure 4</b> below (each item 
+  is labeled with <b><font color="#FF0000">red</font></b> numbers in the diagram).<br>
+  <br>
+  <b>1:</b></font> <font face="Arial, Helvetica, sans-serif" size="3">The <b>MBR</b> 
+  (Master Boot Record) is always located on the first sector of any hard disk 
+  at LBA <b>0</b> or CHS (<b>0, 0, 1</b>). Under Microsoft&reg; Windows&#153; 
+  Vista, the first sector will appear like other MBRs, but it's only there to 
+  keep old utility programs from corrupting Vista partitions; which they'd see 
+  as unallocated space without the old partition table entries. (See: <a href="http://en.wikipedia.org/wiki/GUID_Partition_Table" target="GPT">GUID 
+  Partition Table</a> for more info on Vista's actual partition table).</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3"><font face="Verdana"><b>2:</b></font> 
+  The area shown in <b><i>pink</i></b> and labeled <b>2</b> in our diagram below 
+  is sometimes called a &quot;reserved area&quot; when it includes the MBR sector. 
+  It's size is equal to the number of Sectors per Track (or Head; usually 63 for 
+  most drives today), so 63 <i>minus</i> the MBR sector = 62 sectors. </font><font face="Arial, Helvetica, sans-serif" size="3">This 
+  area is found on all <i>&quot;Basic Disk&quot; partitioned </i>hard disks, and 
+  although it's &quot;unused&quot; by the OS, you may find some very interesting 
+  data here. When <a href="GRUB.htm" target="grub">GRUB</a>, or some other boot 
+  manager, installs boot code into the MBR, it may also fill a dozen or so sectors 
+  of this area with part of its own <i>second stage </i>code. In the past, both 
+  DDO (Dynamic Drive Overlay) software and boot viruses would fill many of these 
+  sectors, and some unruly application may have stuffed data here as well. A few 
+  manfacturers still insert information about your computer and/or its hard disk 
+  into some of these sectors too, so users should carefully examine every sector 
+  here, just to know what might be stored in them.<br>
+  <br>
+  <font face="Verdana"><b>Areas 3, 4</b> and <b>6</b></font> 
+  are the first (1st), second (2nd) and fourth (4th) Primary partitions on this 
+  disk with data about their locations and sizes normally found in entries 1, 
+  2 and 4, respectively, of the MBR's Partition Table; unless some OS or utility 
+  program mixed up their order.</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3"><b>Note:</b> The <font face="Verdana">Microsoft&reg; 
+  and IBM&reg;</font> partitioning tool <b>FDISK</b> doesn't allow for more than 
+  <b><i>one</i></b> Primary partition before requiring an Extended partition be 
+  created. The Disk Management tools of Windows&#153; 2000 and later do not have 
+  this restriction. Thus, the Primary partitions in <b>4</b> (2nd) and <b>6</b> 
+  (4th) could have <A NAME="R9">been</A> created under those operating systems; 
+  just as they can with the <b>fdisk</b> tool under Linux and various <i>stand-alone</i> 
+  utilities.</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3"><font face="Verdana"><b>7:</b></font> 
+  This is just a large area of &quot;Free Space&quot; arbitrarily left unpartitioned 
+  by the user.<sup><a href="#N9">[<b>9</b>]</a></sup> Item <font face="Verdana"><b>5</b></font>, 
+  the third (3rd) Primary partition, happens to be an <font 
+  face="Verdana"><b>Extended partition</b></font> (which we've <i>expanded</i> 
+  in the diagram below to clarify its structure).<br><br></font></p>
+<p align="center"><img src="EBRreality.png" width="690" height="352"><br>
+  <b><font face="Verdana, Arial, Helvetica, sans-serif">Figure 4.</font></b></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3"><br>
+  <b>8:</b> <b>EBR</b>. The first EBR (Extended Boot Record) sector within the 
+  extended partition.<br>
+  <b>9:</b> <b><font face="Verdana, Arial, Helvetica, sans-serif">I</font>nter-partition 
+  space</b> (also see pink strips following #<b>11</b> and #<b>14 </b>as well). 
+  These areas between all the EBR sectors and their partitions are similar to 
+  the &quot;unused area&quot; between the MBR and the first possible location 
+  for a partition on a Basic Disk; most often equal in size to the number of sectors 
+  per head (or SPT, sectors/track) minus one (the EBR sector); normally 62 sectors.<br>
+  <b>10:</b> <b>Unused Space</b>. Presumably, this was <i>originally </i>the first 
+  logical drive created within the extended partition, but at some later time, 
+  it was deleted. Upon deletion, its partition entry was removed from the first 
+  EBR, leaving only the link to the next logical partition's EBR sector (#11).<br>
+  <b>11:</b> <b>EBR</b> for the logical drive partition in #12 and also a pointer 
+  to the EBR sector at #14.<br>
+  <b>12:</b> A valid <i>logical </i>partition within the extended partition; could 
+  be unformatted or formatted, you need to check its entry for the partition type 
+  and the partition itself for valid boot records to actually know for sure.<br>
+  <b>13:</b> <b>Unused Space</b>. This area could have been part of the original 
+  extended partition's second logical drive at creation, in which case some utility 
+  program, such as Partition Magic or GNU Parted, resized (<i>shrunk</i>) the 
+  data to the sectors colored in blue above (#12). Or, it may have contained an 
+  original 3 of 4 logical partitions that was later deleted (with an EBR sector 
+  located somewhere within this area). If that's the case, the utility or OS used 
+  to delete the partition also edited the EBR entry at #11 to jump over the original 
+  EBR sector pointing to it. Some programs will not do that... they would have 
+  simply removed the logical drive's partition table entry data, and left the 
+  pointer to the EBR sector at #14.<br>
+  <b>14:</b> <b>EBR</b>. The last EBR within this extended partition.<br>
+  <b>15:</b> Another valid logical partition or drive within this extended partition.<br>
+  <b>16:</b> Some <b>unused space</b> at the end of the extended partition. Either 
+  the original logical partition was <i>resized,</i> or the partition's entry 
+  data in its EBR sector was altered (made smaller) before being formatted, if 
+  it ever was (again, you must always check the data within the partition itself 
+  to know what if anything is in there! The EBR entries only tell you what type 
+  of partition it's supposed to be).<br>
+  </font></p>
+<p>&nbsp;</p><h2><font face="Verdana, Arial, Helvetica, sans-serif"><a href="PartTables3.htm" target="P3">Some 
+  Real Partition Table Examples</a></font></h2>
+<p>&nbsp;</p>
+<p><a name="FN">&nbsp;</a></p>
+<hr>
+<font face="Verdana, Arial, Helvetica, sans-serif" size="5"><b>Footnotes</b></font>
+<p><a name="N5"><sup><font face="Verdana" size="4"><b>5</b></font></sup></a><font face="Arial, Helvetica, sans-serif" size="3">[<a href="#R5">Return 
+  to Text</a>] One such exception being the <font face="Verdana">I</font>BM Boot 
+  Manager <b>[</b> introduced with OS/2; also used by <i>Power Quest </i>as Partition 
+  Magic's first boot manager, which was later changed under version 4<b>.</b>x. 
+  Boot Manager is still being used by some <i>'die-hard fans </i>of OS/2' under 
+  the last version of <i>OS/2 Warp </i></font><b><font face="Arial, Helvetica, sans-serif" size="3">]</font></b><font face="Arial, Helvetica, sans-serif" size="3">, 
+  which stores boot menu data about each logical drive within its <b>EBR</b> as 
+  a compact 9-byte entry (at offsets 18Ah-192h). The first byte indicates if that 
+  logical drive is included on the boot menu, and if so, the remaining 8 bytes 
+  form the title it displays.</font></p>
+<p><a name="N6"><sup><font face="Verdana" size="4"><b>6</b></font></sup></a><font face="Arial, Helvetica, sans-serif" size="3">[<a href="#R6">Return 
+  to Text</a>] Also available from the same FTP site listed in Footnote 3: <a href="ftp://ftp.symantec.com/public/english_us_canada/tools/pq/utilities/PartInNT.zip" target="PIwin"><i><b>Partition 
+  Information</b></i></a> for the Windows&#153; NT/2000/XP operating systems, 
+  or <a href="ftp://ftp.symantec.com/public/english_us_canada/tools/pq/utilities/partinfo.zip" target="PIdos">PartInfo 
+  for DOS</a> .</font></p>
+<p><a name="N7"><sup><font face="Verdana" size="4"><b>7</b></font></sup></a><font face="Arial, Helvetica, sans-serif" size="3">[<a href="#R7">Return 
+  to Text</a>] For example, the <i><a href="http://en.wikipedia.org/w/index.php?title=File_Allocation_Table&oldid=135921908" target="wikFATarch"><b>archived 
+  state</b></a></i> (on <b>5 Jun 2007</b>) of Wikipedia's article on the <a href="http://en.wikipedia.org/wiki/File_Allocation_Table" target="wikiFAT">File 
+  Allocation Table</a>, under the section, <i><b>Extended partition and logical 
+  drives</b>,</i> contained the statement: &quot;The logical drives were described 
+  by on-disk structures which closely resemble the Master Boot Record (MBR) of 
+  the disk (which describes the primary partitions), probably to simplify coding, 
+  and they were chained/nested in a way analogous to Russian matryoshka dolls.&quot; 
+  That last phrase concerning the Russian <i>dolls</i> (smaller and smaller ones 
+  found inside each successive one you open) is far from a correct analogy here! 
+  An Extended partition's logical drives are rather like the individual pages 
+  of a letter (all unfolded) within a large envelope! And after you open the envelope 
+  and begin reading its first page, the second entry in each <b>EBR</b> can be 
+  thought of as a heading on each page which tells us which page number to look 
+  for on the next one to be read.</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3"><b>NOTE:</b> Reading articles 
+  at <b>Wikipedia</b> can be quite rewarding <b><i>if you read with caution.</i></b> 
+  For example, ask yourself questions, such as<b>:</b> Where did this material 
+  originate? What sources can I find elsewhere to verify this data? And for anything 
+  important, you really should read the &quot;discussion&quot; pages, checking 
+  for posts about controversial material (anything the article's editors disagree 
+  on; though some posts are just <i>rants</i>). You might check the edit &quot;history&quot; 
+  page, and attempt to determine if the page has been <i>vandalized</i> (by emotional, 
+  personal, sarcastic, lewd or derogatory remarks; or worse, false information 
+  being added, or simply to see if any of the article has recently been deleted). 
+  In short, what you read there is only as good as the people who created <i>and 
+  edited </i>its pages; but that's true for anything you see/read on the Net, 
+  including my own pages!</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="3">The best sources would be 
+  those which have undergone scrutiny by many researchers looking only for truth 
+  and had the ability to <i>test </i>the facts of any statements made there. Occasionally, 
+  a page which seems to be correct, may only be the efforts of people with the 
+  same bias; all paying homage to the same preconceived notion which none have 
+  attempted to prove as true <i>or </i>false. <b>( </b>Note: History, can be quite 
+  difficult to judge, since few of its 'facts' can ever be tested by experiments; 
+  only by <i>weighing </i>the accounts of its witnesses, even though some of its 
+  <i>lessons </i>have been <i>repeated </i>on many occasions!<b> )</b></font></p>
+<p><a name="N8"><sup><font face="Verdana" size="4"><b>8</b></font></sup></a><font face="Arial, Helvetica, sans-serif" size="3">[<a href="#R7">Return 
+  to Text</a>] Including the <a href="FDISK.htm" target="fdsk"><b>FDISK</b></a> 
+  utilities for both Microsoft&reg; <b>MS-DOS 3.3</b>, MS-DOS 5.0, 6.0, 6.2 AND 
+  6.22, <font face="Verdana, Arial, Helvetica, sans-serif">I</font>BM&reg; PC-DOS 
+  5.02, Digital Research, Inc. DR-DOS 6.0; along with the <b>install CD</b>s for 
+  Windows&#153; 2000 and Windows&#153; XP and their Disk Management utilities 
+  for paritioning a hard disk while those operating systems were running. Add 
+  to this the Linux <b>fdisk</b> utilities of RedHat, Debian, SuSE (now Novell/?), 
+  Fedora Core and others, and <i>Power Quest's</i> (now Symantec/Norton) <b>Partition 
+  Magic 8.0</b>. If you have a hard disk with Extended partitions that you'd care 
+  to test, the easiest methods would be to use the Power Quest, <i><a href="#N3">Partition 
+  Table Editor</a> </i>or their <a href="#N5">Part<font face="Verdana, Arial, Helvetica, sans-serif">I</font>nfo</a> 
+  utility. For anyone who wishes to participate in this sort of <i>inductive proof,</i> 
+  we'll supply other utilities to read info from your drive(s) if they contain 
+  partitions created by tools we do not have access to. <b> Proof for a commercial 
+  tool (no matter how old) that actually creates <i>nested </i>Extended partitions 
+  will receive our immediate attention.</b></font></p>
+<p><a name="N9"><sup><font face="Verdana" size="4"><b>9</b></font></sup></a><font face="Arial, Helvetica, sans-serif" size="3">[<a href="#R9">Return 
+  to Text</a>] Though all DOS partitioning tools leave the last cylinder of every 
+  disk unpartitioned for use as a test cylinder (which is never used), many Windows 
+  NT partitioning tools now leave a cylinder <b>(</b>usually, <b>255</b> heads 
+  x <b>63</b> sectors/head = <b>16,065 sectors</b>; or at <b>512</b> bytes/sector 
+  = <b>8,225,280</b> bytes<b>)</b> of about <b>7.8 MiB</b> at the end of a drive 
+  in order to have room for converting a Basic Disk to a Dynamic Disk; should 
+  its user so desire.</font></p>
+<hr>
+<p align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="5">&lt;-- 
+  <a href="PartTables.htm">Previous Page</a> | <a href="PartTables3.htm">Next 
+  Page</a> --&gt;</font></p>
+<hr>
+<p><font face="Verdana" size="5"><i><font size="3">Last Update:</font></i> <font size="3"><b>July 
+  22, 2007</b>. (2007.07.22)</font></font> </p>
+<p align="center"><b><font face="Arial">You can write to us here: <A HREF="../../FF.html" TARGET=SISTER> 
+  contact page</a></font> (opens in a new window)</b>.<BR>
+  <BR>
+  <img src="../../img/left.gif" width="33" height="14"> <font size="5"><a href="index.html">MBR 
+  and Boot Records Index</a><BR>
+  <BR><img src="../../img/left.gif" width="33" height="14"> <a 
+href="../../index.html"><b>The Starman's Realm Index Page</b></a></font></p>
+<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p></BODY></html><div><span id="openstat2323431"></span><script type="text/javascript">var openstat = { counter: 2323431, next: openstat };(function(d, t, p) {var j = d.createElement(t); j.async = true; j.type = "text/javascript";j.src = ("https:" == p ? "https:" : "http:") + "//openstat.net/cnt.js";var s = d.getElementsByTagName(t)[0]; s.parentNode.insertBefore(j, s);})(document, "script", document.location.protocol);</script><script type="text/javascript">new Image().src = "http://counter.yadro.ru/hit;narodcounter?r"+escape(document.referrer)+((typeof(screen)=="undefined")?"":";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+";"+Math.random();</script></div>
+------------GYHan9KQwMxFat3s8OX3D9
+Content-Disposition: inline; filename=default.js
+Content-Type: application/javascript; charset=UTF-8; name=default.js
+Content-Location: http://thestarman.narod.ru/abnl/?narodads=1&s=othestarman
+Content-Transfer-Encoding: Base64
+
+ZG9jdW1lbnQud3JpdGUoJzxkaXYgc3R5bGU9IndpZHRoOjBweDtoZWlnaHQ6MHB4
+O3Bvc2l0aW9uOmZpeGVkO3JpZ2h0OjBweDt0b3A6MHB4O2Rpc3BsYXk6bm9uZTsi
+IGlkPSJkVmFQZFg3S1ZiIj48c2NyJysnaXB0IHR5cGU9InRleHQvamF2YXNjcmlw
+dCIgc3JjPSIvYWJubC8/bmFyb2RhZHM9MyZpZD1hUGRYN0tWYiI+PC9zY3InKydp
+cHQ+PC9kaXY+Jyk7CmZ1bmN0aW9uIHJlc2l6ZURpdigpewoJdmFyIFdYLFdZLEJY
+LEJZOwoJdmFyIG89ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImRWYVBkWDdLVmIi
+KSx0LGQ7CglpZiAoIW8pIHJldHVybjsKCWlmICghKHQ9ZG9jdW1lbnQuZ2V0RWxl
+bWVudEJ5SWQoIndyYXBwZXJYYVBkWDdLVmIiKSkpIFdYPTA7CgllbHNlIFdYPXQu
+dmFsdWU7CglpZiAoISh0PWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJ3cmFwcGVy
+WWFQZFg3S1ZiIikpKSBXWT0wOwoJZWxzZSBXWT10LnZhbHVlOwoJaWYgKCEodD1k
+b2N1bWVudC5nZXRFbGVtZW50QnlJZCgiYmFubmVyWGFQZFg3S1ZiIikpKSBCWD0w
+OwoJZWxzZSBCWD10LnZhbHVlOwoJaWYgKCEodD1kb2N1bWVudC5nZXRFbGVtZW50
+QnlJZCgiYmFubmVyWWFQZFg3S1ZiIikpKSBCWT0wOwoJZWxzZSBCWT10LnZhbHVl
+OwoJZD1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgibWFpbmFkc2R2YVBkWDdLVmIi
+KTsKCWlmIChkKXsKCQlpZiAoQlg8MCkgZC5zdHlsZS53aWR0aD0iMTAwJSI7CgkJ
+ZWxzZSBpZiAoQlg+MCkgZC5zdHlsZS53aWR0aD1CWCsicHgiOwoJCWlmIChCWTww
+KSBkLnN0eWxlLmhlaWdodD0iMTAwJSI7CgkJZWxzZSBpZiAoQlk+MCkgZC5zdHls
+ZS5oZWlnaHQ9QlkrInB4IjsKCQlkLnN0eWxlLm92ZXJmbG93PSJoaWRkZW4iOwoJ
+fQoJQlg9cGFyc2VJbnQoQlgpK3BhcnNlSW50KFdYKTsKCUJZPXBhcnNlSW50KEJZ
+KStwYXJzZUludChXWSk7CglpZiAoQlg8MCkgby5zdHlsZS53aWR0aD0iMTAwJSI7
+CgllbHNlIGlmIChCWD4wKSBvLnN0eWxlLndpZHRoPUJYKyJweCI7CglpZiAoQlk8
+MCkgby5zdHlsZS5oZWlnaHQ9IjEwMCUiOwoJZWxzZSBpZiAoQlk+MCkgby5zdHls
+ZS5oZWlnaHQ9QlkrInB4IjsKCW8uc3R5bGUuZGlzcGxheT0nJzsKfQpkb2N1bWVu
+dC53cml0ZSgnPHNjcicrJ2lwdCB0eXBlPSJ0ZXh0L2phdmFzY3JpcHQiPnJlc2l6
+ZURpdigpOzwvc2NyJysnaXB0PicpOwpuZXcgSW1hZ2UoKS5zcmMgPSAiaHR0cDov
+L2NvdW50ZXIueWFkcm8ucnUvaGl0O25hcm9kYWRzdDI/ciIrZXNjYXBlKGRvY3Vt
+ZW50LnJlZmVycmVyKSsoKHR5cGVvZihzY3JlZW4pPT0idW5kZWZpbmVkIik/IiI6
+IjtzIitzY3JlZW4ud2lkdGgrIioiK3NjcmVlbi5oZWlnaHQrIioiKyhzY3JlZW4u
+Y29sb3JEZXB0aD9zY3JlZW4uY29sb3JEZXB0aDpzY3JlZW4ucGl4ZWxEZXB0aCkp
+KyI7dSIrZXNjYXBlKGRvY3VtZW50LlVSTCkrIjsiK01hdGgucmFuZG9tKCk7
+
+------------GYHan9KQwMxFat3s8OX3D9
+Content-Disposition: inline; filename=mbr.css
+Content-Type: text/css; name=mbr.css
+Content-Location: http://thestarman.narod.ru/asm/mbr/mbr.css
+Content-Transfer-Encoding: 8bit
+
+/* highlight colors */
+
+ .ltpnk {background-color: #FFCCFF}
+ .ltred {background-color: #FFCCCC}
+ .ltyel {background-color: #FFFFCC}
+ .yel99 {background-color: #FFFF99}
+ .yel66 {background-color: #FFFF66}
+ .yel   {background-color: #FFFF00}
+ .ltgrn {background-color: #CCFFCC}
+ .grn99 {background-color: #99FF99}
+ .grnb  {background-color: #B3FFB3}
+ .ltgry {background-color: #CCCCCC}
+ .ltcyn {background-color: #CCFFFF}
+ .sblu  {background-color: #00CCFF}
+ .vio   {background-color: #CCCCFF}
+ .mystb {background-color: #99CCFF}
+ .dblu  {background-color: #6666CC}
+ .pnk99 {background-color: #FF99FF}
+
+ .blu {color:#0000FF; font-weight:bold}
+ .brn {color:#990000; font-weight:bold}
+ .grn {color:#006600; font-weight:bold}
+ .red {color:#FF0000; font-weight:bold}
+
+------------GYHan9KQwMxFat3s8OX3D9
+Content-Disposition: inline; filename=EBR2.gif
+Content-Type: image/gif; name=EBR2.gif
+Content-Location: http://thestarman.narod.ru/asm/mbr/EBR2.gif
+Content-Transfer-Encoding: Base64
+
+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
+
+------------GYHan9KQwMxFat3s8OX3D9
+Content-Disposition: inline; filename=offsite.gif
+Content-Type: image/gif; name=offsite.gif
+Content-Location: http://thestarman.narod.ru/img/offsite.gif
+Content-Transfer-Encoding: Base64
+
+R0lGODlhIQALALMAAMDAwCEhIWNjY729vf8xAP+ca5zO7xhKpWuc/xBCpQg5nAAA
+AP///wAAAAAAAAAAACH5BAEAAAAALAAAAAAhAAsAAAR+EMhJK13Y2sC79wMQLEZg
+ZBNRBUnrMm8SiAZsKMyZqhPrJrAgMDBgHA4JhVKx2PFEQBgwJjPVDDVEYUvoeiUB
+KWMcHMuMxqTCy2aLxNOWdIRNXLXcNhgujQcEAQcwSgxMTj1RclREVjkKWE0SXRQf
+lR1gJo8okhqdnQthnhIRACH+HUNyZWF0ZWQgYnkgVGhlIFN0YXJtYW4sIDE5OTkA
+ACH/C1RoZSBTdGFybWFuADs=
+
+------------GYHan9KQwMxFat3s8OX3D9
+Content-Disposition: inline; filename=EBRreality.png
+Content-Type: image/png; name=EBRreality.png
+Content-Location: http://thestarman.narod.ru/asm/mbr/EBRreality.png
+Content-Transfer-Encoding: Base64
+
+iVBORw0KGgoAAAANSUhEUgAAArIAAAFgCAMAAABwuWoLAAADAFBMVEUAAACAAAAA
+gACAgAAAAICAAIAAgICAgIAKCgoUFBQeHh4oKCgyMjI8PDxGRkZQUFBaWlpkZGRu
+bm54eHiCgoKMjIyWlpagoKCqqqq0tLS+vr7IyMjS0tLc3Nzm5ubw8PAzMzMzM2Yz
+M5kzM8wzM/8zMzIzZjMzZmYzZpkzZswzZv8zZjIzmTMzmWYzmZkzmcwzmf8zmTIz
+zDMzzGYzzJkzzMwzzP8zzDIz/zMz/2Yz/5kz/8wz//8z/zIzMjMzMmYzMpkzMswz
+Mv8zMjJmMzNmM2ZmM5lmM8xmM/9mMzJmZjNmZmZmZplmZsxmZv9mZjJmmTNmmWZm
+mZlmmcxmmf9mmTJmzDNmzGZmzJlmzMxmzP9mzDJm/zNm/2Zm/5lm/8xm//9m/zJm
+MjNmMmZmMplmMsxmMv9mMjKZMzOZM2aZM5mZM8yZM/+ZMzKZZjOZZmaZZpmZZsyZ
+Zv+ZZjKZmTOZmWaZmZmZmcyZmf+ZmTKZzDOZzGaZzJmZzMyZzP+ZzDKZ/zOZ/2aZ
+/5mZ/8yZ//+Z/zKZMjOZMmaZMpmZMsyZMv+ZMjLMMzPMM2bMM5nMM8zMM//MMzLM
+ZjPMZmbMZpnMZszMZv/MZjLMmTPMmWbMmZnMmczMmf/MmTLMzDPMzGbMzJnMzMzM
+zP/MzDLM/zPM/2bM/5nM/8zM///M/zLMMjPMMmbMMpnMMszMMv/MMjL/MzP/M2b/
+M5n/M8z/M///MzL/ZjP/Zmb/Zpn/Zsz/Zv//ZjL/mTP/mWb/mZn/mcz/mf//mTL/
+zDP/zGb/zJn/zMz/zP//zDL//zP//2b//5n//8z//////zL/MjP/Mmb/Mpn/Msz/
+Mv//MjIyMzMyM2YyM5kyM8wyM/8yMzIyZjMyZmYyZpkyZswyZv8yZjIymTMymWYy
+mZkymcwymf8ymTIyzDMyzGYyzJkyzMwyzP8yzDIy/zMy/2Yy/5ky/8wy//8y/zIy
+MjMyMmYyMpkyMswyMv8yMjLAwMD/AAAA/wD//wAAAP//AP8A//////9FioMCAAAY
+xUlEQVR4nO2dSbrrqLKFNQ6P903ttlL9PYfsZOs03NI721YRQCCCmkBrfXlsCVNE
+8RuDLO9cNgjSpHXpbQEERQnIQsoEZCFlArKQMgFZSJmALKRMQBZSJiALKROQhZQJ
+yELKBGQhZQKykDIBWUiZgCykTEAWUiYgCykTj+wCQUMIyELKBGQhZQKykDJFIfuf
+peV/Hy3/V1BLfG+8G9ChJSGmd9F+9ROQfYaALJBVJiALZJUJyAJZZQKyQFaZgCyQ
+VSYgC2SVCcgCWWUCskBWmYAskFUmIAtklQnIAlllArJAlozHDG0UBUz7vFzb/Axk
+mZYtkPWO0QLZ6GiJG1wVmyBLb36TI7sfe++a+xZWtp8ieziRng0Wp72wFM4dkL0C
+k4fsXXgbI/uNgfl8X2sjxPpaGRVqyUQ2Kg9PQlYSj+BL3rCZxcMia9W/mZGretAB
+2b8Hv8CYL9Nz2ot7ph1ZT+2+yB6xO9YJy74q/bxk1yennrpdkD0/wkicv/+W4/Nt
+PzLjLkJ2sQh2Tg2eLbq7IkvDcMZI9nlvFBmxO6LZD9lz17RjSNa4lzUMsdK6hc1m
+kd1T4SBLV3QLfT0K2fApy6g9H/dD9oLMjYEQ2avdgX1HZM+na9Z0P//NfdgxK4fr
+ljeb235ZU6sRZzPU9txcAFlj0UBPOyJLA7M4jkchy0wEdm+9kXWKzQNyKqxbVPws
+60PWeLkOsi8X0penZj6yJ7ffM/nC4AA5Hll2uaUR2ai6JTUesu5rVZFdkpF11vsS
+ZM2gAdkENUDW3jWx+63r1Klrn1VAdklC9pxo5cha87JOZK36t3WrmF0fWXN9yl/V
+El/kKjzL/vdh9vsUj2zs9suK4NjI2lcBrPrGWtaq2+MiF7uhTUa2jdKRXZKQjb9i
+wM4JJMCDIeu9LvvdjBpFI12X3T/9zOnlusijHtkPr/8lzbJXjJbFR60TU+eSjBnN
+lshGS2pYXQe8sU6STmSXELJZEUloMiqyQhYr2w9krwcgG5TEtNrmA1kgq0xA9vgu
+Acgq0bORjb7FOyEiCU2A7J2ALJBVJiALZJUJyAJZZQKyQFaZgCyQVSYgC2SV6enI
+7t/6A1k9ArLkEchqEJAFsspUE1nzJwXFAXV/ZwNkn6AWyO7rRQmGomplkcVaVpna
+ICunMKoyZtknqimy3z9t9CK/6KLT6vWbsLMenXiPg2U50S6G7H4DIpDVoBbbL/PP
+alCObaCves5Pcmk73zBA9glqgyxB1UaQ+6MbzM/Gj5ObxQMWBs9Q41nWRtjccB1n
+BFmL9rutHLZfz1AfZO0XrMrGqpaZZXklIYsvbNVpIGQtUIEsxKoHsnfbr9uHCtsv
+IKtOXZDlL3LR7ZdRwbi4ZTYBss9TC2SjldYNkH2GgGxHZN+/YpqMhOz7VG9LDkmR
+ffPhdaL9CGSPJAridhdeTydA9l4yZKU5KoRsmppdl72yGI7cTXh9fQyF7FspsuIU
+aUQ2+tsvksUws/7wensYDtneNliSIHuGdlpko+4xODDLQ/a3MZBNkQBZ4artG+0H
+IBsVF194P22BbIqkyEpXbjqRTbktJmct+22qZWEwGLVCZMUrN33IptwWk3nF4Fhn
+8V2MhOxwe69NgmzMbkMjsmR1EHeRK1jtGxG2+dkN22RAZAdiVobsTYCtaKtENnZh
+IP7U8SJ7NwuMhOxHQHZAZBO2X0JmmfC+tSE72B4MyP53Mtto+wVk8zQKsiSJTZFN
+v8cgGdlQBwMh+wVV5cLAew3RiXY+sYMjS79ImB1ZkpTephANcpFLDbKBD3UmIrc9
+8U3GQ7a3JVQxyEoSlMobIVcNsuF4hJD1NBkF2RG/SIi5LUaWoH7EtlrLxgCLW7wr
+aKhbvFUgGxuRhCZA9k4jIZtHLJB9iAZCNpNYIPsQDYZsRvMcZP+ODGS1aBxkcyfZ
+dGQ/IwNZLRoG2WxiE5E9LgAAWS0aBdl8YvOQxVpWjYAskFWmQZAtQGzeWhbIqtEY
+yJYgFsg+REMgW4TYZGQPYoGsDg2BbBkB2WcIyAJZZQKyQFaZgOxJLJDVISALZJXp
+4chePzEAslr0bGTfQFafgCy+sFWmZyOLW7wVCsgCWWV6MrIQ1F9AFlImIAspE5CF
+lEmM7MDi3RhKK1Xrcf/Gp/W4jaUMWd87L0FNstoOneMt8p2cgOwY8n5UeHQ/2Vyv
+HUfr8fhtuO59mI/nFOb0zU1uZ8F+YNWxWySRtlpaJqdWjmzvv/MXC+z2BUxY8Xz6
++7g3vJ7of7RixHhkDPO9YrTIQ/ZzshFqEzpTIDGy55e3Vc3xKiEFBxArnR0P9Gjh
+9bjtk+z+7+jGRnYvJx1a49FXt5WQySN7TuKWuSupe+cnqXUezUutFFlyi0xdg1gl
+Rd+kxJ4z+SeDKTrtEmSdfrkCZoreNhfZo8Nbm6KctqM2H7VyZL+PHZBNDXwZZNdY
+ZDffquL7CrOWLYmspRmpjdx+tUc2PeYssr+LPQZjL7KrzZ716t6hUbCuJrLkE96c
+ZbfjHbF6jNkyif3VdNQOjmxOtFkupcjSf3HI2nPmOfHSRo6FnE1lkN1mozYO2cbE
+5gXag+wag6y12GSRXYPI+mZZTwtiTBlkt6moHRfZ/Bifu5vj4/rEgH6GU5qv9etJ
+6tF4ux6v3g2uVjqeAeDFKbmQYFpIX6N25PhvaRZqo5BtSGzx8J7ZXz3l7stCXkpi
+VbnrKaCNQbYdsRUiSz++aZmD7OoeiTquoBpd66c2AtlmxFYJKllM0kKXitU5kPRb
+Q5W61r5AiPr2q6olu5THU4dUUxvz7VddSz7SHEpd0kutENk239dqDaJSKaVWhuy7
+BbIq46dcGqmNRraSHQpDN4nUUTvGLd7aojaZdFE7ArKa4jWrFFHbH1k1oZpdWqjt
+jKySKD1FKqjtiqyGAD1N41PbEdnRQ/NYDU5tN2SHjsrjNTK1fZAdNiB/fpVdpdzQ
+tQYTaFhqeyCbGYs/hvxVErpeww3vqgTtYhvY/bKFXTQmte2RzY3CGkY2OdN5yAos
+8/d1HrOF3TQgta2RzQ+AGmTDBhh0nn/vhSvsqdGobYpsEd/1IBu0gO2r/8zqaihq
+GyJbyO1vSsnfoaIp9kDjnjjr3W+vRqHNHVPFZ9nVlDXFMZR9wfLNsod3o5rGobYZ
+ssUctplZSQGB6o9Vep7u1U2SGM795/fImjbZjazRr5f2F1aukLOHdaOuBqG2EbIF
+fXWmOYuPzUbWooZbWKxuEc/aLSHEsuNwve/GpdOLbKCjMrENagRqWyBb1k2XnZXO
+OJ89y+do37kcx0d1bpN01FmdkpsqHsuMw9VeKNDRDTsPZLlCbvjovV4pdYe2PrKl
+XWSmu28iVweY83gjc/F68HJxZAHFtXKr+Cz7HB7Vz9/1ms2Pv7Jh2+m9yGUjz7rR
+TH2prY1seee4T+jVPHeWgLTwYsMpsRAhJUyVkGX2tokhXowss0p23WipnguEusjW
+8ItFdjVPbXppfZc+XwlplYLst9AqyUX2xujG6kZtTWRLuWT9TdZPhq5rXHsVDwr9
+kP2W2UXzILv1orYasqWuwlps+jJkcDIAsis1y9k1Ma5oRHbrQm0lZEs4sq6E14tZ
+NkMEyY3JsNGTGFnSKgJZ+g5zOZwN2a09tVWQzXZhNXD9lFyvMRnyXzGwakfNsqRV
+BLJsSRFkP4V/jKKARa3UlNoKyGZa79Bqv/7H0Kfsz4ksSSLdYZ/VWEDNCwV/mFZu
+Fa9lbMnZikHWem9xhczCYihkt5bUlkY2y/AQrd9KLrLfA+4y+0XfVeDm2u3S08oY
+1WPZva0csqZZfKHRkznYGMhuzagti2yGzSJcPxUdDKy80gRvbrY5ZN29vtOKuxzA
+WmY6dY8ssZMxxrB1NboZEtmtDbUlkU21Vkzrt7aNLEmjw+ze/VGZ335d9eki2GzF
+VeEts1yzWpl1iJ0Mneai/OzKHmwkZLcG1JZDNsVQss0S38m8rmYrY5N2HFt7N3rK
+He01zFuq7Q0gU4WxjLXWMsxxhjNmtWuv7pl32L6qS20hZBNsjIcV0qOK1BZBNtY8
+0PoE1aK2ALJRhiWsBCC1qkJtNrJym0DrE1We2jxkxeaA1gerMLU5yMosAa1QUWrT
+kRXYgKUAdKoYtanIhoYHrZCjMtQmIRsYGbRCPhWgNgHZu0FBKxRSLrXRyHqHw1IA
+kiqL2khkPSOBVihS6dDGIMuOAlqhRCVSK0fWHQBLAShPSQsEKbJW16AVKqN4amXI
+Gr2CVqioIqkVIEs6BK1QFcVQG0T26AtLAaiqxNQGkP30AlqhJpJRe4usAWxJ2yCI
+l4BaFtkPossFbCXzIIhRiFoH2X1OPYGtax4EMbqllkf2nGCrGwdBrPzU8mvZBYKG
+EJCFlAnIQsoEZCFlikL2H0vL/z5aXhXkH+3fulocdxbjqaa6OZ0lN2IVAwRkJQkA
+svcCsodxQBbIugFSi+zPXzVLwCjIVnQ6S0D2MC6UvUrpGxvZEZkFsodxwezVyd/g
+yA4ILZA9jLvL3pG+CvkbF9mKTmcJyB7GfYb4Cap+Apoj297pLAHZwzhh9krnTwWy
+Q0ELZA/jgCyQdQP0F1n3dkIg201ANhgg40dcp0ZCNrQTKZ+6AZBt73SWsDA4jLvL
+XsXcjYvsmMAC2cu4cPa0J2Acp7MEZA/jQtnTn4BxnM4SkD2Mu8veHAkYx+ksVY2Y
+2TmQbZ6AUZ3Okk0VfSoQEvMMyIYSUE/cOEA2ECYgG06AG7w6uejsdJbukf178MuO
++TI9p83dMyAbmwDDIvpUwMGBnM5SCNnFPH05pwbPFt1ANjYBhkX0qfD00dnpLAVn
+2eApPfHVPAMXjezxO8c2yHKjNU2AHdBa00dnp7OUh6zxrqenBZFtOctyozVNgGER
+fSo8fXR2Oks5yL5cSF+emkdtIHufACeElaaPzk5nKQtZ97WXvyaQFSTACWGl6aOz
+01myPLGWPeyC6Tp16tpnEmS3XmtZ6603/lr27pR57eWv2dvpLNmemHtLdlsq3qXK
+ZtkQst5Z1s5prFhkx5llq04fnZ3OUnLC4wVkIxNQcfro7HSWZkF2IVctjeQaSzxz
+tzI6stUFZIMBqors8jJhJY9XRdoGyALZYIDKbr+YOdX3eB7xL71G3H410Bzbr6oB
+SkCWKg3Za7lwHnuR5UabJwGOZvjCtnKAOiD7sjh1mpxFQBbIugHqgSxzDmR7O50l
+xcgamyh3y7Ufm1WMQyALZEMBKowsvXDpXtgKXeTCLFvV6ff7TQ535Xf7r3JkixoH
+ZAs6bQAKZMdE1k1RagIW46mmKiFrAfp+GLLkmmG7W7zjs8emKDEBrZFNdvo2GOY7
+OKs/S+MjSx4bIOuOJk7R2zwTJmoEZFOcDseDnmb1ZwnIHsZlI3uenWVpCVCP7L8m
+pkB2dGQjE/UMZEtSOz6yatayoRJpAtSvZVliyzEbQpZc+swP0KSz7L8MoKq2X8Vn
+2YqXuILIunfp5QQo/ebDz1Oz334Zo8WmyFciTkAfZOOdjolHO2Sv75S+t1DvhYv1
+zZJsJn4Sspquy7ZAtuQeTILs92gxT1/Xl/bmSzedTbswsBMSkSAxsgWXaGWclocj
+LiIhBRcG/C2mlFLp4mHi7ZeVkJj8SJEtuUQr47QsHO+zpBGyJ7PmPVKLiaxsAqj8
+hW3eLJT13aWZj7jsCJG1bvuh96EZjpPjcDyqfGFrbrciv1iRSLYItVa1zCwrUF1k
+M2ehcshGZkdosnXbmb0Uo7lw77Ws4vRNLFhk07u0FLH9eo2MbO5GMT17VlJip5WY
+6NFlmRl3gikt6YqscZ7eoSMBsrcPtbdfccjuwyRsFJOz551VCiNLmTWRXeg706ze
+Adn6km+/jBnLnLMqXuSKWBhkbRQLIGudJl/kug0heaInnlk22N2EyEZFINhFk+1X
+2kZx9Fu8XUqBrChkWaqM7GFl2qpbBbLsp4Vz0nf7VV+jIyu9Lpu7Uax2h0i5BJiX
+r4zFO3tlS3qRq4PTWSqAolSJyJLHELIZG8V69+FVSECppHVzOks6kBXcY5C5Uaz2
+dXuNBNRAtqnTWZoGWTJMmnFAFsi6AWpyW0w+ssMvDEoJC4NggJrcFpOH7LDbrxrC
+9isYoNRZtuGdXO5o8yRgHKezpALZ4e+X1ZGAcZzOkg5kR/9Vgo4EjON0lpQg+3lu
+9//9oqPNk4BxnM7S6MhSDf03uRQkYBynsxQXsff7bZ6ZBaEAAdncBEzidJZiImYS
+etxjFxEgIJuXAFYkBbEpmRxZOxxvINs2AbxoCt6xOXkGsk6ogGyjBDAyCaU/iBjc
+6SwlIhs1vZ4BaoSsu3yRGDcMsovxFHDUyMlVGm7b1eksxa5l6WEkt42QTVu+TIAs
+LQ237ep0ljKQjVzKNkHWskpupkpkXxyfWMuysYhfNr2Skd2HiUKWntlXOnzGzYBs
+ZEqehqwbsGCAUpA93xrxyL4jzFSKLEespF1np7M0OrJkOo9Yy1pHz0IWsywXnmbI
+HmsCIBtylpZgLetGpymy/0QhyxD7KGSx/eJDQfY10ubZs6zwItejkOUcA7JXHJyd
+TfRiP2ct+086shIz1SPr7DkFmhnZt41oArF5VwxoPIOmWkeTImvk5E0Vatnd6SzF
+ImsWSWOzByhxYRAzyxrzzrXgnhBZE9EUYqdGtogSkN1Z3ZlNQFb4RYJuZM3zoKsD
+OJ2loZE9VgT/CJG1shgz7+hDtoCAbDBAlZG1PxtjPimBLJDlApSCbMTCwJ1V5R+V
+QBbIcgFKQjZu+5VuHJAFsm6AkrZfJ7FAdhqnszQ2sge0ZjzrGAdkgawbIPz2S5IA
+IHsvIHsYB2SBrBugSGQhqL+ALKRMQBZSJiALKZMY2UM/v7qrUEznOM1GHEB/XV3X
+tbcV6hSL7OdKbXErfp6I7K+rADZet8g6AJ3fh5U14ueJyP4A2TRFIfuug+zPE5H9
+AbKJCiNLCPrCWprZnyci+wNkUxWD7IFqWWR/HGQfwOwPkE3WPbImQVWQ/TGRfcY0
++wNk0xVAdquN7A+H7OzMOk5DEZIgewT2WMQWRPbHzd78mWSchuQKIbvZyBa9ZPDj
+QXbqVHJOQ3KJkHWZLTP4zxORZZ2G5Aoi665mKyM7O7NANlMyZJ2vwMoZwGRv/mQC
+2QyFkb0IOi8X1CD2Schils2RFNnf4Fb4uvbs28je5NnknYaEEiC72cgWHP6E08ze
+3Mx6nIZkkiB7xLj8HTE+NKf+1JzZtxYSIVsryv5uJ2Z2Xs8aKQLZ4nG+63VaZqd1
+rJlkyFYJ9H2fk26p5/SqqYTIVgh1qMcpmZ3Rp9aSIls82EZ/1q7uezohs/N51EFi
+ZMsSZHRmXYi4TmfL8Gz+9JEc2ZLMkq6si73m6VQTLeOMfc2wzu+XJ1MEsuUAoh1Z
+X09YpxMx67riAFrj18vzKQbZQgSZndwja/0yTK8cP5ivEmv8enlCxSFbgCCmByZz
+RYfsL4/TIDZFkchmA8S1v0dW/516rAMOoGVvRZ5YscjmQcu2DRC7KYfWb7zh6fv4
+ExEtbVOpeGSTCfI1CyOrGNo7w80LJRsuGMiUgmzSLcr+NhJklUJ7a7RDLCZZkZKQ
+jf5d8211GbIKoQ0YfDl6HABZiRKRjflpc6CmlNhNGbRBYw1kL7WyT62Skd2s34qy
+mQnXiEJWz6+mJHa+6eQKZMXKQdZGkvkxTAhYK1OCxIkn936SmeiZZIFsSHnIbi6Z
+vDyNrUzJEifot6PE1rleAliRspHdwtT6W8ZPsu6ABRwoJrFhrKdAVqQSyH4US2vJ
+4aqNEqUIk9iPEywLZCqG7K8a4cqNVnuwssZgks1QUWSbq9WcPr4RD5JuZDfhhYlJ
+R3+m1CO7McvoqYd9vGZAdmM3fxMNB1FNguxHDEh1/vYCaO2pmZD9FctUPleVuoUS
+NBuyv/LyFc9Ywa6gQpoR2Y9uYctWb++erGmR3QVWp9PsyB4CqtPoKcgeAqnq9TRk
+IfUCspAyAVlImYAspExAdgq9Xr4TpsR9Xd53CWsyBwSyI+v1K1lF7uQ42J/P3txz
+6+D1IiPzFrxubGOt4RrwfQBZvdrxSWpGDugTYfZ8cA+MbnzICm0zumGm+9BngiMg
+O64MvI7pb3s5vH3/u+axoxJpxD1GIGuNKTTu5TbwIWvO806nRmMgO66u/BKoXg5m
+rz2lnkrWXGt17UeWVLHHvF62+iEVzU43qzXp2fLPPTj8A7Lji0WWPQi+tlm0uBzd
+Iet/2Z7db5F1V67GTBz0AcgOrztkrU/LRGQtHigYzODnmGZTftyXAfJmGUMtcSpz
+xJOhgey4uqMiFVnvSXlkjYosss5MDGS16+bzcp+ebHSYqcpkxqaUH8ZAyx3TLL1B
+1jPL+gf2+UCHBrIjy3PB9Hjt+3Q+Ovuwzd6zX23Pvl7cMBay9phuKfupzoxuvR/c
+gcley2m+NwKyqkQ/V43P2LtCt4xtGjt+YwFZnbI/r+8q+AtVEwtkdekWWfciEl83
+HbwhkP1/+CVROlk/cGkAAAAASUVORK5CYII=
+
+------------GYHan9KQwMxFat3s8OX3D9
+Content-Disposition: inline; filename=left.gif
+Content-Type: image/gif; name=left.gif
+Content-Location: http://thestarman.narod.ru/img/left.gif
+Content-Transfer-Encoding: Base64
+
+R0lGODlhIQAOAKIGAAAAAAAAgL+/v4CAgAAA/////8zMzAAAACH5BAEAAAYALAAA
+AAAhAA4AAANqaLrc/jCCSWe8qpbNiwCYQwlfZ35LRaXTRgLeBwhnRdx4xpHD/P4m
+FwCXM/hkqtiE1nkRbyxQSuib7QS9JwFDoZK+g2yAMA5wvZ8BLwwok7fcpWcS7lEC
++HwINgfULRl5ensqgAyFIYkRCQAh/h0AACH/CwA7
+
+------------GYHan9KQwMxFat3s8OX3D9--

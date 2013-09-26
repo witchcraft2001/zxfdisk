@@ -1,0 +1,1462 @@
+;HDD doctor by Alone Coder
+;Ext - переход числа/символы
+;cs0 - восстановить символ, как было 
+;cs9 - то же, но вперЄд
+;ssQ/W - сдвинуть/раздвинуть байты
+;break во врем€ ввода числа - отмена
+;csEnt - записать текущий сектор
+;ssS - записать текущий сектор на дискету
+;ssL - загрузить файл-сектор с дискеты 
+;L - выбрать и читать нужный сектор
+  ;break - отмена, действуют стрелки
+
+debug=0 ;1=вых.в ALASM по ssA,иначе в DOS
+
+atm=0
+smuc=0|atm
+drq=1 ;1=провер€ть DRQ при чтении/записи каждого слова 
+
+       	IFN	smuc
+      	IFN	atm
+;схема ATM:
+hddstat=#FEEF
+hddcmd=#FEEF
+hddhead=#FECF
+hddcylhi=#FEAF
+hddcyllo=#FE8F
+hddsec=#FE6F
+hddcount=#FE4F
+hdderr=#FE2F
+hdddatlo=#FE0F
+hdddathi=#FF0F
+ hddupr=#FEBE ;при установленном b7 FFBA
+ hdduprON=#FFBA
+ hddupr1=#F7
+ hddupr0=#77
+      	ELSE	
+;схема SMUC:
+hddstat=#FFBE
+hddcmd=#FFBE
+hddhead=#FEBE
+hddcylhi=#FDBE
+hddcyllo=#FCBE
+hddsec=#FBBE
+hddcount=#FABE
+hdderr=#F9BE
+hdddatlo=#F8BE
+hdddathi=#D8BE
+ hddupr=#FEBE ;при установленном b7 FFBA
+ hdduprON=#FFBA
+ hddupr1=#F7
+ hddupr0=#77
+      	ENDIF	
+       	ELSE	
+;схема Nemo:
+hddstat=#F0
+hddcmd=#F0
+hddhead=#D0
+hddcylhi=#B0
+hddcyllo=#90
+hddsec=#70
+hddcount=#50
+hdderr=#30
+hdddatlo=#10
+hdddathi=#11
+ hddupr=#C8
+ hdduprON=0
+       	ENDIF	
+
+font86=#8000
+secHDD=#9000
+secOLD=#9800
+
+TRACK0=#A000
+
+	ORG	#6000
+begin
+GO
+       	IF0	debug 
+	LD	SP,#6000
+       	ENDIF	
+	LD	(IY+1),#CC
+	XOR	A
+	OUT	(-2),A
+
+       	IFN	atm
+	CALL	#3D46   ;вызов "проверочной" точки в (v)TR-DOS 
+	CP	#00       ;если не 0,vTR-DOS нет и ѕ«” не подмен€ем
+	CALL	Z,#3C98 ;вызов триггера подмены ѕ«” TRD/vTRD
+	LD	BC,#FF77 ;выкл.теневые порты
+	LD	A,%10101011 ;режим ZX
+	CALL	OUTSHAD
+       	ENDIF	
+
+	LD	HL,#0110
+	LD	(23561),HL
+	LD	(IY+48),0 ;caps off
+
+	LD	HL,WASF86
+	LD	DE,font86
+	LD	BC,#600
+	LDIR	
+	CALL	FONER
+
+HDELOAD
+;L:вводим координаты (DRV(ini при вводе),LBA,1,2,3)
+;сначала формируем строку ввода
+       	LD	A,jPRnul
+       	LD	(PRSYM+1),A
+	LD	HL,HLDinp
+	CALL	PRVALS
+       	XOR	A
+       	LD	(PRSYM+1),A
+
+	LD	HL,(CURadr)
+HLDREPRHL
+	LD	(NEWCURadr),HL
+
+;HLDREPR
+	LD	HL,0
+HLDREP0	PUSH	HL
+	CALL	HLDPR1
+	POP	HL
+	INC	L
+	LD	A,L
+	CP	9
+	JR	NZ,HLDREP0
+HLOAD0
+       	LD	A,1
+       	LD	(symmode),A
+	RES	5,(IY+1)
+HLDNKEY	CALL	HDECUR ;мигаем
+	HALT	
+	BIT	5,(IY+1)
+	JR	Z,HLDNKEY
+	CALL	HDECUROFF
+       	XOR	A
+       	LD	(symmode),A
+;break=старые координаты
+       	CALL	8020
+       	JP	NC,HDEDUMP
+       	LD	HL,HLOAD0
+       	PUSH	HL
+CURnum=$+1
+	LD	HL,0
+	LD	A,(23560)
+	CP	8
+	JR	NZ,HLDnL
+	DEC	L
+	JP	P,HLD0OK
+	LD	L,0;8
+HLD0OK
+       	XOR	A
+       	OUT	(-2),A ;после выхода из HDDRESET
+	LD	(CURnum),HL
+HLDPR1	LD	BC,HLDinp
+	ADD	HL,BC
+HLDPRU 	LD	E,(HL)
+	SBC	HL,BC
+	ADD	HL,HL
+	LD	BC,HLDyx
+	ADD	HL,BC
+	LD	C,(HL)
+	INC	HL
+	LD	B,(HL)
+       	LD	L,E
+	CALL	AT
+       	LD	A,L
+	JP	PRSYM
+HLDnL
+	CP	9
+	JR	NZ,HLDnR
+HLDyR	LD	A,L
+	INC	A
+	LD	L,8;0
+	CP	9
+	JR	Z,HLD0OK
+	LD	L,A
+	JR	HLD0OK
+HLDnR
+	CP	13
+	JR	Z,HLDent
+       	CP	4
+       	JR	Z,HLDent
+       	CP	5
+       	JR	Z,HLDent
+	CP	"y"
+	JR	Z,HLDyY
+	CP	"n"
+	JR	Z,HLDyY
+      ;CP "r"
+      ;JR Z,HLDyY
+	LD	C,A
+	CALL	HDEin0F
+	RET	C
+       	LD	A,L
+       	DEC	A
+       	RET	Z ;LBA цифрами не мен€ть
+       	INC	A
+       	JR	NZ,HLDyOK ;не LBA,не DRV,а число
+HLDyDRV
+       	LD	A,C
+       	CP	"2"
+       	RET	NC ;only 0/1
+	LD	(HLDinp),A
+       	PUSH	BC,HL
+;переводим строку в числа
+       ;CALL HLDnums
+;init drive
+       	DI	
+	CALL	HDDRESET
+      ;LD A,2
+      ;JR C,$+3
+       ;XOR A 
+       ;OUT (-2),A
+       	CALL	OUT0
+       	EI	
+       	POP	HL,BC
+	JR	   HLDyOK
+      ;RET
+HLDyY
+	LD	C,A
+       	LD	A,L
+       	DEC	A
+       	RET	NZ ;only for LBA Y/N
+HLDyOK	LD	A,C
+	CP	"a"
+	JR	C,$+4
+	RES	5,A ;A..F, а не a..f
+       	PUSH	HL
+	LD	BC,HLDinp
+	ADD	HL,BC
+	LD	(HL),A
+	CALL	HLDPRU
+       	POP	HL
+	JR	HLDyR
+
+HLDinp
+	DB	"0Y0000000"
+       	DB	"0000" ;STAT&ERR,пустышки
+HLDyx
+;0
+	DW	#0200
+;Y
+	DW	#0600
+;0
+	DW	#0A00
+;0000
+	DW	#0E00
+	DW	#0E01
+	DW	#0E02
+	DW	#0E03
+;00
+	DW	#1200
+	DW	#1201
+
+HLDent
+NEWCURadr=$+1
+	LD	HL,0
+	LD	(CURadr),HL
+
+       	POP	AF
+;переводим строку в числа
+	CALL	HLDnums
+;читаем сектор с HDD
+	LD	HL,secHDD
+       	DI	
+	CALL	READ
+       	LD	A,2
+       	JR	C,$+3 
+	XOR	A
+	OUT	(-2),A
+       	CALL	OUT0
+       	EI	
+HDE2COPY
+	CALL	HDEfixR ;дл€ LOAD
+	LD	HL,secHDD
+	LD	DE,secOLD
+	LD	A,(szOFsec)
+	LD	B,A,C,0
+	LDIR	
+HDEDUMP
+	CALL	HDEfixR ;дл€ LOAD FDD
+
+	CALL	PRVALS ;обновить ERR
+;печатаем дамп
+	CALL	PRDUMP
+HDE0
+	RES	5,(IY+1)
+HDENKEY	CALL	HDECUR ;мигаем
+	HALT	
+	BIT	5,(IY+1)
+	JR	Z,HDENKEY
+	CALL	HDECUROFF
+	LD	A,(23560)
+	CP	226 ;ssA
+       	IFN	debug 
+	RET	Z
+       	ELSE	
+	JNZ	nqDOS
+	LD	HL,0
+	PUSH	HL
+	JP	#3D2F
+nqDOS
+       	ENDIF	
+       	LD	HL,HDE0
+       	PUSH	HL
+	LD	HL,(CURadr)
+	CP	4
+	JP	Z,HDEPGUP
+	CP	5
+	JP	Z,HDEPGDN
+	CP	14
+	JR	NZ,HDEnEXT
+	LD	A,(symmode)
+	CPL	
+	LD	(symmode),A
+	RET	
+HDEnEXT
+	CP	8
+	JR	NZ,HDEnL
+	LD	A,L
+	DEC	L
+	OR	A
+	JR	NZ,HDE0OK
+	JP	HDEPGUP
+HDEnL
+	CP	9
+	JR	NZ,HDEnR
+HDEyR	INC	L
+	JR	NZ,HDE0OK
+	JP	HDEPGDN
+HDEnR
+	CP	10
+	JR	NZ,HDEnDN
+	LD	A,L
+	ADD	A,8
+	LD	L,A
+	JR	NC,HDE0OK
+	JP	HDEPGDN
+HDEnDN
+	CP	11
+	JR	NZ,HDEnUP
+	LD	A,L
+	SUB	8
+	LD	L,A
+	JR	NC,HDE0OK
+	JP	HDEPGUP
+HDE0OK
+       	XOR	A
+       	OUT	(-2),A ;после выхода из HDELDFDD
+	LD	A,(CURadr+1)
+	CP	H
+	LD	(CURadr),HL
+	RET	Z
+	JP	PRDUMP
+HDEnUP
+	CP	12
+	JR	NZ,HDEnBS
+	LD	A,L
+	SUB	1
+	LD	L,A
+	JR	NC,HDEBSNH
+	DEC	H
+	LD	A,H
+	CP	'secHDD
+	RET	C
+HDEBSNH
+	CALL	HDEBSPP
+	JR	HDE0OK
+HDEBSPP
+	PUSH	HL
+       	LD	A,H
+       	ADD	A,'secOLD-'secHDD
+       	LD	H,A
+	LD	A,(HL)
+	POP	HL
+	LD	(HL),A
+	PUSH	HL
+	CALL	PRHEXLIN
+	POP	HL
+	RET	
+HDEnBS
+	CP	15
+	JR	NZ,HDEnDEL
+	CALL	HDEBSPP
+	INC	L
+	JR	NZ,HDE0OK
+	INC	H
+	LD	A,(szOFsec)
+	ADD	A,'secHDD
+	CP	H
+	RET	Z
+	JR	HDE0OK
+HDEnDEL
+       	CP	199
+       	JR	NZ,HDEnsQ
+       	PUSH	HL
+HDEsQ0	INC	HL
+	LD	A,(HL)
+	DEC	HL
+	LD	(HL),A
+	INC	HL
+       	LD	A,(szOFsec)
+       	ADD	A,'secHDD
+       	SUB	H
+	JR	NZ,HDEsQ0
+	DEC	HL
+	LD	(HL),A
+       	POP	HL
+	JP	PRDUMP
+HDEnsQ
+       	CP	201
+       	JR	NZ,HDEnsW
+       	PUSH	HL
+	LD	C,(HL)
+HDEsW0	INC	HL
+	LD	A,(HL)
+	LD	(HL),C
+	LD	C,A
+	INC	HL
+       	LD	A,(szOFsec)
+       	ADD	A,'secHDD
+       	SUB	H
+	DEC	HL
+	JR	NZ,HDEsW0
+       	POP	HL
+	JP	PRDUMP
+HDEnsW
+symmode=$+1
+	LD	B,0 ;#FF=sym
+	INC	B
+	DJNZ	HDEinSYM
+	CP	"l" ;load
+       	POP	BC
+	JP	Z,HDELOAD
+      	CP	195 ;ssS
+      	JP	Z,HDESVFDD
+      	CP	"=" ;ssL
+      	JP	Z,HDELDFDD
+       	CP	13
+       	JR	NZ,HDEnSAV
+       	CALL	8026
+       	JP	NC,HDESAVE
+HDEnSAV
+       	PUSH	BC
+;0..9A..F
+	CALL	HDEin0F
+	RET	C
+HDE09OK
+	LD	C,(HL)
+	RLA	
+	RLA	
+	RLA	
+	RLA	
+	XOR	(HL)
+	AND	#F0
+	XOR	(HL)
+	LD	(HL),A
+	PUSH	BC
+	PUSH	HL
+	CALL	PRHEXLIN
+HD0F0  	XOR	A
+       	LD	(inv2chr),A
+	RES	5,(IY+1)
+HD0FKEY	CALL	HDECUR
+	HALT	
+	BIT	5,(IY+1)
+	JR	Z,HD0FKEY
+	CALL	HDECUROFF
+       	LD	A,-1
+       	LD	(inv2chr),A
+	CALL	8020
+	JR	NC,HD0FBACK
+	LD	A,(23560)
+	CALL	HDEin0F
+	JR	C,HD0F0
+	POP	HL
+	POP	BC
+	XOR	(HL)
+	AND	#F
+	XOR	(HL)
+HDEprA	LD	(HL),A
+	PUSH	HL
+	CALL	PRHEXLIN
+	POP	HL
+	JP	HDEyR
+HD0FBACK
+	POP	HL
+	POP	BC
+	LD	(HL),C
+	PUSH	HL
+	CALL	PRHEXLIN
+	POP	HL
+	RET	
+HDEinSYM
+	CP	7
+	JR	Z,LFRUS
+	CP	6
+	JR	Z,LFCAPS
+	CP	32
+	RET	C
+       	SUB	198
+	LD	C,"["
+	JR	Z,LFOK
+       	DEC	A
+	RET	Z
+       	DEC	A
+	RET	Z
+       	DEC	A
+	RET	Z
+       	ADD	A,201 
+	INC	C
+	CP	205
+	JR	Z,LFOK
+	INC	C
+	CP	197
+	JR	Z,LFOK
+	CP	204
+	LD	C,"{"
+	JR	Z,LFOK
+	INC	C
+	CP	195
+	JR	Z,LFOK
+	INC	C
+	CP	203
+	JR	Z,LFOK
+	INC	C
+	CP	226
+	JR	Z,LFOK
+	INC	C
+	CP	172
+	JR	Z,LFOK
+	LD	C,A
+LFOK
+	LD	B,0
+	BIT	0,(IY+48)
+	JR	 Z,LFNR
+	LD	A,C
+       	CP	"&"
+       	LD	C,"Є" 
+       	JR	Z,LFNR
+       	LD	C,A
+	CP	64
+	JR	C,LFNR
+       	PUSH	HL
+	LD	HL,RT-64
+	ADD	HL,BC
+	LD	C,(HL)
+       	POP	HL
+LFNR
+       	LD	A,C
+	CALL	case
+	JP	HDEprA
+LFCAPS
+	LD	A,4
+	JR	$+4
+LFRUS
+	LD	A,1
+	XOR	(IY+48)
+	LD	(23658),A
+	RET	
+
+HDEPGUP
+	DEC	H
+	LD	A,H
+	CP	'secHDD
+	JP	NC,HDE0OK
+	LD	A,(szOFsec)
+	ADD	A,H
+	LD	H,A
+       	PUSH	HL ;NEWCURadr
+	LD	HL,SEC_NUMBER
+	LD	A,(HL)
+	DEC	A
+HDEPUPQ
+      	LD	C,(HL)
+      	PUSH	BC,HL
+	LD	(HL),A
+;сначала формируем строку ввода
+       	LD	A,jPRnul
+       	LD	(PRSYM+1),A
+	LD	HL,HLDinp
+	CALL	PRVALS
+       	XOR	A
+       	LD	(PRSYM+1),A
+      	POP	HL,BC
+      	LD	(HL),C
+       	POP	HL
+         	POP	AF
+	JP	HLDREPRHL
+
+
+HDEPGDN
+	INC	H
+	LD	A,(szOFsec)
+	ADD	A,'secHDD
+	CP	H
+	JP	NZ,HDE0OK
+	LD	H,'secHDD
+       	PUSH	HL ;NEWCURadr
+	LD	HL,SEC_NUMBER
+	LD	A,(HL)
+	INC	A
+	JR	HDEPUPQ
+
+;----------------------------------------
+HDELDFDD
+	LD	HL,TRACK0
+	LD	DE,0
+	LD	BC,#905
+	CALL	#3D13
+	CALL	CLSER
+	LD	HL,#5800
+	LD	DE,#5801
+	LD	(HL),7
+	LD	BC,767
+	LDIR	
+HDLDDUMP
+HDLDTOP=$+1
+	LD	HL,TRACK0
+	LD	DE,#4000
+	LD	B,24
+	CALL	HDLDLN
+	DJNZ	$-3
+HDLD0
+	RES	5,(IY+1)
+	LD	A,56
+	CALL	HDLDCUR
+HDLDNKY	HALT	
+	BIT	5,(IY+1)
+	JR	Z,HDLDNKY
+	LD	A,7
+	CALL	HDLDCUR
+	CALL	8020
+	JR	NC,HDLDBRK
+	LD	HL,(HDLDTOP)
+HDLDY=$+1
+	LD	C,0
+	LD	A,(23560)
+	CP	13
+	JR	NZ,HDLDNEN
+	LD	B,0
+	LD	A,16
+	ADD	HL,BC
+	DEC	A
+	JR	NZ,$-2
+	CALL	NORMCAT
+      ;HL=file descr
+       	PUSH	HL
+	LD	C,#13
+	CALL	#3D13
+       	POP	HL
+      ;проверка правильности имени
+	LD	A,(HL)
+	CP	"N"
+	JR	Z,$+6
+	CP	"Y"
+	JR	NZ,HDLDBRK
+	INC	HL
+	LD	B,7
+HDLDNMc	LD	A,(HL)
+	INC	HL
+	SUB	"0"
+	CP	10
+	JR	C,HDLDNMd
+	SUB	"A"-"0"
+	JR	C,HDLDBRK
+	CP	6
+	JR	NC,HDLDBRK
+HDLDNMd
+	DJNZ	HDLDNMc
+	LD	A,(HL)
+	SUB	"0"
+	CP	2
+	JR	NC,HDLDBRK
+
+      ;занесение имени в параметры HDD
+	LD	HL,#5CDD
+	LD	DE,HLDinp+1
+	LD	BC,8
+	LDIR	
+	LD	A,(HL)
+	LD	(HLDinp),A
+;переводим строку в числа
+	CALL	HLDnums
+;читаем сектор с HDD
+	LD	HL,secOLD
+       	DI	
+	CALL	READ
+       	LD	A,2
+       	JR	C,$+3 
+	XOR	A
+	OUT	(-2),A
+       	CALL	OUT0
+       	EI	
+      ;загр.в secHDD
+	LD	A,(szOFsec)
+	LD	B,A,C,5
+	LD	DE,(#5CDD+#E)
+	LD	HL,secHDD
+	CALL	#3D13
+       	JR	$+6
+HDLDBRK
+       	LD	A,7
+       	OUT	(-2),A
+	CALL	FONER
+	JP	HDEDUMP
+HDLDNEN
+	SUB	4
+	JR	NZ,HDLDNPU
+	LD	DE,-24*16
+HDLDPUQ	ADD	HL,DE
+	CALL	NORMCAT
+	LD	(HDLDTOP),HL
+	JP	HDLDDUMP
+HDLDNPU
+	DEC	A
+	LD	DE,24*16
+	JR	Z,HDLDPUQ
+	SUB	5
+	JR	NZ,HDLDND
+	INC	C
+	LD	A,C
+	CP	24
+	JR	C,HDLDOK
+	DEC	C
+	LD	DE,16
+	ADD	HL,DE
+	CALL	NORMCAT
+       	PUSH	BC,HL
+	CALL	SCRUP
+       	POP	HL
+       	PUSH	HL
+	LD	DE,16*23
+	ADD	HL,DE
+	CALL	NORMCAT
+	LD	DE,#50E0
+	CALL	HDLDLN
+       	POP	HL
+       	POP	BC
+	JR	HDLDOK
+HDLDND
+	DEC	A
+	JR	NZ,HDLDOK
+	LD	A,C
+	DEC	C
+	OR	A
+	JR	NZ,HDLDOK
+	INC	C
+	LD	DE,-16
+	ADD	HL,DE
+	CALL	NORMCAT
+       	PUSH	BC,HL
+	CALL	SCRDN
+       	POP	HL
+       	PUSH	HL
+	LD	DE,#4000
+	CALL	HDLDLN
+       	POP	HL
+       	POP	BC
+       ;JR HDLDOK
+HDLDOK
+	LD	(HDLDTOP),HL
+	LD	A,C
+	LD	(HDLDY),A
+	JP	HDLD0
+
+NORMCAT
+	LD	A,H
+	SUB	'TRACK0
+	AND	7
+	ADD	A,'TRACK0
+	LD	H,A
+	RET	
+HDLDCUR
+	LD	HL,(HDLDY)
+	LD	H,0
+       	DUP	5
+	ADD	HL,HL
+       	EDUP	
+	LD	BC,#5800
+	ADD	HL,BC
+	LD	D,H,E,L
+	INC	E
+	LD	BC,31
+	LD	(HL),A
+	LDIR	
+	RET	
+
+SCRUP
+	LD	HL,#4000
+	LD	B,23
+SCRUP0	LD	D,H,E,L
+	LD	A,32
+	ADD	A,L
+	LD	L,A
+	JR	NC,$+6
+	LD	A,H
+	ADD	A,8
+	LD	H,A
+	CALL	SCRPP
+	DJNZ	SCRUP0
+	RET	
+SCRDN
+	LD	HL,#50E0
+	LD	B,23
+SCRDN0	LD	D,H,E,L
+	LD	A,L
+	SUB	32
+	LD	L,A
+	JR	NC,$+6
+	LD	A,H
+	SUB	8
+	LD	H,A
+	CALL	SCRPP
+	DJNZ	SCRDN0
+	RET	
+SCRPP
+	PUSH	HL
+	LD	C,8
+SCRPP0	PUSH	BC,DE,HL
+	LD	BC,32
+	LDIR	
+	POP	HL,DE,BC
+	INC	H,D
+	DEC	C
+	JR	NZ,SCRPP0
+	POP	HL
+	RET	
+HDLDLN
+;0123456789ABCDEF0123456789ABCDEF
+;FILENAME.E SIZ START,LENG.
+	PUSH	BC
+	LD	B,8
+HDLDLN0	LD	A,(HL)
+	INC	HL
+	CALL	PR88
+	DJNZ	HDLDLN0
+	LD	A,"."
+	CALL	PR88
+	LD	A,(HL)
+	INC	HL
+	CALL	PR88
+	INC	E
+	PUSH	HL
+	INC	HL,HL,HL,HL
+	LD	L,(HL),H,0
+	CALL	PRN883 ;siz
+	POP	HL ;+9
+	LD	A,(HL)
+	INC	HL
+	INC	E
+
+	PUSH	HL
+	LD	H,(HL),L,A
+	CALL	PRN88 ;start
+	POP	HL
+	INC	HL ;+B
+	LD	A,","
+	CALL	PR88
+	LD	A,(HL)
+	INC	HL
+	PUSH	HL
+	LD	H,(HL),L,A
+	CALL	PRN88 ;length
+	POP	HL
+	INC	HL ;+D
+
+	INC	HL,HL,HL
+	CALL	NORMCAT
+
+	POP	BC
+	LD	A,6
+	ADD	A,E
+	LD	E,A
+	RET	NC
+	LD	A,D
+	ADD	A,8
+	LD	D,A
+	RET	
+PRN88
+	LD	BC,10000
+	CALL	PRDIG88
+	LD	BC,1000
+	CALL	PRDIG88
+PRN883	LD	BC,100
+	CALL	PRDIG88
+	LD	BC,10
+	CALL	PRDIG88
+	LD	BC,1
+PRDIG88
+	LD	A,"0"-1
+	OR	A
+	INC	A
+	SBC	HL,BC
+	JR	NC,$-3
+	ADD	HL,BC
+PR88
+	CP	32
+	JR	C,$+6
+	CP	128
+	JR	C,$+4
+	LD	A,"?"
+	PUSH	BC
+	PUSH	DE
+	PUSH	HL
+	ADD	A,A
+	LD	L,A
+	LD	H,15
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	B,8
+	LD	A,(HL),(DE),A
+	INC	L,D
+	DJNZ	$-4
+	POP	HL
+	POP	DE
+	POP	BC
+	INC	E
+	RET	
+
+HDESVFDD
+	LD	HL,HLDinp+1
+	LD	DE,#5CDD
+	LD	BC,8
+	LDIR	
+	LD	A,(HLDinp)
+	LD	(DE),A
+	LD	HL,secHDD
+szOFsec=$+2
+	LD	DE,512
+	LD	C,#B
+	CALL	#3D13
+	JP	HDEDUMP
+
+HDESAVE
+	LD	HL,secHDD
+       	DI	
+	CALL	WRITE
+       	LD	A,2
+       	JR	C,$+3 
+	XOR	A
+	OUT	(-2),A
+       	CALL	OUT0
+       	EI	
+	JP	HDE2COPY
+OUT0
+	LD	BC,32765
+	LD	A,#10
+	OUT	(C),A
+	RET	
+
+HDEin0F
+	OR	32
+	SUB	"0"
+	RET	C
+	CP	10
+	CCF	
+	RET	NC ;0..9
+	CP	"a"-"0"
+	RET	C
+	SUB	"a"-":"
+	CP	16
+	CCF	
+	RET	
+
+RT	DB	"ёјЅ÷ƒ≈‘√’»… ЋћЌќѕя–—“”∆¬№џ«ЎЁў„ъ"
+	DB	"юабцдефгхийклмноп€рстужвьызшэщчЏ"
+case
+         	BIT	2,(IY+48) 
+         	RET	Z
+	CP	"™"
+	RET	NC
+	XOR	1
+	CP	"®"
+	RET	NC
+	XOR	1
+	CP	"р"
+	JR	NC,BECAPRL
+	CP	"-"
+	RET	NC
+	CP	"а"
+	JR	NC,BECAPOK
+	CP	"–"
+	JR	NC,BECAPRL
+	CP	"ј"
+	JR	NC,BECAPOK
+	CP	"A"
+	RET	C
+	CP	"{"
+	RET	NC
+	CP	"["
+	JR	C,$+5
+	CP	"a"
+	RET	C
+BECAPOK	XOR	80
+BECAPRL	XOR	#70
+	RET	
+CLSER
+	LD	HL,#4000
+	LD	DE,#4001
+	LD	BC,6143
+	LD	(HL),L
+	LDIR	
+	RET	
+
+PRDUMP
+;печаталка дампа
+CURadr=$+1
+	LD	HL,secHDD
+       	LD	L,0
+PRHXPG0	CALL	PRHEXLIN
+	DEC	L
+	INC	L
+	JR	NZ,PRHXPG0
+	RET	
+
+tregs
+	DB	"DRV",0
+TLBASLW	DB	"LBA",0
+
+	DB	"head",0
+	DB	"cyl",0
+	DB	"sec",0
+
+	DB	"STAT",0
+	DB	"ERR",0
+	NOP	
+
+
+
+
+
+razlin
+	DW	#4747
+	DW	#4747
+	DB	#44
+	DW	#4444
+	DB	7
+       	DUP	4
+	DW	#0505
+	DW	#0707
+       	EDUP	
+       	DUP	4
+	DB	4,4
+       	EDUP	
+
+	DISPLAY	$-razlin,"=32"
+
+;печаталка одной строки дампа
+PRHEXLIN
+	LD	A,L
+	AND	#F8
+	LD	L,A
+	RRCA	
+	RRCA	
+	RRCA	
+	LD	B,A
+	LD	C,4
+	CALL	AT
+	LD	A,H
+	SUB	'secHDD
+	JR	Z,$+6
+         	ADD	A,"0"
+         	JR	$+4
+	LD	A," "
+	CALL	PRSYM
+	LD	A,L
+	CALL	PRHEX
+	INC	E
+       	PUSH	HL
+	LD	B,8
+PRH0	LD	A,(HL)
+	CALL	PRHEX
+       	PUSH	HL
+      	LD	A,H
+      	ADD	A,'secOLD-'secHDD
+      	LD	H,A
+       	LD	A,(HL)
+       	POP	HL
+       	CP	(HL)
+       	JR	Z,PRH0OK
+	DEC	E,E
+	CALL	INV2SYM
+PRH0OK
+	INC	HL
+	DJNZ	PRH0
+       	POP	HL
+       ;INC E 
+	LD	B,8
+PRH1	LD	A,(HL)
+	CALL	PRSYM
+       	PUSH	HL
+      	LD	A,H
+      	ADD	A,'secOLD-'secHDD
+      	LD	H,A
+       	LD	A,(HL)
+       	POP	HL
+       	CP	(HL)
+       	JR	Z,PRH1OK
+	DEC	E
+	CALL	INVSYM
+PRH1OK
+	INC	HL
+	DJNZ	PRH1
+	RET	
+
+
+
+
+
+
+
+AT
+;BC->DE
+	EXD	
+	LD	A,C
+	ADD	A,A,A,A,A,A
+	LD	C,A
+	LD	A,B
+	ADD	A,A,A,B,A,A
+	CALL	8880
+	EXD	
+	RET	
+
+PRTXT
+	LD	A,(HL)
+	INC	HL
+	OR	A
+	RET	Z
+	CALL	PRSYM
+	JR	PRTXT
+
+FONER
+	CALL	CLSER
+       	PUSH	DE
+	LD	HL,razlin
+	LD	C,32
+	LDIR	
+       	POP	HL
+	LD	BC,#2E0
+	LDIR	
+	LD	HL,#5800
+	LD	DE,60+32
+	LD	B,7
+CLAlns
+       	DUP	4
+	LD	(HL),#46
+	INC	HL
+       	EDUP	
+	ADD	HL,DE
+	DJNZ	CLAlns
+PRZAGS
+;печать заголовков
+	LD	HL,tregs
+	LD	B,0
+PRregs0
+	PUSH	BC
+	LD	C,0
+	CALL	AT
+	CALL	PRTXT
+	POP	BC
+	INC	B,B
+	INC	B,B
+	LD	A,(HL)
+	OR	A
+	JR	NZ,PRregs0
+	RET	
+HLDnums
+;из строки HLDinp получаем числа
+	LD	HL,HLDinp
+	LD	A,(HL)
+	INC	HL
+	AND	1
+	RLCA	
+	RLCA	
+	RLCA	
+	RLCA	
+	LD	C,A
+	LD	A,(HL) ;LBA
+	INC	HL
+	AND	1 ;Y=1,N=0
+	RRCA	
+	RRCA	
+	OR	C ;DRV
+	LD	C,A
+
+	LD	A,(HL)
+	INC	HL
+	CALL	HDEin0F
+	OR	C
+	OR	#A0
+	LD	(REG_SDH),A
+
+	CALL	HLD1num
+	LD	(CYLINDER+1),A ;high
+	CALL	HLD1num
+	LD	(CYLINDER),A   ;low
+
+	CALL	HLD1num
+	LD	(SEC_NUMBER),A
+	RET	
+HLD1num
+	LD	A,(HL)
+	INC	HL
+	CALL	HDEin0F
+	RLCA	
+	RLCA	
+	RLCA	
+	RLCA	
+	LD	B,A
+	LD	A,(HL)
+	INC	HL
+	CALL	HDEin0F
+	OR	B
+	RET	
+PRVALS
+;печать значений
+	LD	BC,#0200
+	CALL	AT
+	LD	A,(REG_SDH)
+	RRA	
+	RRA	
+	RRA	
+	RRA	
+	AND	1
+	OR	"0"
+	CALL	PRSYM
+	LD	BC,#0600
+	CALL	AT
+       	LD	A,(HLDinp+1)
+       ;LD A,(REG_SDH)
+       ;AND 64
+       ;LD A,"N"
+       ;JR Z,$+4
+       ;LD A,"Y"
+	CALL	PRSYM
+
+	LD	BC,#0A00
+	CALL	AT
+	LD	A,(REG_SDH)
+	AND	15
+	CALL	PRHEXPP
+
+	LD	BC,#0E00
+	CALL	AT
+	LD	A,(CYLINDER+1) ;high
+	CALL	PRHEX
+	LD	A,(CYLINDER)   ;low
+	CALL	PRHEX
+
+	LD	BC,#1200
+	CALL	AT
+	LD	A,(SEC_NUMBER)
+	CALL	PRHEX
+	LD	BC,#1600
+	CALL	AT
+	CALL	IN_HDDSTAT
+	CALL	PRHEX
+	LD	BC,#1A00
+	CALL	AT
+	CALL	IN_HDDERR
+       ;JP PRHEX
+
+PRHEX	PUSH	AF
+	DUP	4
+	RRA	
+	EDUP	
+	CALL	PRHEXPP
+	POP	AF
+PRHEXPP	AND	15
+	CP	10
+	CCF	
+	ADC	A,"0"
+	DAA	
+PRSYM
+	JR	PR86
+PR86
+	PUSH	BC,DE,HL
+	LD	L,A
+	LD	H,'font86
+	LD	B,3
+;D&7=0 2 4 6
+;C+ =0 0 8 8
+	LD	C,D
+	BIT	2,D
+	JR	Z,PR860
+	SET	1,C ;+6
+	INC	C,C ;+8
+PR860	LD	A,(HL)
+	LD	(DE),A
+	INC	H
+	INC	D
+	LD	A,(HL)
+	LD	(DE),A
+	INC	H
+	INC	D
+	LD	A,D
+	CP	C
+	JR	NZ,PR860N
+	LD	A,E
+	ADD	A,32
+	LD	E,A
+	JR	C,PR860N
+	LD	A,D
+	SUB	8
+	LD	D,A
+PR860N	DJNZ	PR860
+	POP	HL,DE,BC
+	INC	E
+	RET	
+PRnul
+jPRnul=$-PR86
+	LD	(HL),A
+	INC	HL
+	RET	
+
+
+HDECUROFF
+	LD	A,1
+	LD	(hdecurtim),A
+	LD	A,(hdecuron)
+	OR	A
+	RET	Z
+	JR	HDECURU
+HDECUR
+       	PUSH	HL
+	LD	A,(symmode)
+	DEC	A
+	JR	Z,HCUR32
+       	LD	HL,(CURadr)
+       	LD	A,(HL)
+      	PUSH	AF
+      	LD	A,H
+      	ADD	A,'secOLD-'secHDD
+      	LD	H,A
+      	POP	AF
+       	CP	(HL)
+HCUR32 	LD	A,32
+       	JR	Z,$+3 
+       	ADD	A,A
+       	LD	(hdetimadd),A
+       	POP	HL
+hdecurtim=$+1
+	LD	A,1
+hdetimadd=$+1
+	SUB	32
+	LD	(hdecurtim),A
+	RET	NC
+hdecuron=$+1
+	LD	A,0 ;#FF=printed
+HDECURU	CPL	
+	LD	(hdecuron),A
+
+	LD	A,(CURadr) ;low byte of addr
+	LD	C,A
+	RRA	
+	RRA	
+	RRA	
+	AND	31
+	LD	B,A
+       	LD	A,(symmode)
+       	OR	A
+	LD	A,C
+       	JR	NZ,HDECURSYM
+	AND	7
+	ADD	A,A
+	ADD	A,8
+	LD	C,A
+	CALL	AT
+inv2chr=$+1
+	LD	A,-1 ;#FF=2chr
+	OR	A
+	JR	NZ,INV2SYM
+       	INC	E
+       	JR	INVSYM
+HDECURSYM
+;курсор в поле букв
+       	JP	P,HDECURVALS
+	AND	7
+	ADD	A,24
+	LD	C,A
+	CALL	AT
+	JR	INVSYM
+HDECURVALS
+;курсор в поле сектора-дорожки и т.п.
+	LD	HL,(CURnum)
+	ADD	HL,HL
+	LD	BC,HLDyx
+	ADD	HL,BC
+	LD	C,(HL)
+	INC	HL
+	LD	B,(HL)
+	CALL	AT
+	JR	INVSYM
+
+INV2SYM	CALL	INVSYM
+INVSYM
+INV86
+	PUSH	BC,DE
+	LD	B,3
+;D&7=0 2 4 6
+;C+ =0 0 8 8
+	LD	C,D
+	BIT	2,D
+	JR	Z,IN860
+	SET	1,C ;+6
+	INC	C,C ;+8
+IN860	LD	A,(DE)
+	CPL	
+	LD	(DE),A
+	INC	D
+	LD	A,(DE)
+	CPL	
+	LD	(DE),A
+	INC	D
+	LD	A,D
+	CP	C
+	JR	NZ,IN860N
+	LD	A,E
+	ADD	A,32
+	LD	E,A
+	JR	C,IN860N
+	LD	A,D
+	SUB	8
+	LD	D,A
+IN860N	DJNZ	IN860
+	POP	DE,BC
+	INC	E
+	RET	
+
+HDEfixR
+       	LD	A,(TLBASLW)
+       	CP	"L"
+	LD	A,8
+	JR	NZ,hDEfixR
+	LD	HL,CURadr+1
+	LD	A,(HL)
+	CP	'secHDD+2
+	JR	C,$+4
+	LD	(HL),'secHDD
+	LD	A,2
+hDEfixR	LD	(szOFsec),A
+	RET	
+
+       	IFN	atm
+OUTSHAD
+	LD	IX,10835
+	PUSH	IX
+	JP	#3D2F
+       	ENDIF	
+
+	INCLUDE	"HDDDUN*",#C4
+WASF86
+	INCBIN	"f8x6",#600
+end
+       	IF0	debug 
+	ORG	#5CDD
+	DB	"HDDoct12B"
+	INCLUDE	"mrip*",#C0
+       	ENDIF	
+

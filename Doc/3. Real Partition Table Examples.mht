@@ -1,0 +1,919 @@
+Content-Type: multipart/related; start=<op.mhtml.1377691193130.85f7976b28271204@192.168.11.56>; boundary=----------uxEYdX7hP5uZGKD5TeK4hQ
+Content-Location: http://thestarman.narod.ru/asm/mbr/PartTables3.htm
+Subject: =?utf-8?Q?3.=20Real=20Partition=20Table=20Examples?=
+MIME-Version: 1.0
+
+------------uxEYdX7hP5uZGKD5TeK4hQ
+Content-Disposition: inline; filename=PartTables3.htm
+Content-Type: text/html; charset=UTF-8; name=PartTables3.htm
+Content-ID: <op.mhtml.1377691193130.85f7976b28271204@192.168.11.56>
+Content-Location: http://thestarman.narod.ru/asm/mbr/PartTables3.htm
+Content-Transfer-Encoding: 8bit
+
+<script type="text/javascript" src="/abnl/?narodads=1&s=othestarman"></script><HTML><HEAD><title>3. Real Partition Table Examples</title>
+<meta http-equiv="keywords" content="Partition Table, Extended Boot Record, EBR, Nested partitions, Extended partition table, Chained paritions, MBR, Master Boot Record">
+<meta http-equiv="description" content="Understanding Partition Tables.">
+<META NAME="COPYRIGHT" CONTENT="&copy; 2004 by Daniel B. Sedory">
+<META NAME="robots" CONTENT="ALL">
+<META NAME="revisit-after" CONTENT="30 days">
+<META NAME="distribution" CONTENT="Global">
+<META NAME="robots" CONTENT="INDEX">
+<META NAME="revisit-after" CONTENT="30">
+<link href="mbr.css" rel="stylesheet" type="text/css">
+</HEAD>
+<BODY bgcolor="#FFFFFF" leftmargin="25" topmargin="25">
+<BR><center>
+  <font size="7"><b><font size="6">MBR/EBR </font>Partition Tables</b></font><br>
+  <font face="Verdana,Arial,Helvetica" size="4">(Page 3)<br><br><b>Copyright &copy; 2004, 2007 
+  by Daniel B. Sedory<br>
+  </b><font color="#FF0000" size="3"><b><font face="Arial, Helvetica, sans-serif">NOT 
+  to be reproduced in any form without Permission of the Author!</font></b></font></font> 
+</center><BR>
+<HR>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="4" color="#990000">These 
+  pages are going through a major REVISION; some sections may presently be incomplete; 
+  if the topic doesn't <i>make sense</i>, contact us.</font></p>
+<HR>
+<ul><font size="3" face="Arial, Helvetica, sans-serif">
+  <li> &nbsp;<a href="#xamps"><b>Real Partition Table Examples</b></a></li>
+  <ul>
+    <li> &nbsp;<a href="#20GBpt"><font face="Arial, Helvetica, sans-serif">20 
+      GB Hard Drive (with NTFS, FAT32 and Linux Partitions)</font></a></li>
+  </ul>
+  <br>
+   <li> &nbsp;<a href="#FN"><b>Footnotes</b></a></li>
+  <br>
+</font></ul><a name="xamps">&nbsp;</a>
+<HR>
+<h2><font face="Verdana, Arial, Helvetica, sans-serif">Real Partition Table Examples</font></h2>
+<BR>
+<table cellspacing=2 cellpadding=10 border=1 bordercolor="#000000" bgcolor="#FFFFCC" align="center">
+  <tr>
+    <td> 
+      <p><font face="Verdana, Arial, Helvetica, sans-serif" size="4">I</font><font face="Arial, Helvetica, sans-serif" size="4">n 
+        summary, the layout of a <b>M</b>aster <b>B</b>oot <b>R</b>ecord's sector 
+        is as follows:</font></p>
+      <pre> <font face="Courier New, Courier, mono" size="3"><b>Offset     Size                Description</b>
+ ------  ---------   ----------------------------------
+  000h   <b>446</b> bytes    Master <b>bootstrap loader code</b> area
+                     (includes the <b>NT</b> Drive <b>S/N</b> if any;
+    see the <a href="STDMBR.htm" target="std">Standard</a>, <a href="95BMEMBR.htm" target="41">FAT32</a> and <a href="Win2kmbr.htm" target="2k">NTFS</a> <b>MBR</b>s for example.)
+
+  <b>1BE</b>h    <b>16</b> bytes    Partition entry for partition <b>1</b>
+  <b>1CE</b>h    <b>16</b> bytes    Partition entry for partition <b>2</b>
+  <b>1DE</b>h    <b>16</b> bytes    Partition entry for partition <b>3</b>
+  <b>1EE</b>h    <b>16</b> bytes    Partition entry for partition <b>4</b>
+
+  <b>1FE</b>h     <b>2</b> bytes    <b>Signature ID</b>, the WORD: <b>AA55</b>h;
+                       indicates a valid MBR sector.</font></pre>
+    </td>
+  </tr>
+</table>
+<A NAME=20GBpt><BR><BR><BR></A>
+<h2><font face="Verdana, Arial, Helvetica, sans-serif">A 20 GB Hard Drive with 
+  Three OSs</font></h2><BR>
+<div align="center"><img src="hpt.gif" width="600" height="122"><br>
+  <b>Figure 5.</b></div>
+<p><font face="Arial, Helvetica, sans-serif" size="4"><br>
+  This is a Hex view of just the last <b>80 bytes</b> of a hard disk's MBR sector 
+  as they might appear in a disk editor. The <b>Partition Table</b> is enclosed 
+  within the thin <b>YELLOW</b> line <b>in</b> the <b><i>diagram above</i></b>. 
+  Two other items also appear in this diagram: <b>1)</b> The thin violet/purple 
+  line surrounding the Hex bytes &quot;<font face="Courier New, Courier, mono" size="3"><b>A8 
+  E1 A8 E1</b></font>&quot; shows an example of an NT <i>Disk Signature</i> (also 
+  used by <a href="Win2kmbr.htm" target="2kxp">Win 2000/XP</a>) <i>and:</i><b>&nbsp;&nbsp;2) 
+  </b>The sector's <i>Word-sized</i> <b>Signature ID</b> of <b>AA55</b>h; often 
+  called its <b><i>Magic number</i></b> in older tech documentation.<br>
+  <b>[ Note:</b> on Intel x86 CPU systems, Hex Words are stored with the Low-byte 
+  first and the High-byte last so AA55h appears as: <b style="background-color: #333300"> 
+  &nbsp;<font color="#00FF00">55 AA</font>&nbsp;</b> in a disk editor <b>]</b>.</font></p>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="4">In</font><font face="Arial, Helvetica, sans-serif" size="4"> 
+  the <i>upper-right corner</i> of the table, you'll see a byte with the value 
+  of <b style="background-color: #333300"><font color="#00FFFF">&nbsp;80&nbsp;</font></b><b>.</b> 
+  This is the first byte <i>in</i> the first Partition entry, and it's followed 
+  by the bytes <b style="background-color: #333300"><font color="#FFFF00">&nbsp;01 
+  01 00&nbsp;</font></b><b>.</b> Most HDDs have these bytes, since the first partition 
+  is usually the <b>boot</b> partition on most hard disks <b>[&nbsp;</b>the <b>80</b>h 
+  byte tells the Bootstrap Loader code (the MBR code) which partition it is supposed 
+  to try loading a Boot sector from into Memory; only one partition entry (at 
+  boot-up) can have the 80h byte here<b>]</b> <i>and</i> because the next three 
+  bytes are the <b>CHS</b> values for the Starting Sector of the first partition 
+  (CHS <b>0,1,1</b> in this case; which corresponds to Absolute Sector 63 of this 
+  disk, where most Boot Records begin).</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="4">Until HDDs became larger 
+  than 8.4 GB, the Starting and Ending CHS values and the Total Sector value could 
+  be checked against each other; which might help to correct an error for a manual 
+  entry in the Table. Example: The Last Sector <b>CHS</b> values (<font color="#FF0000"><b>877</b></font>,<font color="#FF0000"><b>254</b></font>,<b>63</b>) 
+  can be used to check the Total number of Sectors by first computing: <b><font color="#006600">&nbsp;878</font></b> 
+  cylinders x <b><font color="#006600">255</font></b> heads x <b>63</b> sectors 
+  = <b>14,105,070</b> sectors <b>(</b>don't forget that both the <b>Cylinder</b> 
+  <i>and</i> <b>Head <i>counts</i> begin with</b> a <b>zero), and then</b> subtracting 
+  the <b>63</b> sectors which preceded it to arrive at: <b>14,105,007</b> sectors 
+  for its <b>Total</b> size or length. Thus, you can see that they must <b><i>agree</i></b> 
+  with each other!</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="4">Before launching into all 
+  the calculations for the rest of this drive's partition table, we need to point 
+  out that this isn't the typical layout for a drive created by a Microsoft OS. 
+  Instead of a <b><i>single</i></b> <b>Primary</b> partition followed by an <b>Extended</b> 
+  partition, this drive has<b> three Primary</b> partitions and <b><i>then</i></b> 
+  an <b>Extended</b> partition!</font></p>
+<table width="740" border="1" cellspacing="0" cellpadding="5" align="center">
+    <th colspan="4"><font face="Verdana, Arial, Helvetica, sans-serif" size="4">The 
+      <font size="5">First</font> 16-byte Entry in our Partition Table</font></th>
+ <tr> 
+    <td width="90"> 
+      <div align="center"><font size="4" face="Arial, Helvetica, sans-serif"><b><font face="Times New Roman, Times, serif">Byte(s)<br>
+        <font face="Arial, Helvetica, sans-serif">Offset</font> </font></b></font></div>
+  </td>
+    <td width="115"> 
+      <div align="center"><font size="4"><b><font face="Times New Roman, Times, serif">Value 
+    in this<br>Example</font></b></font></div>
+  </td>
+  <td> 
+   <div align="center"><font face="Arial, Helvetica, sans-serif" size="4"><b>Description</b></font></div>
+  </td>
+  <td>
+   <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">Meaning</font></b></font></div>
+  </td>
+ </tr>
+ <tr> 
+    <td bgcolor="#00FFFF" width="90"> 
+      <div align="center"><font size="4" face="Courier New, Courier, mono"><b><font face="Arial, Helvetica, sans-serif">1BE</font></b></font></div>
+  </td>
+    <td bgcolor="#00FFFF" width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">80</font></b></div>
+  </td>
+  <td bgcolor="#00FFFF"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif" size="4">Bootable? 
+        (<b>80</b>h = Yes; <b>00 </b>= No)</font></div>
+  </td>
+  <td bgcolor="#00FFFF">
+   <div align="center"><b><font size="4">YES</font></b></div>
+  </td>
+ </tr>
+ <tr> 
+    <td bgcolor="#FFFFCC" width="90"> 
+      <div align="center"><font size="4" face="Arial, Helvetica, sans-serif"><b>1BF 
+        - 1C1</b></font></div>
+    </td>
+    <td bgcolor="#FFFFCC" width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">01 
+        01 00</font></b></div>
+    </td>
+    <td bgcolor="#FFFFCC"> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Starting 
+        Sector</b> ( in <b>CHS</b> )<br>
+        [ First byte <i>always</i> = <b>H</b>ead value ]</font></div>
+    </td>
+    <td bgcolor="#FFFFCC">
+      <div align="center"><b><font size="4">0, 1, 1</font></b></div>
+    </td>
+  </tr>
+  <tr bgcolor="#00FFFF"> 
+    <td width="90"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1C2</font></b></font></div>
+    </td>
+    <td width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;07</font></b></div>
+    </td>
+    <td> 
+      <div align="center"><b><font face="Arial, Helvetica, sans-serif" size="4">Partition 
+        Type</font></b></div>
+    </td>
+    <td>
+      <div align="center"><b><font face="Times New Roman, Times, serif" size="4">NTFS</font></b></div>
+    </td>
+  </tr>
+  <tr> 
+    <td width="90"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1C3 
+        - 1C5</font></b></font></div>
+    </td>
+    <td width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;FE 
+        FF 6D</font></b></div>
+    </td>
+    <td> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Last 
+        Sector</b> ( in <b>CHS</b> ):<br>
+        [ <b>FE</b>h = 254 for Head ]<br>
+        FF 6D = (<b><font color="#FF0000">11</font></b>11 1111<b></b>) (0110 1101)<br>
+        <i>are regrouped</i> as: <b>[</b>11 1111<b>]</b>&nbsp; <b>[<font color="#FF0000">11</font></b> 
+        0110 1101<b>]</b><br>
+        <b>3F</b>h = Sector 63<i><b> and</b></i> <b>&nbsp;36D</b>h = 877 (Cylinder)</font></div>
+    </td>
+    <td>
+      <div align="center"><b><font face="Times New Roman, Times, serif" size="4">877</font><font face="Times New Roman, Times, serif" size="3">, 
+        <font size="4">254</font>, 63</font></b></div>
+    </td>
+  </tr>
+  <tr bgcolor="#CCFFCC"> 
+    <td width="90"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1C6 
+        - 1C9</font></b></font></div>
+    </td>
+    <td width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;3F 
+        00 00 00</font></b></div>
+    </td>
+    <td> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Relative 
+        Sectors</b> (or <b>Offset </b>)<br>
+        ( 000000<b>3F</b>h = <b>63</b> )</font></div>
+    </td>
+    <td>
+      <div align="center"><font face="Times New Roman, Times, serif" size="4"><b>63</b></font></div>
+    </td>
+  </tr>
+  <tr bgcolor="#CCFFCC"> 
+    <td width="90"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1CA 
+        - 1CD</font></b></font></div>
+    </td>
+    <td width="115"> 
+      <div align="center"><b><font face="Arial, Helvetica, sans-serif" size="4">&nbsp;AF 
+        39 D7 00</font></b></div>
+    </td>
+    <td> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif" size="4"><b>Total 
+        Sectors</b> (or <b>Length </b>)<br>
+        ( 00<b>D739AF</b>h = 14,105,007 )</font></div>
+    </td>
+    <td>
+      <div align="center"><b><font face="Times New Roman, Times, serif" size="3">14,105,007</font></b></div>
+    </td>
+  </tr>
+</table>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="4">In the table above, 
+  you'll find that computing CHS values isn't always very easy to do! Though the 
+  <b> <i>whole first byte</i></b> for each Starting and Ending <b>CHS entry</b> 
+  is <i>always</i> for the <b>Head</b><font color="#FF0000"><b>*</b></font>, the 
+  Cylinder and Sector bytes must be <b><i>regrouped</i></b> before you can compute 
+  them! To compute the <b>Sector</b> value, you must <i>remove the leading <b>two 
+  bits</b></i> of the second (or middle) byte; thus the largest value you can 
+  have for a Sector is: <b>3F</b>h (__11 1111) = <b>63</b>. To compute the Cylinder 
+  value, the <b>two bits</b> <i>from</i> the middle byte <b><i>become the first 
+  two bits</i></b> of a <b>ten-bit hex number</b> that <b><i>ends </i></b> with 
+  the <b>last byte</b> in each CHS entry. So, the largest value you can have for 
+  a Cylinder is: <b>3FF</b>h (11 1111 1111) = <b><font color="#990000">1023</font></b> 
+  (in the table, which gives you a <b><i>count</i></b> of <b><font color="#006600">1024</font></b> 
+  cylinders). Since these are the largest values that can be used in any Standard 
+  Partition Table, all CHS values are <b><i>limited to</i></b>: <b><font color="#006600">1024</font></b> 
+  x <b><font color="#006600">255<font color="#FF0000">*</font></font></b> x <b>63</b> 
+  = 16,450,560 sectors (or <b>8,4</b>22,686,720 bytes); thus the <b>8.4</b> GB 
+  <b>limit</b> for any BIOS <i>without</i> the newer <b>INT 13</b> <i>Extensions</i> 
+  (such as Functions 42, 43 and 48 for reading, writing and getting drive parameters)!<br>
+  <b>________________</b><br>
+  <font color="#FF0000"><b>*</b></font><font face="Arial, Helvetica, sans-serif">For 
+  those who missed the note about why we do<b> not</b> use 256 heads, see this: 
+  <a href="DiskTerms.htm#HDcnt" target="dt">Note about a '<b>bug</b>' in MS-DOS</a>.</font></font></p>
+<p>&nbsp;</p><hr>
+<p>&nbsp;</p>
+<p><font face="Arial, Helvetica, sans-serif" size="4">Therefore, when <i><b>any 
+  part</b></i> of a partition reaches further than <b>8.4</b> GB into a drive, 
+  you lose some redundancy as can be seen in the <b>Last Sector</b> CHS portion 
+  of this entry:</font></p>
+<table width="740" border="1" cellspacing="0" cellpadding="5" align="center">
+    <th colspan="4"><font face="Verdana, Arial, Helvetica, sans-serif" size="4">The 
+      <font size="5">Second</font> 16-byte Entry in our Partition Table</font></th>
+ <tr> 
+    <td width="90"> 
+      <div align="center"><font size="4" face="Arial, Helvetica, sans-serif"><b><font face="Times New Roman, Times, serif">Byte(s)<br>
+        <font face="Arial, Helvetica, sans-serif">Offset </font></font></b></font></div>
+  </td>
+    <td width="115"> 
+      <div align="center"><font size="4"><b><font face="Times New Roman, Times, serif">Value 
+    in this<br>Example</font></b></font></div>
+  </td>
+  <td> 
+   <div align="center"><font face="Arial, Helvetica, sans-serif" size="4"><b>Description</b></font></div>
+  </td>
+  <td>
+   <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">Meaning</font></b></font></div>
+  </td>
+ </tr>
+ <tr> 
+    <td bgcolor="#00FFFF" width="90"> 
+      <div align="center"><font size="4" face="Courier New, Courier, mono"><b><font face="Arial, Helvetica, sans-serif">1CE</font></b></font></div>
+  </td>
+    <td bgcolor="#00FFFF" width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">00</font></b></div>
+  </td>
+  <td bgcolor="#00FFFF"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif" size="4">Bootable? 
+        (<b>80</b>h = Yes; <b>00 </b>= No)</font></div>
+  </td>
+  <td bgcolor="#00FFFF">
+   <div align="center"><b><font size="4">NO</font></b></div>
+  </td>
+  </tr>
+ <tr> 
+    <td width="90"> 
+      <div align="center"><font size="4" face="Arial, Helvetica, sans-serif"><b>1CF 
+        - 1D1</b></font></div>
+  </td>
+    <td width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">00 
+        C1 6E</font></b></div>
+  </td>
+    <td> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Starting 
+        </b><font face="Arial, Helvetica, sans-serif" size="4"><b>Sector</b> ( 
+        in <b>CHS</b> )<br>
+        [ First byte: 00h = <b>0</b> for Head value ]<br>
+        C1 6E = (<font face="Arial, Helvetica, sans-serif" size="4"><b><font color="#FF0000">11</font></b></font>00 
+        0001<b></b>) (0110 1110) in Binary<br>
+        <i>are regrouped</i> as: <b>[</b>00 0001<b>]</b>&nbsp; <b>[<font color="#FF0000">11</font></b> 
+        0110 1110<b>]</b><br>
+        <b>01</b>h = 1 sector<i><b> and</b></i> <b>&nbsp;36E</b>h = 878 (Cylinder)</font></font></div>
+  </td>
+    <td>
+      <div align="center"><b><font size="4">878</font><font size="4">, 0, 1</font></b></div>
+  </td>
+ </tr>
+  <tr> 
+    <td width="90" bgcolor="#00FFFF"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1D2</font></b></font></div>
+  </td>
+    <td width="115" bgcolor="#00FFFF"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;0C</font></b></div>
+  </td>
+    <td bgcolor="#00FFFF"> 
+      <div align="center"><b><font face="Arial, Helvetica, sans-serif" size="4">Partition 
+        Type</font></b></div>
+  </td>
+    <td bgcolor="#00FFFF"> 
+      <div align="center"><b><font face="Times New Roman, Times, serif" size="4">FAT32<br>
+        LBA</font></b></div>
+  </td>
+ </tr>
+  <tr bgcolor="#FFCCCC"> 
+    <td width="90"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1D3 
+    - 1D5</font></b></font></div>
+  </td>
+    <td width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;FE 
+    FF FF</font></b></div>
+  </td>
+    <td> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Last 
+        Sector</b> ( in <b>CHS </b>): FE = 254 (Head)<br>
+        FF FF = (<b><font color="#FF0000">11</font></b>11 1111) (1111 1111)<br>
+        <i>are regrouped</i> as: <b>[</b>11 1111<b>]</b>&nbsp; <b>[<font color="#FF0000">11</font></b> 
+        1111 1111<b>]</b><br>
+        <b>3F</b>h = Sector 63<i><b> and</b></i> <b>&nbsp;3FF</b>h = 1023 (Cylinder)</font></div>
+  </td>
+    <td> 
+      <div align="center"><b><font size="4">Beyond<br>
+        8.4 GB</font></b></div>
+  </td>
+ </tr>
+  <tr> 
+    <td width="90" bgcolor="#CCFFCC"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1D6 
+    - 1D9</font></b></font></div>
+  </td>
+    <td width="115" bgcolor="#CCFFCC"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;EE 
+        39 D7 00</font></b></div>
+  </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Relative 
+        Sectors</b> (or <b>Offset</b>)<br>
+        ( 00D739EEh = 14,105,070 )</font></div>
+  </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center"><font face="Times New Roman, Times, serif" size="4">14,105,070</font></div>
+  </td>
+ </tr>
+  <tr> 
+    <td width="90" bgcolor="#CCFFCC"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1DA 
+    - 1DD</font></b></font></div>
+  </td>
+    <td width="115" bgcolor="#CCFFCC"> 
+      <div align="center"><b><font face="Arial, Helvetica, sans-serif" size="4">&nbsp;BD 
+        86 BB 00</font></b></div>
+  </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif" size="4"><b>Total 
+        Sectors</b> (or <b>Length</b>)<br>
+        ( 00BB86BDh = 12,289,725 )</font></div>
+  </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center"><b><font face="Times New Roman, Times, serif" size="3">12,289,725</font></b></div>
+  </td>
+ </tr>
+</table>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="4">If the Cylinder 
+  value wasn't limited to 1023, then the Last Sector <b>CHS</b> triple's cylinder 
+  value could be computed as follows: <b>26,394,795</b> <b>(</b>14,105,070 + 12,289,725; 
+  the same as the Relative Sector Offset in the next entry!<b>)</b> <b><i>divided 
+  by</i></b> 16,065 (255 x 63) <b>=</b> <b><font color="#006600">1643</font></b> 
+  cylinders. So, the <b>CHS</b> would be: <b><font color="#CC0000">1642</font>,<font color="#CC0000">254</font>,63</b>.</font></p>
+<p><font face="Arial, Helvetica, sans-serif" size="4">And for any full partition 
+  that's beyond 8.4 GB, such as the last two entries in our example Partition 
+  Table above, only the values inside of the thin <b>GREEN</b> lines can be used 
+  to compute both a partition's actual size <b><i>and location!</i></b>&nbsp; 
+  Note both the Starting Sector and Last Sector items in our example Table's third 
+  entry:</font></p>
+<table width="740" border="1" cellspacing="0" cellpadding="5" align="center">
+    <th colspan="4"><font face="Verdana, Arial, Helvetica, sans-serif" size="4">The 
+      <font size="5">Third</font> 16-byte Entry in our Partition Table</font></th>
+  
+  <tr> 
+    <td width="90"> 
+      <div align="center"><font size="4" face="Arial, Helvetica, sans-serif"><b><font face="Times New Roman, Times, serif">Byte(s)<br>
+        <font face="Arial, Helvetica, sans-serif">Offset </font></font></b></font></div>
+    </td>
+    <td width="115"> 
+      <div align="center"><font size="4"><b><font face="Times New Roman, Times, serif">Value 
+        in this<br>
+        Example</font></b></font></div>
+    </td>
+    <td> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif" size="4"><b>Description</b></font></div>
+    </td>
+    <td> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">Meaning</font></b></font></div>
+    </td>
+  </tr>
+  <tr> 
+    <td bgcolor="#00FFFF" width="90"> 
+      <div align="center"><font size="4" face="Courier New, Courier, mono"><b><font face="Arial, Helvetica, sans-serif">1DE</font></b></font></div>
+    </td>
+    <td bgcolor="#00FFFF" width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">00</font></b></div>
+    </td>
+    <td bgcolor="#00FFFF"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif" size="4">Bootable? 
+        (<b>80</b>h = Yes; <b>00 </b>= No)</font></div>
+    </td>
+    <td bgcolor="#00FFFF"> 
+      <div align="center"><b><font size="4">NO</font></b></div>
+    </td>
+  </tr>
+<tr bgcolor="#FFCCCC"> 
+    <td width="90"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1DF 
+        - 1E1</font></b></font></div>
+    </td>
+    <td width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;FE 
+        FF FF</font></b></div>
+    </td>
+    <td> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Starting 
+        Sector</b> ( in <b>CHS </b>): FE = 254 (Head)<br>
+        FF FF = (<b><font color="#FF0000">11</font></b>11 1111) (1111 1111)<br>
+        <i>are regrouped</i> as: <b>[</b>11 1111<b>]</b>&nbsp; <b>[<font color="#FF0000">11</font></b> 
+        1111 1111<b>]</b><br>
+        <b>3F</b>h = Sector 63<i><b> and</b></i> <b>&nbsp;3FF</b>h = 1023 (Cylinder)</font></div>
+    </td>
+    <td> 
+      <div align="center"><b><font size="4">Beyond<br>
+        8.4 GB</font></b></div>
+    </td>
+  </tr>
+  <tr> 
+    <td width="90" bgcolor="#00FFFF"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1E2</font></b></font></div>
+    </td>
+    <td width="115" bgcolor="#00FFFF"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;83</font></b></div>
+    </td>
+    <td bgcolor="#00FFFF"> 
+      <div align="center"><b><font face="Arial, Helvetica, sans-serif" size="4">Partition 
+        Type</font></b></div>
+    </td>
+    <td bgcolor="#00FFFF"> 
+      <div align="center"><b><font face="Times New Roman, Times, serif" size="4">Linux 
+        Ext2</font></b></div>
+    </td>
+  </tr>
+  <tr bgcolor="#FFCCCC"> 
+    <td width="90"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1E3 
+        - 1E5</font></b></font></div>
+    </td>
+    <td width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;FE 
+        FF FF</font></b></div>
+    </td>
+    <td> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Last 
+        Sector</b> ( in <b>CHS </b>)<br>
+        [ Same as for FE FF FF above! ]</font></div>
+    </td>
+    <td> 
+      <div align="center"><b><font size="4">Beyond<br>
+        8.4 GB</font></b></div>
+    </td>
+  </tr>
+  <tr> 
+    <td width="90" bgcolor="#CCFFCC"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1E6 
+        - 1E9</font></b></font></div>
+    </td>
+    <td width="115" bgcolor="#CCFFCC"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;AB 
+        C0 92 01</font></b></div>
+    </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Relative 
+        Sectors</b> (or <b>Offset</b>)<br>
+        ( 0<b>192C0AB</b>h = 26,394,795 )</font></div>
+    </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center"><font face="Times New Roman, Times, serif" size="4">26,394,795</font></div>
+    </td>
+  </tr>
+  <tr> 
+    <td width="90" bgcolor="#CCFFCC"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1EA 
+        - 1ED</font></b></font></div>
+    </td>
+    <td width="115" bgcolor="#CCFFCC"> 
+      <div align="center"><b><font face="Arial, Helvetica, sans-serif" size="4">&nbsp;CD 
+        2F 03 00</font></b></div>
+    </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif" size="4"><b>Total 
+        Sectors</b> (or <b>Length</b>)<br>
+        ( 000<b>32FCD</b>h = <b>208,845</b> )</font></div>
+    </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center"><b><font face="Times New Roman, Times, serif" size="4">208,845</font></b></div>
+    </td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<p><font face="Verdana, Arial, Helvetica, sans-serif" size="4">Finally, the fourth 
+  entry in our example Table is that of an LBA Extended Partition (<b><i>type</i></b> 
+  = <b>0F</b>h). In the case of any Extended Partition, its Total Sectors (or 
+  Length) includes all of the Logical partitions that may exist inside of it, 
+  whether there's only one or many. Extended Partitions often run all the way 
+  to the end of a drive's useable sectors, but they don't have to. You should 
+  also <b>note</b> that even if all four entries of a Partition Table are being 
+  used, that does <b><i>not</i></b> necessarily mean there's no empty space left 
+  on a drive.</font></p>
+<table width="740" border="1" cellspacing="0" cellpadding="5" align="center">
+    <th colspan="4"><font face="Verdana, Arial, Helvetica, sans-serif" size="4">The 
+      <font size="5">Fourth</font> 16-byte Entry in our Partition Table</font></th>
+  
+  <tr> 
+    <td width="90"> 
+      <div align="center"><font size="4" face="Arial, Helvetica, sans-serif"><b><font face="Times New Roman, Times, serif">Byte(s)<br>
+        <font face="Arial, Helvetica, sans-serif">Offset </font></font></b></font></div>
+    </td>
+    <td width="115"> 
+      <div align="center"><font size="4"><b><font face="Times New Roman, Times, serif">Value 
+        in this<br>
+        Example</font></b></font></div>
+    </td>
+    <td> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif" size="4"><b>Description</b></font></div>
+    </td>
+    <td> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">Meaning</font></b></font></div>
+    </td>
+  </tr>
+  <tr> 
+    <td bgcolor="#00FFFF" width="90"> 
+      <div align="center"><font size="4" face="Courier New, Courier, mono"><b><font face="Arial, Helvetica, sans-serif">1EE</font></b></font></div>
+    </td>
+    <td bgcolor="#00FFFF" width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">00</font></b></div>
+    </td>
+    <td bgcolor="#00FFFF"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif" size="4">Bootable? 
+        (<b>80</b>h = Yes; <b>00 </b>= No)</font></div>
+    </td>
+    <td bgcolor="#00FFFF"> 
+      <div align="center"><b><font size="4">NO</font></b></div>
+    </td>
+  </tr>
+  <tr bgcolor="#FFCCCC"> 
+    <td width="90"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1EF 
+        - 1F1</font></b></font></div>
+    </td>
+    <td width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;FE 
+        FF FF</font></b></div>
+    </td>
+    <td> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Starting 
+        Sector</b> ( in <b>CHS </b>): FE = 254 (Head)<br>
+        FF FF = (<b><font color="#FF0000">11</font></b>11 1111) (1111 1111)<br>
+        <i>are regrouped</i> as: <b>[</b>11 1111<b>]</b>&nbsp; <b>[<font color="#FF0000">11</font></b> 
+        1111 1111<b>]</b><br>
+        <b>3F</b>h = Sector 63<i><b> and</b></i> <b>&nbsp;3FF</b>h = 1023 (cylinder)</font></div>
+    </td>
+    <td> 
+      <div align="center"><b><font size="4">Beyond<br>
+        8.4 GB</font></b></div>
+    </td>
+  </tr>
+  <tr> 
+    <td width="90" bgcolor="#00FFFF"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1F2</font></b></font></div>
+    </td>
+    <td width="115" bgcolor="#00FFFF"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;0F</font></b></div>
+    </td>
+    <td bgcolor="#00FFFF"> 
+      <div align="center"><b><font face="Arial, Helvetica, sans-serif" size="4">Partition 
+        Type</font></b></div>
+    </td>
+    <td bgcolor="#00FFFF"> 
+      <div align="center"><b><font face="Times New Roman, Times, serif" size="4">Extended<br>
+        ( LBA )</font></b></div>
+    </td>
+  </tr>
+  <tr bgcolor="#FFCCCC"> 
+    <td width="90"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1F3 
+        - 1F5</font></b></font></div>
+    </td>
+    <td width="115"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;FE 
+        FF FF</font></b></div>
+    </td>
+    <td> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Last 
+        Sector</b> ( in <b>CHS </b>)<br>
+        [ Same as for FE FF FF above! ]</font></div>
+    </td>
+    <td> 
+      <div align="center"><b><font size="4">Beyond<br>
+        8.4 GB</font></b></div>
+    </td>
+  </tr>
+  <tr> 
+    <td width="90" bgcolor="#CCFFCC"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1F6 
+        - 1F9</font></b></font></div>
+    </td>
+    <td width="115" bgcolor="#CCFFCC"> 
+      <div align="center"><b><font size="4" face="Arial, Helvetica, sans-serif">&nbsp;78 
+        F0 95 01</font></b></div>
+    </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center">&nbsp;<font face="Arial, Helvetica, sans-serif" size="4"><b>Relative 
+        Sectors</b> (or <b>Offset</b>)<br>
+        ( 0<b>195F078</b>h = 26,603,640 )</font></div>
+    </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center"><font face="Times New Roman, Times, serif" size="4">26,603,640</font></div>
+    </td>
+  </tr>
+  <tr> 
+    <td width="90" bgcolor="#CCFFCC"> 
+      <div align="center"><font size="4"><b><font face="Arial, Helvetica, sans-serif">1FA 
+        - 1FD</font></b></font></div>
+    </td>
+    <td width="115" bgcolor="#CCFFCC"> 
+      <div align="center"><b><font face="Arial, Helvetica, sans-serif" size="4">&nbsp;83 
+        AF CC 00</font></b></div>
+    </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center"><font face="Arial, Helvetica, sans-serif" size="4"><b>Total 
+        Sectors</b> (or <b>Length</b>)<br>
+        ( 00<b>CCAF83</b>h = 13,414,275)</font></div>
+    </td>
+    <td bgcolor="#CCFFCC"> 
+      <div align="center"><b><font face="Times New Roman, Times, serif" size="4">13,414,275</font></b></div>
+    </td>
+  </tr>
+</table>
+<p><a name="FN">&nbsp;</a></p>
+<hr>
+<font face="Verdana, Arial, Helvetica, sans-serif" size="5"><b>Footnotes</b></font> 
+<!-- <p><a name="N8"><sup><font face="Verdana" size="4"><b>8</b></font></sup></a><font face="Arial, Helvetica, sans-serif" size="3">[<a href="#R8">Return 
+  to Text</a>] .</font></p> -->
+<p>&nbsp;</p>
+<HR>
+<div align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="5">&lt;-- 
+<a href="PartTables2.htm">Previous Page</a></font></div>
+<HR>
+<p><font face="Verdana" size="3"><i>Last Update:</i> <b>June 9, 2007</b>. (2007.06.09)</font> 
+</p>
+<p align="center"><b><font face="Arial">You can write to us here: <A HREF="../../FF.html" TARGET=SISTER> 
+  contact page</a></font> (opens in a new window)</b>.<BR>
+  <BR>
+  <img src="../../img/left.gif" width="33" height="14"> <font size="5"><a href="index.html">MBR 
+  and Boot Records Index</a><BR>
+  <BR><img src="../../img/left.gif" width="33" height="14"> <a 
+href="../../index.html"><b>The Starman's Realm Index Page</b></a></font></p>
+<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>
+<!-- copyright (i1) --><div align="center"><a href="http://www.ucoz.ru/" title="Создать сайт бесплатно"><img style="margin:0;padding:0;border:0;" alt="Hosted by uCoz" src="http://s204.ucoz.net/img/cp/5.gif" width="80" height="15" title="Hosted by uCoz" /></a><br /></div><!-- /copyright -->
+</body></html><div><span id="openstat2323431"></span><script type="text/javascript">var openstat = { counter: 2323431, next: openstat };(function(d, t, p) {var j = d.createElement(t); j.async = true; j.type = "text/javascript";j.src = ("https:" == p ? "https:" : "http:") + "//openstat.net/cnt.js";var s = d.getElementsByTagName(t)[0]; s.parentNode.insertBefore(j, s);})(document, "script", document.location.protocol);</script><script type="text/javascript">new Image().src = "http://counter.yadro.ru/hit;narodcounter?r"+escape(document.referrer)+((typeof(screen)=="undefined")?"":";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+";"+Math.random();</script></div>
+------------uxEYdX7hP5uZGKD5TeK4hQ
+Content-Disposition: inline; filename=default.js
+Content-Type: application/javascript; charset=UTF-8; name=default.js
+Content-Location: http://thestarman.narod.ru/abnl/?narodads=1&s=othestarman
+Content-Transfer-Encoding: Base64
+
+ZG9jdW1lbnQud3JpdGUoJzxkaXYgc3R5bGU9IndpZHRoOjBweDtoZWlnaHQ6MHB4
+O3Bvc2l0aW9uOmZpeGVkO3JpZ2h0OjBweDt0b3A6MHB4O2Rpc3BsYXk6bm9uZTsi
+IGlkPSJkVmFQZFg3S1ZiIj48c2NyJysnaXB0IHR5cGU9InRleHQvamF2YXNjcmlw
+dCIgc3JjPSIvYWJubC8/bmFyb2RhZHM9MyZpZD1hUGRYN0tWYiI+PC9zY3InKydp
+cHQ+PC9kaXY+Jyk7CmZ1bmN0aW9uIHJlc2l6ZURpdigpewoJdmFyIFdYLFdZLEJY
+LEJZOwoJdmFyIG89ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImRWYVBkWDdLVmIi
+KSx0LGQ7CglpZiAoIW8pIHJldHVybjsKCWlmICghKHQ9ZG9jdW1lbnQuZ2V0RWxl
+bWVudEJ5SWQoIndyYXBwZXJYYVBkWDdLVmIiKSkpIFdYPTA7CgllbHNlIFdYPXQu
+dmFsdWU7CglpZiAoISh0PWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJ3cmFwcGVy
+WWFQZFg3S1ZiIikpKSBXWT0wOwoJZWxzZSBXWT10LnZhbHVlOwoJaWYgKCEodD1k
+b2N1bWVudC5nZXRFbGVtZW50QnlJZCgiYmFubmVyWGFQZFg3S1ZiIikpKSBCWD0w
+OwoJZWxzZSBCWD10LnZhbHVlOwoJaWYgKCEodD1kb2N1bWVudC5nZXRFbGVtZW50
+QnlJZCgiYmFubmVyWWFQZFg3S1ZiIikpKSBCWT0wOwoJZWxzZSBCWT10LnZhbHVl
+OwoJZD1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgibWFpbmFkc2R2YVBkWDdLVmIi
+KTsKCWlmIChkKXsKCQlpZiAoQlg8MCkgZC5zdHlsZS53aWR0aD0iMTAwJSI7CgkJ
+ZWxzZSBpZiAoQlg+MCkgZC5zdHlsZS53aWR0aD1CWCsicHgiOwoJCWlmIChCWTww
+KSBkLnN0eWxlLmhlaWdodD0iMTAwJSI7CgkJZWxzZSBpZiAoQlk+MCkgZC5zdHls
+ZS5oZWlnaHQ9QlkrInB4IjsKCQlkLnN0eWxlLm92ZXJmbG93PSJoaWRkZW4iOwoJ
+fQoJQlg9cGFyc2VJbnQoQlgpK3BhcnNlSW50KFdYKTsKCUJZPXBhcnNlSW50KEJZ
+KStwYXJzZUludChXWSk7CglpZiAoQlg8MCkgby5zdHlsZS53aWR0aD0iMTAwJSI7
+CgllbHNlIGlmIChCWD4wKSBvLnN0eWxlLndpZHRoPUJYKyJweCI7CglpZiAoQlk8
+MCkgby5zdHlsZS5oZWlnaHQ9IjEwMCUiOwoJZWxzZSBpZiAoQlk+MCkgby5zdHls
+ZS5oZWlnaHQ9QlkrInB4IjsKCW8uc3R5bGUuZGlzcGxheT0nJzsKfQpkb2N1bWVu
+dC53cml0ZSgnPHNjcicrJ2lwdCB0eXBlPSJ0ZXh0L2phdmFzY3JpcHQiPnJlc2l6
+ZURpdigpOzwvc2NyJysnaXB0PicpOwpuZXcgSW1hZ2UoKS5zcmMgPSAiaHR0cDov
+L2NvdW50ZXIueWFkcm8ucnUvaGl0O25hcm9kYWRzdDI/ciIrZXNjYXBlKGRvY3Vt
+ZW50LnJlZmVycmVyKSsoKHR5cGVvZihzY3JlZW4pPT0idW5kZWZpbmVkIik/IiI6
+IjtzIitzY3JlZW4ud2lkdGgrIioiK3NjcmVlbi5oZWlnaHQrIioiKyhzY3JlZW4u
+Y29sb3JEZXB0aD9zY3JlZW4uY29sb3JEZXB0aDpzY3JlZW4ucGl4ZWxEZXB0aCkp
+KyI7dSIrZXNjYXBlKGRvY3VtZW50LlVSTCkrIjsiK01hdGgucmFuZG9tKCk7
+
+------------uxEYdX7hP5uZGKD5TeK4hQ
+Content-Disposition: inline; filename=mbr.css
+Content-Type: text/css; name=mbr.css
+Content-Location: http://thestarman.narod.ru/asm/mbr/mbr.css
+Content-Transfer-Encoding: 8bit
+
+/* highlight colors */
+
+ .ltpnk {background-color: #FFCCFF}
+ .ltred {background-color: #FFCCCC}
+ .ltyel {background-color: #FFFFCC}
+ .yel99 {background-color: #FFFF99}
+ .yel66 {background-color: #FFFF66}
+ .yel   {background-color: #FFFF00}
+ .ltgrn {background-color: #CCFFCC}
+ .grn99 {background-color: #99FF99}
+ .grnb  {background-color: #B3FFB3}
+ .ltgry {background-color: #CCCCCC}
+ .ltcyn {background-color: #CCFFFF}
+ .sblu  {background-color: #00CCFF}
+ .vio   {background-color: #CCCCFF}
+ .mystb {background-color: #99CCFF}
+ .dblu  {background-color: #6666CC}
+ .pnk99 {background-color: #FF99FF}
+
+ .blu {color:#0000FF; font-weight:bold}
+ .brn {color:#990000; font-weight:bold}
+ .grn {color:#006600; font-weight:bold}
+ .red {color:#FF0000; font-weight:bold}
+
+------------uxEYdX7hP5uZGKD5TeK4hQ
+Content-Disposition: inline; filename=hpt.gif
+Content-Type: image/gif; name=hpt.gif
+Content-Location: http://thestarman.narod.ru/asm/mbr/hpt.gif
+Content-Transfer-Encoding: Base64
+
+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
+GLZg2WZ97fVeE8AASriEDIAATLiEGfCESuiEUhiFVSiFTZhyRLg3HmZg21Zj+MVf
+5idVuIdgMJZtRFh+YkVjAGh/ahhhFnZr9ZeEV1iFRsIEXbgOmKdlybZNJcZs6uM5
+ekd1GgB6ZqQBU0iFEpCIiYgBjJiFj4iIkDiJi5iF8WdxTbdqjrY9m7h6A1Zyr1dr
+pUeIo8dDJ7X/ZIqncqkoiZXYiop4h0pAbF2QZc0naZiHTZZ2TGfIenZWfdLkcKy4
+iK7ohMFIjK9ojI5oiZQojFp4OW02cleWiVFXZ3qWeojUe5KDiV+1d5eoe7pnhUk4
+jJYIhLEIdl5wdsdGYpQWR2tXfHX3NSLHcL+IhBcwheNojxyAj3SIjOB4j004jpco
+cvEIap3IV3yXZ6CYiY13c0OmkLFna/Knirs3fxWgj60IkOTYYwPYaFg3izGEizIE
+YsqGDm52U1fDfhvQcKHUAUxIAS25AS9ZiY1ohTMZk83YYG34VOw2eLLHk3oUczcZ
+hrJ3krsYUewHhj+Jct14YS6Xa01Jk/44/5P4h3EbWVR5mAcFV2khOZIjaXDR446m
+l0OFeEYt9nDJyI8W2Y8u+Y/5yJb7iJHViG0TN4hk527i1nFLl5BDuZA115B7CW9A
+mZcR2ZQrt3v16JYX6ZXZOHkwwJhagI6q1JXsOJV9x4uliAFwR3QwiZFSCY4ViZFn
++ZkYUI0mmY0mR4qjaHgBeWQO2Xo95ZfvpppbJ5HfGJpr2QsjN4oy4JhZAJmRdovp
+mIv8d5phST6YOY9oU4z7yIy2uZxtaQGduZrGqTeqB5Z3V3hQh26k2JqqiTywSWSV
+M5teV5uHCZ3K2HN5J3lVeQV7KEeS2Z5/OAx2aZnfeZzVdoieeZvHWP+eosmSnAma
+grmdf7lLFSWXEmdRAWqNjYNnr8maA7p3cGYBXZdrFNmf+hmd7aiLStd/xJdXHCqA
+HUqcPjVULdODIfZ8XPWFYAh+AHecaVRGkliTdniYMoqha1mjoAly8XWVaahu1yaE
+Q0iGWhhyOemFCBaEbIiGRlWG8ndvcRijUWmTgMh/G+p/H+qjBgmiWqp/VyCD0oKD
+VwCmVSCmDniCYNBd1rWBReCl0sWm0EKmVACnUiCnKGimY4Cmh0KnUKCnqmCnKOCm
+z8KnTyCoTUCod+qnh5qCGpim4KWDBMdKJsqHuJmMT0iFlUqpLYmFY8le7gWlUKip
+mPqpM2qelQr/qpdYYCoaYNiWVN1WpOd3U+CWpKzafa6KVkY6hrbKpKropBV6o5k6
+qlPqRnuofJcnmbbjmZG4n+bpiskqj/4Ud6GZrDb6itIKoMy6jDMZq7MmYzHmkx2F
+Uq+qq7DprdoYZdHoic1IoYtnmPxZregprJBWi9eUdlqZoRa6jPy4rMzYiNaamStl
+m/hqrccYsMVIsEGZRduYlLG5TNOIpQlKNdYod9RJQqXpmkUjnuoqkflpsJTJJetZ
+A75pQzwYnAN1lv6Yr+V5sgJ7n25llon5ls+psjF7m3AJeAO6Uw0rotxTNem3rXo3
+kPtHnLI5b+O5rmoJs8e6K7yJA1npnv5j/6ywSKNR2pY4ygGd2lb0KJNTu5lVy7Vb
+y6RJ126QFEjZJ6JKOVc9i5puVqtj56p9NHazSZhMya6f2bXvGiNLy7QfSbJwZEN/
+WLIpS7Mzi7S+aG3XJ5oyu5loiZhH+7JgS6QLS26TR2zCx7Mm15q5BLQwB5ZvG3lx
+m7FPabKCm7SHkrd6y3MgSa9365ysq5zDOJaGq5kW2rr5SbvN+bqPK6AlqWpUmZv/
+FzhpG7Gkx33512vHg7ET2qu4q6xRi7cfewMhO6/Ra6/6Wb2KO7uFe7guy7z86rrM
+e7vf+7BUdLOhxrs/Vp1Uin7z5KC7q5uT1LDWg7yrSLfWK46r+xKmq/8D8JmOCDVp
+Gamv9Vu7y+usLQWt/HmhAtuZ0xrAGJp+9emd3cpnauaTXqO+PrugNludhIeUFoWK
+Ezm/4Nus/5ulXFq8JGzC5huAJZwCxNqDQpU/PxisWuurVPu1mwp3Rli3UQqFmErD
+XuvDn7iQtbpgaihWKtp+ZZuutNp+jTTEQsqjQpqr6Up/cvjDdHiplHmlKKzFJ/yM
+X9nFuskEgOoshsoEZawEZzwCY+xaa8wsaZwEb3wEcTypiEoCbbwsc2wEeUwEe0y6
+dYyiGtPHQyDIQUDIHfvH9zswhgwEi+wD1cVZnYXIZ4Cn2LWBd9yAO9hlkZrJzeur
+oorFpPqroCz/j550tVL7yVLqyfYIrKr8j6Oqo0uMpIK4bkVplCT3fQyGdNnHxIwU
+YPf3yLF1XN9GqMN6UL7Tnp2MwNcajO5auP66vc08rdGcwNiKr+KbZEh5auSKweAa
+xdf8rQ7ms717mUbWe8D8WsK8dIJKiy08Q6obnwVrvxsrzwTcaf8UzwOLz907z/k8
+xeDci0+HjRUHgA7sf+XsxTS1Q9v4S+fsWumczi4QvX37zj84DGmZlqJLuPYpdNSm
+uInLih/duIpYs91MwXa3T5M7PZZ70pVJiJbZkRYbNQ0tLLLIAw+9zntrecyX04op
+tUAMlT/trKEEo1Y8w0VtqSuL1EGdoPmU/21CqbA/CjhuG3kZhMurms1aNVEVe3Jw
+C2boh1vqfFscEGGNDI3PSwM3HQNNm0p+OJkjPLqOK9IYbQEq2VKDG9cZjdeBq9Gn
+WkImDZjoK7RUvdIPWbFiqLkozHGBOdP5RWAQPdaPXVtOgIY/kNYwINEJtY7JTLsL
+zNlJzbKHG8Kfzb2jrcAACm6v9sU1jXyFjbap3dLCu7spjc0pxwuPrc4fcFxpfdtH
+QNmOXF28rQKY7b9aCc8CHL4AbLt0HXfby8DnedydvbwNnNAF+dqil7OuzdKRG9tf
+qdAHGZ5ePWCOPYG7Ddxljat6bN4ysL/jpU3ELZzSXdr/6QGGmLXOPf/Anu0Bpj2a
+1N2XYyvBrX2+PFXQKZx06PvApmjO4d3YtjXMDZ4B5Q1hEcjFKqyhxmelGB6ilj3M
+LdDCQZXJnHzINpnKobzULoq1NdzKQH3FST3iPBzE98SjAKikQjbENd5gVv2Fo8aF
+Erx9swp/AToNtx3cYd3gueW7W5zhAU7hTF5qDy7hWXDJyXLeNm3JHTDkphbhHC7J
+30DJMULlOsDYozneEK7eG87lduzlBALmOSDmW47bZy7eUB7naA7IE2NceJ7ner7n
+fN7nfv7kwCDWDk7kuM3hdF7nJInoBCXlin6mjW5KjP7oXS7pLxTplG7HkJzpmr7p
+nN7pnv7poA4Y6pc+6qRe6qZ+6qie6qq+6qze6q6OABEAADs=
+
+------------uxEYdX7hP5uZGKD5TeK4hQ
+Content-Disposition: inline; filename=left.gif
+Content-Type: image/gif; name=left.gif
+Content-Location: http://thestarman.narod.ru/img/left.gif
+Content-Transfer-Encoding: Base64
+
+R0lGODlhIQAOAKIGAAAAAAAAgL+/v4CAgAAA/////8zMzAAAACH5BAEAAAYALAAA
+AAAhAA4AAANqaLrc/jCCSWe8qpbNiwCYQwlfZ35LRaXTRgLeBwhnRdx4xpHD/P4m
+FwCXM/hkqtiE1nkRbyxQSuib7QS9JwFDoZK+g2yAMA5wvZ8BLwwok7fcpWcS7lEC
++HwINgfULRl5ensqgAyFIYkRCQAh/h0AACH/CwA7
+
+------------uxEYdX7hP5uZGKD5TeK4hQ
+Content-Disposition: inline; filename=5.gif
+Content-Type: image/gif; name=5.gif
+Content-Location: http://s204.ucoz.net/img/cp/5.gif
+Content-Transfer-Encoding: Base64
+
+R0lGODlhUAAPAJEAAImOef////9mAGZmZiH5BAAAAAAALAAAAABQAA8AAAKqnI+p
+y+0PT5i02ouz3rybIITiSJZlAKTqyrbuC6vBZ9a2iMb6zgPzALoJSbme8eijhYJB
+wWT0XEadLErK6pvIfFdZEZstJoG4pdl5bqKXKzF3+0bl5t13vapcM4nnNbv9FfgV
+d3clptWWt6eX1vdXVUh3JykJKZPnpDaViTN1iBhWNzgpaOj2ozYk5IbU+oKqGsvq
+SntJFjs0W0uL2uH7CxyMEUFcbHysUAAAOw==
+
+------------uxEYdX7hP5uZGKD5TeK4hQ--
