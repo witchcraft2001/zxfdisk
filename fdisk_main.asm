@@ -1436,6 +1436,6 @@ hlpString
 	db	"Date:     ",BUILD_DATE_T, " ", BUILD_TIME_T,CR,LF
 	db	"Platform: ", _TARGET_T,CR,LF
 	db	"Autor:    Mikhaltchenkov Dmitry aka Hard/WitchCraft Group",CR,LF
-	db	"E-Mail:   witchcraft2001@mail.ru",CR,LF
+	db	"E-Mail:   mikhaltchenkov@gmail.com",CR,LF
 	db	"---------------------------------------------------------------",CR,LF,CR,LF
 	SAVEBIN	"out\header.txt",hlpString,$-hlpString

@@ -5,7 +5,7 @@ Build:    355
 Date:     11.10.13 14:56
 Platform: ATM-Turbo2
 Autor:    Mikhaltchenkov Dmitry aka Hard/WitchCraft Group
-E-Mail:   witchcraft2001@mail.ru
+E-Mail:   mikhaltchenkov@gmail.com
 ---------------------------------------------------------------
 
 
