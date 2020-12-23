@@ -2,7 +2,7 @@
 
 <img src="https://github.com/witchcraft2001/zxfdisk/blob/master/screenshots/ATM/atm_backup.png"/>
 
-<img src="https://github.com/witchcraft2001/zxfdisk/blob/master/screenshots/sshot000003.png/>
+<img src="https://github.com/witchcraft2001/zxfdisk/blob/master/screenshots/sshot000003.png"/>
 
    Данная программа предназначена для создания и редактирования
 таблицы разделов на жестком диске.
